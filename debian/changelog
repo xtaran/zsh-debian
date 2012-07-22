@@ -1,3 +1,25 @@
+zsh (5.0.0-1) UNRELEASED; urgency=low
+
+  * New upstream release
+
+  [ Simon Ruderich ]
+  * [71683958] Also export hardening CPPFLAGS (Closes: #644400)
+
+  [ Axel Beckert ]
+  * [c5dfca6a] No more offers a ksh alternative due to incomplete ksh
+    emulation (Closes: #659969)
+  * [1b2323de] Add groff to build-dependencies (for pdfroff)
+  * [0e12e966] debian/*: /bin/zsh4 → /bin/zsh5, etc.
+
+  [ Frank Terbeck ]
+  * [cb9eb75f] Rewrite keyboard handling in zshrc
+  * [f481abf8] Add debian/NEWS to document the keyboard changes
+  * [a482b404] Un-tabified and rearranged zstyle call
+  * [ddca9789] Only unalias `run-help' if the alias actually exists
+  * [3988419a] Use stricter options with autoload
+
+ -- Axel Beckert <abe@debian.org>  Sun, 22 Jul 2012 21:56:32 +0200
+
 zsh (4.3.17-1) unstable; urgency=low
 
   * New upstream release

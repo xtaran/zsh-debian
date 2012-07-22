@@ -1,13 +1,13 @@
 Patch to generate `config.h.in'.
 
-Created by `at2quilt' on Wed, 14 Dec 2011 01:34:39 CET.
+Created by `at2quilt' on Sun, 22 Jul 2012 21:40:59 CEST.
 
 Note: Never *ever* refresh this patch. Things will break.
 
 Index: zsh/config.h.in
---- zsh.orig/config.h.in	2011-12-13 17:44:56.160895103 +0100
-+++ zsh/config.h.in	2011-12-14 01:34:38.000000000 +0100
-@@ -0,0 +1,1162 @@
+--- zsh.orig/config.h.in	2012-07-22 20:34:16.849614008 +0200
++++ zsh/config.h.in	2012-07-22 21:40:58.000000000 +0200
+@@ -0,0 +1,1176 @@
 +/* config.h.in.  Generated from configure.ac by autoheader.  */
 +
 +/***** begin user configuration section *****/
@@ -1016,6 +1016,9 @@ Index: zsh/config.h.in
 +/* Define to 1 if you use POSIX style signal handling. */
 +#undef POSIX_SIGNALS
 +
++/* Define to 1 if printf and sprintf support %lld for long long. */
++#undef PRINTF_HAS_LLD
++
 +/* Define to 1 if ANSI function prototypes are usable. */
 +#undef PROTOTYPES
 +
@@ -1074,6 +1077,9 @@ Index: zsh/config.h.in
 +/* Define to what tgetent() returns on success (0 on HP-UX X/Open curses). */
 +#undef TGETENT_SUCCESS
 +
++/* Define if there is no prototype for the tgoto() terminal function. */
++#undef TGOTO_PROTO_MISSING
++
 +/* Define if sys/time.h and sys/select.h cannot be both included. */
 +#undef TIME_H_SELECT_H_CONFLICTS
 +
@@ -1097,6 +1103,9 @@ Index: zsh/config.h.in
 +
 +/* Define if getxattr() etc. require additional MacOS-style arguments */
 +#undef XATTR_EXTRA_ARGS
++
++/* Define to 1 if the zlong type uses long long int. */
++#undef ZLONG_IS_LONG_LONG
 +
 +/* Define to a 64 bit integer type if there is one, but long is shorter. */
 +#undef ZSH_64_BIT_TYPE
@@ -1134,6 +1143,11 @@ Index: zsh/config.h.in
 +
 +/* Define to the base type of the third argument of accept */
 +#undef ZSOCKLEN_T
++
++/* Enable large inode numbers on Mac OS X 10.5.  */
++#ifndef _DARWIN_USE_64_BIT_INODE
++# define _DARWIN_USE_64_BIT_INODE 1
++#endif
 +
 +/* Number of bits in a file offset, on hosts where this is settable. */
 +#undef _FILE_OFFSET_BITS

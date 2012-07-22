@@ -1,2 +1,2 @@
-zsh-static: embedded-library bin/zsh4-static: libm
-zsh-static: embedded-library bin/zsh4-static: ncurses
+zsh-static: embedded-library bin/zsh5-static: libm
+zsh-static: embedded-library bin/zsh5-static: ncurses

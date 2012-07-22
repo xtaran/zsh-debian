@@ -212,17 +212,17 @@ endif
 	debian/tmp/bin/$(package) -fc 'setopt extendedglob; for i in debian/tmp/'`cat obj/Src/zshpaths.temp`'; do zcompile -U -M $$i.zwc $$i/*~*.zwc(^/) ; chmod 644 $$i.zwc ; done'
 
 ifneq (zsh-beta,$(package))
-	mv debian/tmp/bin/zsh debian/tmp/bin/zsh4
-	rm debian/tmp/bin/zsh-4.[0-9]*
-	ln -s zsh.1.gz debian/tmp/usr/share/man/man1/zsh4.1.gz
+	mv debian/tmp/bin/zsh debian/tmp/bin/zsh5
+	rm debian/tmp/bin/zsh-5.[0-9]*
+	ln -s zsh.1.gz debian/tmp/usr/share/man/man1/zsh5.1.gz
 
 	for i in `find debian/tmp/usr/lib/zsh -type d | sed 's#^debian/tmp/##'`; \
 		do mkdir -p debian/tmp-dbg/usr/lib/debug/"$$i"; done
 
-	objcopy --only-keep-debug debian/tmp/bin/zsh4 \
-	                          debian/tmp-dbg/usr/lib/debug/bin/zsh4.dbg
-	strip --remove-section=.comment --remove-section=.note debian/tmp/bin/zsh4
-	objcopy --add-gnu-debuglink=debian/tmp-dbg/usr/lib/debug/bin/zsh4.dbg debian/tmp/bin/zsh4
+	objcopy --only-keep-debug debian/tmp/bin/zsh5 \
+	                          debian/tmp-dbg/usr/lib/debug/bin/zsh5.dbg
+	strip --remove-section=.comment --remove-section=.note debian/tmp/bin/zsh5
+	objcopy --add-gnu-debuglink=debian/tmp-dbg/usr/lib/debug/bin/zsh5.dbg debian/tmp/bin/zsh5
 
 	for i in `find debian/tmp/usr/lib/zsh -name "*.so"`; \
 		do objcopy --only-keep-debug $$i debian/tmp-dbg/usr/lib/debug/`echo $$i | sed 's#^debian/tmp/##'`.debug; \
@@ -323,12 +323,12 @@ binary-arch-static:	checkroot build-static
 
 	$(INSTALL_FILE) debian/copyright debian/tmp-static/usr/share/doc/$(package)-static/copyright
 
-	$(INSTALL_PROGRAM) obj-static/Src/zsh debian/tmp-static/bin/zsh4-static
-	strip --remove-section=.comment --remove-section=.note debian/tmp-static/bin/zsh4-static
+	$(INSTALL_PROGRAM) obj-static/Src/zsh debian/tmp-static/bin/zsh5-static
+	strip --remove-section=.comment --remove-section=.note debian/tmp-static/bin/zsh5-static
 
 	gzip -9f debian/tmp-static/usr/share/doc/$(package)-static/changelog.Debian
 	cd debian/tmp-static && find * -type f  ! -regex '^DEBIAN/.*' -print0 | xargs -r0 md5sum > DEBIAN/md5sums
-	ln -s $(package).1.gz debian/tmp-static/usr/share/man/man1/zsh4-static.1.gz
+	ln -s $(package).1.gz debian/tmp-static/usr/share/man/man1/zsh5-static.1.gz
 
 ifneq (zsh-beta,$(package))
 	dpkg-shlibdeps -Tdebian/$(package)-static.substvars -dDepends debian/tmp-static/bin/*

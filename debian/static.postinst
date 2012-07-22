@@ -19,6 +19,6 @@ case "$1" in
     ;;
 esac
 
-update-alternatives --install /bin/zsh-static zsh-static /bin/zsh4-static 40
+update-alternatives --install /bin/zsh-static zsh-static /bin/zsh5-static 40
 
 exit 0

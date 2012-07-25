@@ -22,7 +22,7 @@ zsh (5.0.0-1) experimental; urgency=low
   * [ddca9789] Only unalias `run-help' if the alias actually exists
   * [3988419a] Use stricter options with autoload
 
- -- Axel Beckert <abe@debian.org>  Wed, 25 Jul 2012 18:47:49 +0200
+ -- Axel Beckert <abe@debian.org>  Wed, 25 Jul 2012 20:17:12 +0200
 
 zsh (4.3.17-1) unstable; urgency=low
 

@@ -1,3 +1,18 @@
+zsh (5.0.0-2) experimental; urgency=low
+
+  [ Michael Prokop ]
+  * [9d57d625] Apply wrap-and-sort on the Debian package
+
+  [ Frank Terbeck ]
+  * [0b3b271c] Do not use echoti {smkx,rmkx} unconditionally
+  * [ab84f082] Print directly from $terminfo instead of using `echoti'
+
+  [ Axel Beckert ]
+  * [fa8ea69e] Fix documentation about debian/do-dch
+  * [1c75bccb] Sync do-dch, gbp.conf and our workflow docs wrt. git-dch options
+
+ -- Axel Beckert <abe@debian.org>  Wed, 08 Aug 2012 19:59:25 +0200
+
 zsh (5.0.0-1) experimental; urgency=low
 
   * New upstream release

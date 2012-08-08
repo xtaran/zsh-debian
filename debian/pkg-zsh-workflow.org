@@ -254,7 +254,7 @@
     "[dch-ignore] ", so those commits can be weeded out easily.
 
     There is a helper script "debian/do-dch" which takes care of all
-    formatting options as well as the "[dch-ignored] " weeding. The
+    formatting options as well as the "[dch-ignore] " weeding. The
     script should be used unless there is a good reason not to.
 
 

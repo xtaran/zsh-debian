@@ -24,7 +24,7 @@ cl="debian/changelog"
 
 rm -f "$old"
 cp "$cl" "$old"
-sed -e '/^  \* \[[a-f0-9]*\] \[dch-ignore\] /d' < "$old" > "$cl"
+sed -e '/^  \* \[[a-f0-9]*\] \[dch-ignored?\] /d' < "$old" > "$cl"
 rm -f "$old"
 
 ${VISUAL:-${EDITOR:-vi}} "$cl"

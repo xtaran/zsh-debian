@@ -242,11 +242,11 @@
     each author should only appear once in the series with all her/his
     changes listed below her/him in chronological order.
 
-    Here is a command line which will result in the desired changelog
-    format:
+    Given that debian/gbp.conf is up-to-date, using the git-dch(1)
+    tool will result in the desired changelog format:
 
 #+BEGIN_EXAMPLE
-    % git-dch --debian-branch=debian --id-length=8 --multimaint-merge
+    % git-dch
 #+END_EXAMPLE
 
     If you absolutely *must* make changelog entries by other means, you

@@ -12,10 +12,6 @@
 # At the end an editor is spawned on debian/changelog no matter what.
 
 git-dch \
-    --debian-branch=debian \
-    --id-length=8 \
-    --multimaint-merge \
-    --upstream-tag='zsh-%(version)' \
     --spawn-editor=never \
     "$@"
 

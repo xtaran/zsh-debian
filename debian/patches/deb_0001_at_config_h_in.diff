@@ -1,13 +1,13 @@
 Patch to generate `config.h.in'.
 
-Created by `at2quilt' on Sun, 22 Jul 2012 21:40:59 CEST.
+Created by `at2quilt' on Mon, 17 Dec 2012 19:52:25 CET.
 
 Note: Never *ever* refresh this patch. Things will break.
 
 Index: zsh/config.h.in
---- zsh.orig/config.h.in	2012-07-22 20:34:16.849614008 +0200
-+++ zsh/config.h.in	2012-07-22 21:40:58.000000000 +0200
-@@ -0,0 +1,1176 @@
+--- zsh.orig/config.h.in	2012-08-28 23:14:52.354229351 +0200
++++ zsh/config.h.in	2012-12-17 19:52:25.000000000 +0100
+@@ -0,0 +1,1179 @@
 +/* config.h.in.  Generated from configure.ac by autoheader.  */
 +
 +/***** begin user configuration section *****/
@@ -529,6 +529,9 @@ Index: zsh/config.h.in
 +
 +/* Define to 1 if RLIMIT_NPROC is present (whether or not as a macro). */
 +#undef HAVE_RLIMIT_NPROC
++
++/* Define to 1 if RLIMIT_NTHR is present (whether or not as a macro). */
++#undef HAVE_RLIMIT_NTHR
 +
 +/* Define to 1 if RLIMIT_PTHREAD is present (whether or not as a macro). */
 +#undef HAVE_RLIMIT_PTHREAD

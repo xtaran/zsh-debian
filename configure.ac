@@ -565,7 +565,8 @@ AC_CHECK_PROGS([YODL], [yodl], [: yodl])
 YODL_OPTIONS=''
 if test "x$ac_cv_prog_YODL" = xyodl; then
     case `yodl --version` in
-      *"version 3."*) YODL_OPTIONS='-L' ;;
+      *"version 2."*) YODL_OPTIONS='-k' ;;
+      *"version 3."*) YODL_OPTIONS='-k -L' ;;
     esac
 fi
 AC_SUBST(YODL_OPTIONS)
@@ -1799,6 +1800,7 @@ zsh_LIMIT_PRESENT(RLIMIT_AS)
 zsh_LIMIT_PRESENT(RLIMIT_LOCKS)
 zsh_LIMIT_PRESENT(RLIMIT_MEMLOCK)
 zsh_LIMIT_PRESENT(RLIMIT_NPROC)
+zsh_LIMIT_PRESENT(RLIMIT_NTHR)
 zsh_LIMIT_PRESENT(RLIMIT_NOFILE)
 zsh_LIMIT_PRESENT(RLIMIT_PTHREAD)
 zsh_LIMIT_PRESENT(RLIMIT_RSS)
@@ -2709,6 +2711,10 @@ char *argv[];
         DLLD="${DLLD=$CC}"
         DLLDARG=""
       ;;
+      *interix*)
+        DLLD="${DLLD=$CC}"
+        DLLDARG=""
+      ;;
       * )
 	DLLD="${DLLD=ld}"
 	DLLDARG=""
@@ -2719,6 +2725,7 @@ char *argv[];
     case "$host_os" in
       hpux*)   DLLDFLAGS="${DLLDFLAGS=-shared}" ;;
       darwin*) DLCFLAGS="${DLCFLAGS=-fno-common}" ;;
+      interix*) DLCFLAGS="${DLCFLAGS=}" ;;
       *)       DLCFLAGS="${DLCFLAGS=-fPIC}" ;;
     esac
   else
@@ -2733,10 +2740,9 @@ char *argv[];
   fi
   case "$host_os" in
     osf*) DLLDFLAGS="${DLLDFLAGS=-shared -expect_unresolved '*'}" ;;
-    *freebsd*|linux*|irix*|gnu*|dragonfly*) DLLDFLAGS="${DLLDFLAGS=-shared}" ;;
+    *freebsd*|*netbsd*|linux*|irix*|gnu*|interix*|dragonfly*) DLLDFLAGS="${DLLDFLAGS=-shared}" ;;
     sunos*)       DLLDFLAGS="${DLLDFLAGS=-assert nodefinitions}" ;;
     sysv4*|esix*) DLLDFLAGS="${DLLDFLAGS=-G $ldflags}" ;;
-    netbsd*)      DLLDFLAGS="${DLLDFLAGS=${DLLDARG}-x -shared --whole-archive}" ;;
     aix*)         DLLDFLAGS="${DLLDFLAGS=-G -bexpall -lc}" ;;
     solaris*|sysv4*|esix*) DLLDFLAGS="${DLLDFLAGS=-G}" ;;
     darwin*)      DLLDFLAGS="${DLLDFLAGS=-bundle -flat_namespace -undefined suppress}" ;;

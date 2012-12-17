@@ -447,12 +447,13 @@ lexconstant(void)
     if (*nptr == '-')
 	nptr++;
 
-    if (*nptr == '0')
+    if (*nptr == '0' &&
+	(memchr(nptr, '.', strlen(nptr)) == NULL))
     {
 	nptr++;
 	if (*nptr == 'x' || *nptr == 'X') {
 	    /* Let zstrtol parse number with base */
-	    yyval.u.l = zstrtol(ptr, &ptr, 0);
+	    yyval.u.l = zstrtol_underscore(ptr, &ptr, 0, 1);
 	    /* Should we set lastbase here? */
 	    lastbase = 16;
 	    return NUM;
@@ -466,13 +467,13 @@ lexconstant(void)
 	     * it can't be a base indication (always decimal)
 	     * or a floating point number.
 	     */
-	    for (ptr2 = nptr; idigit(*ptr2); ptr2++)
+	    for (ptr2 = nptr; idigit(*ptr2) || *ptr2 == '_'; ptr2++)
 		;
 
 	    if (ptr2 > nptr && *ptr2 != '.' && *ptr2 != 'e' &&
 		*ptr2 != 'E' && *ptr2 != '#')
 	    {
-		yyval.u.l = zstrtol(ptr, &ptr, 0);
+		yyval.u.l = zstrtol_underscore(ptr, &ptr, 0, 1);
 		lastbase = 8;
 		return NUM;
 	    }
@@ -481,17 +482,43 @@ lexconstant(void)
     }
     else
     {
-	while (idigit(*nptr))
+	while (idigit(*nptr) || *nptr == '_')
 	    nptr++;
     }
 
     if (*nptr == '.' || *nptr == 'e' || *nptr == 'E') {
+	char *ptr2;
 	/* it's a float */
 	yyval.type = MN_FLOAT;
 #ifdef USE_LOCALE
 	prev_locale = dupstring(setlocale(LC_NUMERIC, NULL));
 	setlocale(LC_NUMERIC, "POSIX");
 #endif
+	if (*nptr == '.') {
+	    nptr++;
+	    while (idigit(*nptr) || *nptr == '_')
+		nptr++;
+	}
+	if (*nptr == 'e' || *nptr == 'E') {
+	    nptr++;
+	    if (*nptr == '+' || *nptr == '-')
+		nptr++;
+	    while (idigit(*nptr) || *nptr == '_')
+		nptr++;
+	}
+	for (ptr2 = ptr; ptr2 < nptr; ptr2++) {
+	    if (*ptr2 == '_') {
+		int len = nptr - ptr;
+		ptr = strdup(ptr);
+		for (ptr2 = ptr; len; len--) {
+		    if (*ptr2 == '_')
+			chuck(ptr2);
+		    else
+			ptr2++;
+		}
+		break;
+	    }
+	}
 	yyval.u.d = strtod(ptr, &nptr);
 #ifdef USE_LOCALE
 	if (prev_locale) setlocale(LC_NUMERIC, prev_locale);
@@ -503,11 +530,12 @@ lexconstant(void)
 	ptr = nptr;
     } else {
 	/* it's an integer */
-	yyval.u.l = zstrtol(ptr, &ptr, 10);
+	yyval.u.l = zstrtol_underscore(ptr, &ptr, 10, 1);
 
 	if (*ptr == '#') {
 	    ptr++;
-	    yyval.u.l = zstrtol(ptr, &ptr, lastbase = yyval.u.l);
+	    lastbase = yyval.u.l;
+	    yyval.u.l = zstrtol_underscore(ptr, &ptr, lastbase, 1);
 	}
     }
     return NUM;
@@ -1053,14 +1081,34 @@ op(int what)
 		    return;
 		if (c.type == MN_FLOAT)
 		    c.u.d = a.u.d / b.u.d;
-		else
-		    c.u.l = a.u.l / b.u.l;
+		else {
+		    /*
+		     * Avoid exception when dividing the smallest
+		     * negative integer by -1.  Always treat it the
+		     * same as multiplication.  This still doesn't give
+		     * numerically the right answer in two's complement,
+		     * but treating both these in the same way seems
+		     * reasonable.
+		     */
+		    if (b.u.l == -1)
+			c.u.l = - a.u.l;
+		    else
+			c.u.l = a.u.l / b.u.l;
+		}
 		break;
 	    case MOD:
 	    case MODEQ:
 		if (!notzero(b))
 		    return;
-		c.u.l = a.u.l % b.u.l;
+		/*
+		 * Avoid exception as above.
+		 * Any integer mod -1 is the same as any integer mod 1
+		 * i.e. zero.
+		 */
+		if (b.u.l == -1)
+		    c.u.l = 0;
+		else
+		    c.u.l = a.u.l % b.u.l;
 		break;
 	    case PLUS:
 	    case PLUSEQ:

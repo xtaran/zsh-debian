@@ -888,6 +888,15 @@ freeshfuncnode(HashNode hn)
     if (shf->funcdef)
 	freeeprog(shf->funcdef);
     zsfree(shf->filename);
+    if (shf->sticky) {
+	if (shf->sticky->n_on_opts)
+	    zfree(shf->sticky->on_opts,
+		  shf->sticky->n_on_opts * sizeof(*shf->sticky->on_opts));
+	if (shf->sticky->n_off_opts)
+	    zfree(shf->sticky->off_opts,
+		  shf->sticky->n_off_opts * sizeof(*shf->sticky->off_opts));
+	zfree(shf->sticky, sizeof(*shf->sticky));
+    }
     zfree(shf, sizeof(struct shfunc));
 }
 
@@ -923,12 +932,13 @@ printshfuncnode(HashNode hn, int printflags)
 	    printf("%c undefined\n\t", hashchar);
 	else
 	    t = getpermtext(f->funcdef, NULL, 1);
-	if (f->node.flags & PM_TAGGED)
+	if (f->node.flags & (PM_TAGGED|PM_TAGGED_LOCAL))
 	    printf("%c traced\n\t", hashchar);
 	if (!t) {
-	    char *fopt = "Utkz";
+	    char *fopt = "UtTkz";
 	    int flgs[] = {
-		PM_UNALIASED, PM_TAGGED, PM_KSHSTORED, PM_ZSHSTORED, 0
+		PM_UNALIASED, PM_TAGGED, PM_TAGGED_LOCAL,
+		PM_KSHSTORED, PM_ZSHSTORED, 0
 	    };
 	    int fl;;
 

@@ -27,6 +27,7 @@ _cdrecord
 _chkconfig
 _chmod
 _chown
+_clay
 _comm
 _compress
 _configure
@@ -39,6 +40,7 @@ _cut
 _cvs
 _darcs
 _date
+_dbus
 _dd
 _devtodo
 _dhclient
@@ -111,6 +113,7 @@ _kvno
 _last
 _ldd
 _less
+_lha
 _links
 _ln
 _loadkeys
@@ -143,6 +146,7 @@ _mysqldiff
 _ncftp
 _netcat
 _nice
+_nkf
 _nm
 _nmap
 _notmuch
@@ -256,6 +260,7 @@ _wiggle
 _xargs
 _xmlsoft
 _xmms2
+_xz
 _yafc
 _yodl
 _yp

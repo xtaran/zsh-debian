@@ -209,7 +209,13 @@ findproc(pid_t pid, Job *jptr, Process *pptr, int aux)
 int
 hasprocs(int job)
 {
-    Job jn = jobtab + job;
+    Job jn;
+
+    if (job < 0) {
+	DPUTS(1, "job number invalid in hasprocs");
+	return 0;
+    }
+    jn = jobtab + job;
 
     return jn->procs || jn->auxprocs;
 }
@@ -867,6 +873,8 @@ should_report_time(Job j)
     unqueue_signals();
     /* can this ever happen? */
     if (!j->procs)
+	return 0;
+    if (zleactive)
 	return 0;
 
 #ifdef HAVE_GETRUSAGE
@@ -1735,12 +1743,14 @@ init_jobs(char **argv, char **envp)
 	    goto done;
 	p = strchr(q, 0);
     }
+#if !defined(HAVE_PUTENV) && !defined(USE_SET_UNSET_ENV)
     for(; *envp; envp++) {
 	q = *envp;
 	if(q != p+1)
 	    goto done;
 	p = strchr(q, 0);
     }
+#endif
     done:
     hackspace = p - hackzero;
 #endif

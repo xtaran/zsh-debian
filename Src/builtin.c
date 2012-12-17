@@ -46,7 +46,7 @@ static struct builtin builtins[] =
     BUILTIN(".", BINF_PSPECIAL, bin_dot, 1, -1, 0, NULL, NULL),
     BUILTIN(":", BINF_PSPECIAL, bin_true, 0, -1, 0, NULL, NULL),
     BUILTIN("alias", BINF_MAGICEQUALS | BINF_PLUSOPTS, bin_alias, 0, -1, 0, "Lgmrs", NULL),
-    BUILTIN("autoload", BINF_PLUSOPTS, bin_functions, 0, -1, 0, "ktUwXz", "u"),
+    BUILTIN("autoload", BINF_PLUSOPTS, bin_functions, 0, -1, 0, "mktTUwXz", "u"),
     BUILTIN("bg", 0, bin_fg, 0, -1, BIN_BG, NULL, NULL),
     BUILTIN("break", BINF_PSPECIAL, bin_break, 0, 1, BIN_BREAK, NULL, NULL),
     BUILTIN("bye", 0, bin_break, 0, 1, BIN_EXIT, NULL, NULL),
@@ -72,7 +72,7 @@ static struct builtin builtins[] =
     BUILTIN("fc", 0, bin_fc, 0, -1, BIN_FC, "aAdDe:EfiIlmnpPrRt:W", NULL),
     BUILTIN("fg", 0, bin_fg, 0, -1, BIN_FG, NULL, NULL),
     BUILTIN("float", BINF_PLUSOPTS | BINF_MAGICEQUALS | BINF_PSPECIAL, bin_typeset, 0, -1, 0, "E:%F:%HL:%R:%Z:%ghlprtux", "E"),
-    BUILTIN("functions", BINF_PLUSOPTS, bin_functions, 0, -1, 0, "kmMtuUz", NULL),
+    BUILTIN("functions", BINF_PLUSOPTS, bin_functions, 0, -1, 0, "kmMtTuUz", NULL),
     BUILTIN("getln", 0, bin_read, 0, -1, 0, "ecnAlE", "zr"),
     BUILTIN("getopts", 0, bin_getopts, 2, -1, 0, NULL, NULL),
     BUILTIN("hash", BINF_MAGICEQUALS, bin_hash, 0, -1, 0, "Ldfmrv", NULL),
@@ -548,8 +548,8 @@ bin_set(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
     /* Obsolescent sh compatibility: set - is the same as set +xv *
      * and set - args is the same as set +xv -- args              */
     if (!EMULATION(EMULATE_ZSH) && *args && **args == '-' && !args[0][1]) {
-	dosetopt(VERBOSE, 0, 0);
-	dosetopt(XTRACE, 0, 0);
+	dosetopt(VERBOSE, 0, 0, opts);
+	dosetopt(XTRACE, 0, 0, opts);
 	if (!args[1])
 	    return 0;
     }
@@ -580,7 +580,7 @@ bin_set(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 		}
 		if(!(optno = optlookup(*args)))
 		    zerrnam(nam, "no such option: %s", *args);
-		else if(dosetopt(optno, action, 0))
+		else if(dosetopt(optno, action, 0, opts))
 		    zerrnam(nam, "can't change option: %s", *args);
 		break;
 	    } else if(**args == 'A') {
@@ -601,7 +601,7 @@ bin_set(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 	    else {
 	    	if (!(optno = optlookupc(**args)))
 		    zerrnam(nam, "bad option: -%c", **args);
-		else if(dosetopt(optno, action, 0))
+		else if(dosetopt(optno, action, 0, opts))
 		    zerrnam(nam, "can't change option: -%c", **args);
 	    }
 	}
@@ -1414,6 +1414,12 @@ bin_fc(char *nam, char **argv, Options ops, int func)
 	unqueue_signals();
 	return 0;
     }
+
+    if (zleactive) {
+	zwarnnam(nam, "no interactive history within ZLE");
+	return 1;
+    }
+
     /* put foo=bar type arguments into the substitution list */
     while (*argv && equalsplit(*argv, &s)) {
 	Asgment a = (Asgment) zhalloc(sizeof *a);
@@ -1727,8 +1733,12 @@ fclist(FILE *f, Options ops, zlong first, zlong last,
 	    if (f == stdout) {
 		nicezputs(s, f);
 		putc('\n', f);
-	    } else
-		fprintf(f, "%s\n", s);
+	    } else {
+		int len;
+		unmetafy(s, &len);
+		fwrite(s, 1, len, f);
+		putc('\n', f);
+	    }
 	}
 	/* move on to the next history line, or quit the loop */
 	if (first < last) {
@@ -2449,7 +2459,20 @@ bin_typeset(char *name, char **argv, Options ops, int func)
 	    && (locallevel == pm->level || !(on & PM_LOCAL))) {
 	    if (pm->node.flags & PM_TIED) {
 		unqueue_signals();
-		zerrnam(name, "can't tie already tied scalar: %s", asg0.name);
+		if (!strcmp(asg->name, pm->ename)) {
+		    /*
+		     * Already tied in the fashion requested.
+		     */
+		    struct tieddata *tdp = (struct tieddata*)pm->u.data;
+		    /* Update join character */
+		    tdp->joinchar = joinchar;
+		    if (asg0.value)
+			setsparam(asg0.name, ztrdup(asg0.value));
+		    return 0;
+		} else {
+		    zerrnam(name, "can't tie already tied scalar: %s",
+			    asg0.name);
+		}
 		return 1;
 	    }
 	    if (!asg0.value && !(PM_TYPE(pm->node.flags) & (PM_ARRAY|PM_HASHED)))
@@ -2672,6 +2695,10 @@ bin_functions(char *name, char **argv, Options ops, int func)
 	on |= PM_TAGGED;
     else if (OPT_PLUS(ops,'t'))
 	off |= PM_TAGGED;
+    if (OPT_MINUS(ops,'T'))
+	on |= PM_TAGGED_LOCAL;
+    else if (OPT_PLUS(ops,'T'))
+	off |= PM_TAGGED_LOCAL;
     if (OPT_MINUS(ops,'z')) {
 	on |= PM_ZSHSTORED;
 	off |= PM_KSHSTORED;
@@ -2861,7 +2888,7 @@ bin_functions(char *name, char **argv, Options ops, int func)
 	    if ((pprog = patcompile(*argv, PAT_STATIC, 0))) {
 		/* with no options, just print all functions matching the glob pattern */
 		queue_signals();
-		if (!(on|off)) {
+		if (!(on|off) && !OPT_ISSET(ops,'X')) {
 		    scanmatchtable(shfunctab, pprog, 1, 0, DISABLED,
 				   shfunctab->printnode, pflags);
 		} else {
@@ -2923,8 +2950,7 @@ bin_functions(char *name, char **argv, Options ops, int func)
 	    shf = (Shfunc) zshcalloc(sizeof *shf);
 	    shf->node.flags = on;
 	    shf->funcdef = mkautofn(shf);
-	    /* No sticky emulation for autoloaded functions */
-	    shf->emulation = 0;
+	    shfunc_set_sticky(shf);
 	    shfunctab->addnode(shfunctab, ztrdup(*argv), shf);
 
 	    if (signum != -1) {
@@ -4987,11 +5013,15 @@ bin_emulate(UNUSED(char *nam), char **argv, Options ops, UNUSED(int func))
 {
     int opt_L = OPT_ISSET(ops, 'L');
     int opt_R = OPT_ISSET(ops, 'R');
-    int saveemulation, savesticky_emulation, savehackchar;
-    int ret = 1;
-    char saveopts[OPT_SIZE];
+    int saveemulation, savehackchar;
+    int ret = 1, new_emulation;
+    char saveopts[OPT_SIZE], new_opts[OPT_SIZE];
     char *cmd = 0;
     const char *shname = *argv;
+    LinkList optlist;
+    LinkNode optnode;
+    Emulation_options save_sticky;
+    OptIndex *on_ptr, *off_ptr;
 
     /* without arguments just print current emulation */
     if (!shname) {
@@ -5024,7 +5054,7 @@ bin_emulate(UNUSED(char *nam), char **argv, Options ops, UNUSED(int func))
 
     /* with single argument set current emulation */
     if (!argv[1]) {
-	emulate(shname, OPT_ISSET(ops,'R'));
+	emulate(shname, OPT_ISSET(ops,'R'), &emulation, opts);
 	if (OPT_ISSET(ops,'L'))
 	    opts[LOCALOPTIONS] = opts[LOCALTRAPS] = 1;
 	return 0;
@@ -5032,8 +5062,14 @@ bin_emulate(UNUSED(char *nam), char **argv, Options ops, UNUSED(int func))
 
     argv++;
     memcpy(saveopts, opts, sizeof(opts));
+    memcpy(new_opts, opts, sizeof(opts));
     savehackchar = keyboardhackchar;
-    cmd = parseopts("emulate", &argv);
+    emulate(shname, OPT_ISSET(ops,'R'), &new_emulation, new_opts);
+    optlist = newlinklist();
+    if (parseopts("emulate", &argv, new_opts, &cmd, optlist)) {
+	ret = 1;
+	goto restore;
+    }
 
     /* parseopts() has consumed anything that looks like an option */
     if (*argv) {
@@ -5041,6 +5077,9 @@ bin_emulate(UNUSED(char *nam), char **argv, Options ops, UNUSED(int func))
 	goto restore;
     }
 
+    saveemulation = emulation;
+    emulation = new_emulation;
+    memcpy(opts, new_opts, sizeof(opts));
     /* If "-c command" is given, evaluate command using specified
      * emulation mode.
      */
@@ -5053,15 +5092,41 @@ bin_emulate(UNUSED(char *nam), char **argv, Options ops, UNUSED(int func))
     } else
 	return 0;
 
-    saveemulation = emulation;
-    savesticky_emulation = sticky_emulation;
-    emulate(shname, OPT_ISSET(ops,'R'));
-    sticky_emulation = emulation;
+    save_sticky = sticky;
+    sticky = hcalloc(sizeof(*sticky));
+    sticky->emulation = emulation;
+    for (optnode = firstnode(optlist); optnode; incnode(optnode)) {
+	/* Data is index into new_opts */
+	char *optptr = (char *)getdata(optnode);
+	if (*optptr)
+	    sticky->n_on_opts++;
+	else
+	    sticky->n_off_opts++;
+    }
+    if (sticky->n_on_opts)
+	on_ptr = sticky->on_opts =
+	    zhalloc(sticky->n_on_opts * sizeof(*sticky->on_opts));
+    else
+	on_ptr = NULL;
+    if (sticky->n_off_opts)
+	off_ptr = sticky->off_opts = zhalloc(sticky->n_off_opts *
+					     sizeof(*sticky->off_opts));
+    else
+	off_ptr = NULL;
+    for (optnode = firstnode(optlist); optnode; incnode(optnode)) {
+	/* Data is index into new_opts */
+	char *optptr = (char *)getdata(optnode);
+	int optno = optptr - new_opts;
+	if (*optptr)
+	    *on_ptr++ = optno;
+	else
+	    *off_ptr++ = optno;
+    }
     ret = eval(argv);
-    sticky_emulation = savesticky_emulation;
+    sticky = save_sticky;
     emulation = saveemulation;
- restore:
     memcpy(opts, saveopts, sizeof(opts));
+restore:
     keyboardhackchar = savehackchar;
     inittyptab();	/* restore banghist */
     return ret;

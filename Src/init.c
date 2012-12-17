@@ -149,7 +149,7 @@ loop(int toplevel, int justonce)
 	    continue;
 	}
 	if (hend(prog)) {
-	    int toksav = tok;
+	    enum lextok toksav = tok;
 
 	    non_empty = 1;
 	    if (toplevel &&
@@ -246,7 +246,8 @@ parseargs(char **argv, char **runscript)
     opts[SHINSTDIN] = 0;
     opts[SINGLECOMMAND] = 0;
 
-    cmd = parseopts(NULL, &argv);
+    if (parseopts(NULL, &argv, opts, &cmd, NULL))
+	exit(1);
 
     paramlist = znewlinklist();
     if (*argv) {
@@ -276,18 +277,58 @@ parseargs(char **argv, char **runscript)
     argzero = ztrdup(argzero);
 }
 
+/* Insert into list in order of pointer value */
+
 /**/
-mod_export char *
-parseopts(char *nam, char ***argvp)
+static void
+parseopts_insert(LinkList optlist, void *ptr)
+{
+    LinkNode node;
+
+    for (node = firstnode(optlist); node; incnode(node)) {
+	if (ptr < getdata(node)) {
+	    insertlinknode(optlist, prevnode(node), ptr);
+	    return;
+	}
+    }
+
+    addlinknode(optlist, ptr);
+}
+
+/*
+ * Parse shell options.
+ * If nam is not NULL, this is called from a command; don't
+ * exit on failure.
+ *
+ * If optlist is not NULL, it used to form a list of pointers
+ * into new_opts indicating which options have been changed.
+ */
+
+/**/
+mod_export int
+parseopts(char *nam, char ***argvp, char *new_opts, char **cmdp,
+	  LinkList optlist)
 {
     int optionbreak = 0;
     int action, optno;
-    char *cmd = 0;	/* deliberately hides static */
     char **argv = *argvp;
 
-#define WARN_OPTION(F, S) if (nam) zwarnnam(nam, F, S); else zerr(F, S)
-#define LAST_OPTION(N) \
-	if (nam) { if (*argv) argv++; goto doneargv; } else exit(N)
+    *cmdp = 0;
+#define WARN_OPTION(F, S)						\
+    do {								\
+	if (nam)							\
+	    zwarnnam(nam, F, S);					\
+	else								\
+	    zerr(F, S);							\
+    } while (0)
+#define LAST_OPTION(N)	       \
+    do {		       \
+	if (nam) {	       \
+	    if (*argv)	       \
+		argv++;	       \
+	    goto doneargv;     \
+	} else exit(N);	       \
+    } while(0)
 
     /* loop through command line options (begins with "-" or "+") */
     while (!optionbreak && *argv && (**argv == '-' || **argv == '+')) {
@@ -327,26 +368,30 @@ parseopts(char *nam, char ***argvp)
 		optionbreak = 1;
 	    } else if (**argv == 'c') {
 		/* -c command */
-		cmd = *argv;
-		opts[INTERACTIVE] &= 1;
+		*cmdp = *argv;
+		new_opts[INTERACTIVE] &= 1;
 		scriptname = scriptfilename = ztrdup("zsh");
 	    } else if (**argv == 'o') {
 		if (!*++*argv)
 		    argv++;
 		if (!*argv) {
 		    WARN_OPTION("string expected after -o", NULL);
-		    LAST_OPTION(1);
+		    return 1;
 		}
 	    longoptions:
 		if (!(optno = optlookup(*argv))) {
 		    WARN_OPTION("no such option: %s", *argv);
-		    LAST_OPTION(1);
+		    return 1;
 		} else if (optno == RESTRICTED && !nam) {
 		    restricted = action;
 		} else if ((optno == EMACSMODE || optno == VIMODE) && nam) {
 		    WARN_OPTION("can't change option: %s", *argv);
-		} else if (dosetopt(optno, action, !nam) && nam) {
-		    WARN_OPTION("can't change option: %s", *argv);
+		} else {
+		    if (dosetopt(optno, action, !nam, new_opts) && nam) {
+			WARN_OPTION("can't change option: %s", *argv);
+		    } else if (optlist) {
+			parseopts_insert(optlist, new_opts+optno);
+		    }
 		}
               break;
 	    } else if (isspace(STOUC(**argv))) {
@@ -355,37 +400,41 @@ parseopts(char *nam, char ***argvp)
 		    if (!isspace(STOUC(**argv))) {
 		     badoptionstring:
 			WARN_OPTION("bad option string: '%s'", args);
-			LAST_OPTION(1);
+			return 1;
 		    }
 		break;
 	    } else {
 	    	if (!(optno = optlookupc(**argv))) {
 		    WARN_OPTION("bad option: -%c", **argv);
-		    LAST_OPTION(1);
+		    return 1;
 		} else if (optno == RESTRICTED && !nam) {
 		    restricted = action;
 		} else if ((optno == EMACSMODE || optno == VIMODE) && nam) {
 		    WARN_OPTION("can't change option: %s", *argv);
-		} else if (dosetopt(optno, action, !nam) && nam) {
-		    WARN_OPTION("can't change option: -%c", **argv);
+		} else {
+		    if (dosetopt(optno, action, !nam, new_opts) && nam) {
+			WARN_OPTION("can't change option: -%c", **argv);
+		    } else if (optlist) {
+			parseopts_insert(optlist, new_opts+optno);
+		    }
 		}
 	    }
 	}
 	argv++;
     }
  doneoptions:
-    if (cmd) {
+    if (*cmdp) {
 	if (!*argv) {
-	    WARN_OPTION("string expected after -%s", cmd);
-	    LAST_OPTION(1);
+	    WARN_OPTION("string expected after -%s", *cmdp);
+	    return 1;
 	}
-	cmd = *argv++;
+	*cmdp = *argv++;
     }
  doneargv:
     *argvp = argv;
-    return cmd;
+    return 0;
 }
-    
+
 /**/
 static void
 printhelp(void)
@@ -1162,7 +1211,7 @@ init_misc(void)
 #else
     if (*zsh_name == 'r' || restricted)
 #endif
-	dosetopt(RESTRICTED, 1, 0);
+	dosetopt(RESTRICTED, 1, 0, opts);
     if (cmd) {
 	if (SHIN >= 10)
 	    fclose(bshin);
@@ -1225,7 +1274,7 @@ source(char *s)
     subsh  = 0;
     lineno = 1;
     loops  = 0;
-    dosetopt(SHINSTDIN, 0, 1);
+    dosetopt(SHINSTDIN, 0, 1, opts);
     scriptname = s;
     scriptfilename = s;
 
@@ -1297,7 +1346,7 @@ source(char *s)
     thisjob = cj;                    /* current job number                   */
     lineno = oldlineno;              /* our current lineno                   */
     loops = oloops;                  /* the # of nested loops we are in      */
-    dosetopt(SHINSTDIN, oldshst, 1); /* SHINSTDIN option                     */
+    dosetopt(SHINSTDIN, oldshst, 1, opts); /* SHINSTDIN option               */
     errflag = 0;
     if (!exit_pending)
 	retflag = 0;
@@ -1535,7 +1584,7 @@ zsh_main(UNUSED(int argc), char **argv)
     fdtable = zshcalloc(fdtable_size*sizeof(*fdtable));
 
     createoptiontable();
-    emulate(zsh_name, 1);   /* initialises most options */
+    emulate(zsh_name, 1, &emulation, opts);   /* initialises most options */
     opts[LOGINSHELL] = (**argv == '-');
     opts[PRIVILEGED] = (getuid() != geteuid() || getgid() != getegid());
     opts[USEZLE] = 1;   /* may be unset in init_io() */
@@ -1559,15 +1608,20 @@ zsh_main(UNUSED(int argc), char **argv)
 	 * We only do this at top level, because if we are
 	 * executing stuff we may refer to them by job pointer.
 	 */
+	int errexit = 0;
 	maybeshrinkjobtab();
 
 	do {
 	    /* Reset return from top level which gets us back here */
 	    retflag = 0;
 	    loop(1,0);
+	    if (errflag && !interact && !isset(CONTINUEONERROR)) {
+		errexit = 1;
+		break;
+	    }
 	} while (tok != ENDINPUT && (tok != LEXERR || isset(SHINSTDIN)));
-	if (tok == LEXERR) {
-	    /* Make sure a parse error exits with non-zero status */
+	if (tok == LEXERR || errexit) {
+	    /* Make sure a fatal error exits with non-zero status */
 	    if (!lastval)
 		lastval = 1;
 	    stopmsg = 1;

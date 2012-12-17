@@ -1363,6 +1363,10 @@ static struct change *nextchanges, *endnextchanges;
 
 static zlong undo_changeno;
 
+/* If non-zero, the last increment to undo_changeno was for the variable */
+
+static int undo_set_by_variable;
+
 /**/
 void
 initundo(void)
@@ -1373,6 +1377,7 @@ initundo(void)
     curchange->del = curchange->ins = NULL;
     curchange->dell = curchange->insl = 0;
     curchange->changeno = undo_changeno = 0;
+    undo_set_by_variable = 0;
     lastline = zalloc((lastlinesz = linesz) * ZLE_CHAR_SIZE);
     ZS_memcpy(lastline, zleline, (lastll = zlell));
     lastcs = zlecs;
@@ -1498,6 +1503,7 @@ mkundoent(void)
 	ch->prev = NULL;
     }
     ch->changeno = ++undo_changeno;
+    undo_set_by_variable = 0;
     endnextchanges = ch;
 }
 
@@ -1520,23 +1526,25 @@ setlastline(void)
 int
 undo(char **args)
 {
-    zlong last_change = (zlong)0;
+    zlong last_change;
 
     if (*args)
-    {
 	last_change = zstrtol(*args, NULL, 0);
-    }
+    else
+	last_change = (zlong)-1;
 
     handleundo();
     do {
-	if(!curchange->prev)
+	struct change *prev = curchange->prev;
+	if(!prev)
 	    return 1;
-	if (unapplychange(curchange->prev))
-	    curchange = curchange->prev;
+	if (prev->changeno < last_change)
+	    break;
+	if (unapplychange(prev))
+	    curchange = prev;
 	else
 	    break;
-    } while (*args ? curchange->changeno != last_change :
-	     (curchange->flags & CH_PREV));
+    } while (last_change >= (zlong)0 || (curchange->flags & CH_PREV));
     setlastline();
     return 0;
 }
@@ -1660,6 +1668,16 @@ zlecallhook(char *name, char *arg)
 zlong
 get_undo_current_change(UNUSED(Param pm))
 {
-    return undo_changeno;
+    if (undo_set_by_variable) {
+	/* We were the last to increment this, doesn't need another one. */
+	return undo_changeno;
+    }
+    undo_set_by_variable = 1;
+    /*
+     * Increment the number in case a change is in progress;
+     * we don't want to back off what's already been done when
+     * we return to this change number.  This eliminates any
+     * problem about the point where a change is numbered.
+     */
+    return ++undo_changeno;
 }
-

@@ -232,7 +232,7 @@ enum {
  * appear in strings and don't necessarily represent a single character.
  */
 
-enum {
+enum lextok {
     NULLTOK,		/* 0  */
     SEPER,
     NEWLIN,
@@ -407,6 +407,7 @@ typedef struct cmdnam    *Cmdnam;
 typedef struct complist  *Complist;
 typedef struct conddef   *Conddef;
 typedef struct dirsav    *Dirsav;
+typedef struct emulation_options *Emulation_options;
 typedef struct features  *Features;
 typedef struct feature_enables  *Feature_enables;
 typedef struct funcstack *Funcstack;
@@ -1099,7 +1100,7 @@ struct shfunc {
     char *filename;             /* Name of file located in */
     zlong lineno;		/* line number in above file */
     Eprog funcdef;		/* function definition    */
-    int emulation;		/* sticky emulation for function */
+    Emulation_options sticky;   /* sticky emulation definitions, if any */
 };
 
 /* Shell function context types. */
@@ -1554,6 +1555,7 @@ struct tieddata {
 #define PM_HIDE		(1<<14)	/* Special behaviour hidden by local        */
 #define PM_HIDEVAL	(1<<15)	/* Value not shown in `typeset' commands    */
 #define PM_TIED 	(1<<16)	/* array tied to colon-path or v.v.         */
+#define PM_TAGGED_LOCAL (1<<16) /* (function): non-recursive PM_TAGGED      */
 
 #define PM_KSHSTORED	(1<<17) /* function stored in ksh form              */
 #define PM_ZSHSTORED	(1<<18) /* function stored in zsh form              */
@@ -1969,6 +1971,7 @@ enum {
     COMPLETEINWORD,
     CORRECT,
     CORRECTALL,
+    CONTINUEONERROR,
     CPRECEDENCES,
     CSHJUNKIEHISTORY,
     CSHJUNKIELOOPS,
@@ -2103,6 +2106,12 @@ enum {
     OPT_SIZE
 };
 
+/*
+ * Size required to fit an option number.
+ * If OPT_SIZE goes above 256 this will need to expand.
+ */
+typedef unsigned char OptIndex;
+
 #undef isset
 #define isset(X) (opts[X])
 #define unset(X) (!opts[X])
@@ -2110,6 +2119,27 @@ enum {
 #define interact (isset(INTERACTIVE))
 #define jobbing  (isset(MONITOR))
 #define islogin  (isset(LOGINSHELL))
+
+/*
+ * Record of emulation and options that need to be set
+ * for a full "emulate".
+ */
+struct emulation_options {
+    /* The emulation itself */
+    int emulation;
+    /* The number of options in on_opts. */
+    int n_on_opts;
+    /* The number of options in off_opts. */
+    int n_off_opts;
+    /*
+     * Array of options to be turned on.
+     * Only options specified explicitly in the emulate command
+     * are recorded.  Null if n_on_opts is zero.
+     */
+    OptIndex *on_opts;
+    /* Array of options to be turned off, similar. */
+    OptIndex *off_opts;
+};
 
 /***********************************************/
 /* Definitions for terminal and display control */
@@ -2135,6 +2165,7 @@ struct ttyinfo {
 #endif
 };
 
+#ifndef __INTERIX
 /* defines for whether tabs expand to spaces */
 #if defined(HAVE_TERMIOS_H) || defined(HAVE_TERMIO_H)
 #define SGTTYFLAG       shttyinfo.tio.c_oflag
@@ -2152,6 +2183,7 @@ struct ttyinfo {
 #   endif
 #  endif
 # endif
+#endif
 
 /* flags for termflags */
 
@@ -2678,7 +2710,14 @@ typedef wint_t convchar_t;
 #define MB_METASTRWIDTH(str)	mb_metastrlen(str, 1)
 #define MB_METASTRLEN2(str, widthp)	mb_metastrlen(str, widthp)
 
-#ifdef BROKEN_WCWIDTH
+/*
+ * We replace broken implementations with one that uses Unicode
+ * characters directly as wide characters.  In principle this is only
+ * likely to work if __STDC_ISO_10646__ is defined, since that's pretty
+ * much what the definition tells us.  However, we happen to know this
+ * works on MacOS which doesn't define that.
+ */
+#if defined(BROKEN_WCWIDTH) && (defined(__STDC_ISO_10646__) || defined(__APPLE__))
 #define WCWIDTH(wc)	mk_wcwidth(wc)
 #else
 #define WCWIDTH(wc)	wcwidth(wc)

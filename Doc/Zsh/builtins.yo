@@ -108,7 +108,7 @@ ifnzman(noderef(Aliasing)).
 findex(autoload)
 cindex(functions, autoloading)
 cindex(autoloading functions)
-item(tt(autoload) [ {tt(PLUS())|tt(-)}tt(UXktz) ] [ tt(-w) ] [ var(name) ... ])(
+item(tt(autoload) [ {tt(PLUS())|tt(-)}tt(UXkmtz) ] [ tt(-w) ] [ var(name) ... ])(
 Equivalent to tt(functions -u), with the exception of tt(-X)/tt(+X) and
 tt(-w).
 
@@ -129,15 +129,27 @@ undefined and marked for autoloading.  If ksh-style autoloading is
 enabled, the function created will contain the contents of the file
 plus a call to the function itself appended to it, thus giving normal
 ksh autoloading behaviour on the first call to the function.
+If the tt(-m) flag is also given each var(name) is treated as a
+pattern and all functions already marked for autoload that match the
+pattern are loaded.
 
 With the tt(-w) flag, the var(name)s are taken as names of files compiled
 with the tt(zcompile) builtin, and all functions defined in them are
 marked for autoloading.
 
-The flags tt(-z) and tt(-k) mark the function to be autoloaded in
-native or ksh emulation, as if the option tt(KSH_AUTOLOAD) were
-unset or were set, respectively.  The flags override the setting of
-the option at the time the function is loaded.
+The flags tt(-z) and tt(-k) mark the function to be autoloaded using the
+zsh or ksh style, as if the option tt(KSH_AUTOLOAD) were unset or were
+set, respectively.  The flags override the setting of the option at the
+time the function is loaded.
+
+Note that the tt(autoload) command makes no attempt to ensure the
+shell options set during the loading or execution of the file have
+any particular value.  For this, the tt(emulate) command can be used:
+
+example(emulate zsh -c 'autoload -Uz var(func)')
+
+arranges that when var(func) is loaded the shell is in native tt(zsh)
+emulation, and this emulation is also applied when var(func) is run.
 )
 findex(bg)
 cindex(jobs, backgrounding)
@@ -390,6 +402,7 @@ ifnzman(noderef(Invocation))\
 ifzman(the section INVOCATION in zmanref(zsh)),
 except that `tt(-o EMACS)' and `tt(-o VI)' may not be used.  Flags such
 as `tt(+r)'/`tt(+o RESTRICTED)' may be prohibited in some circumstances.
+
 If tt(-c) var(arg) appears in var(flags), var(arg) is evaluated while the
 requested emulation is temporarily in effect.  In this case the emulation
 mode and all options are restored to their previous values before
@@ -406,7 +419,10 @@ If the function is called when the sticky emulation is already in
 effect, either within an `tt(emulate) var(shell) tt(-c)' expression or
 within another function with the same sticky emulation, entry and exit
 from the function do not cause options to be altered (except due to
-standard processing such as the tt(LOCAL_OPTIONS) option).
+standard processing such as the tt(LOCAL_OPTIONS) option).  This also
+applies to functions marked for autoload within the sticky emulation;
+the appropriate set of options will be applied at the point the
+function is loaded as well as when it is run.
 
 For example:
 
@@ -446,6 +462,10 @@ sitem(4.)(The presence or absence of the tt(-R) switch to tt(emulate)
 corresponds to different sticky emulation modes, so for example
 `tt(emulate sh -c)', `tt(emulate -R sh -c)' and `tt(emulate csh -c)'
 are treated as three distinct sticky emulations.)
+sitem(5.)(Difference in shell options supplied in addition to the
+basic emulation also mean the sticky emulations are different, so for
+example `tt(emulate zsh -c)' and `tt(emulate zsh -o cbases -c)' are
+treated as distinct sticky emulations.)
 endsitem()
 )
 findex(enable)
@@ -620,7 +640,7 @@ Equivalent to tt(typeset -E), except that options irrelevant to floating
 point numbers are not permitted.
 )
 findex(functions)
-xitem(tt(functions) [ {tt(PLUS())|tt(-)}tt(UXkmtuz) ] [ var(name) ... ])
+xitem(tt(functions) [ {tt(PLUS())|tt(-)}tt(UXkmtTuz) ] [ var(name) ... ])
 xitem(tt(functions -M) var(mathfn) [ var(min) [ var(max) [ var(shellfn) ] ] ])
 xitem(tt(functions -M) [ tt(-m) var(pattern) ... ])
 item(tt(functions +M) [ tt(-m) ] var(mathfn))(
@@ -1341,6 +1361,11 @@ or without the tt(no) prefix remains the same in this case.
 If the tt(-m) flag is given the arguments are taken as patterns
 (which should be quoted to protect them from filename expansion), and all
 options with names matching these patterns are set.
+
+Note that a bad option name does not cause execution of subsequent shell
+code to be aborted; this is behaviour is different from that of `tt(set
+-o)'.  This is because tt(set) is regarded as a special builtin by the
+POSIX standard, but tt(setopt) is not.
 )
 findex(shift)
 cindex(parameters, positional)
@@ -1552,7 +1577,10 @@ an array to var(SCALAR) is an error, and assigning a scalar to var(array)
 sets it to be a single-element array.  Note that both `tt(typeset -xT ...)'
 and `tt(export -T ...)' work, but only the scalar will be marked for
 export.  Setting the value using the scalar version causes a split on all
-separators (which cannot be quoted).
+separators (which cannot be quoted).  It is possible to use the
+same two tied variables with a different separator character in which
+case the variables remain joined as before but the separator is changed.
+This flag has a different meaning when used with tt(-f); see below.
 
 The tt(-g) (global) flag is treated specially: it means that any
 resulting parameter will not be restricted to local scope.  Note that this
@@ -1650,16 +1678,18 @@ shown.
 )
 item(tt(-f))(
 The names refer to functions rather than parameters.  No assignments
-can be made, and the only other valid flags are tt(-t), tt(-k), tt(-u),
-tt(-U) and tt(-z).  The flag tt(-t) turns on execution tracing for this
-function.  The tt(-u) and tt(-U) flags cause the function to be
-marked for autoloading; tt(-U) also causes alias expansion to be
-suppressed when the function is loaded.  The tt(fpath) parameter
-will be searched to find the function definition when the function
-is first referenced; see noderef(Functions). The tt(-k) and tt(-z) flags
-make the function be loaded using ksh-style or zsh-style autoloading
-respectively. If neither is given, the setting of the KSH_AUTOLOAD option
-determines how the function is loaded.
+can be made, and the only other valid flags are tt(-t), tt(-T), tt(-k),
+tt(-u), tt(-U) and tt(-z).  The flag tt(-t) turns on execution tracing
+for this function; the flag tt(-T) does the same, but turns off tracing
+on any function called from the present one, unless that function also
+has the tt(-t) or tt(-T) flag.  The tt(-u) and tt(-U) flags cause the
+function to be marked for autoloading; tt(-U) also causes alias
+expansion to be suppressed when the function is loaded.  The tt(fpath)
+parameter will be searched to find the function definition when the
+function is first referenced; see noderef(Functions). The tt(-k) and
+tt(-z) flags make the function be loaded using ksh-style or zsh-style
+autoloading respectively. If neither is given, the setting of the
+KSH_AUTOLOAD option determines how the function is loaded.
 )
 item(tt(-h))(
 Hide: only useful for special parameters (those marked `<S>' in the table in
@@ -1736,7 +1766,7 @@ enditem()
 findex(ulimit)
 cindex(resource limits)
 cindex(limits, resource)
-item(tt(ulimit) [ [ tt(-SHacdfilmnpqstvx) | tt(-N) var(resource) [ var(limit) ] ... ])(
+item(tt(ulimit) [ [ tt(-SHacdfilmnpqrstvx) | tt(-N) var(resource) [ var(limit) ] ... ])(
 Set or display resource limits of the shell and the processes started by
 the shell.  The value of var(limit) can be a number in the unit specified
 below or one of the values `tt(unlimited)', which removes the limit on the
@@ -1757,20 +1787,25 @@ When looping over multiple resources, the shell will abort immediately if
 it detects a badly formed argument.  However, if it fails to set a limit
 for some other reason it will continue trying to set the remaining limits.
 
+Not all the following resources are supported on all systems.  Running
+tt(ulimit -a) will show which are supported.
+
 startsitem()
 sitem(tt(-a))(Lists all of the current resource limits.)
+sitem(tt(-b))(Socket buffer size in bytes LPAR()N.B. not kilobytes+RPAR())
 sitem(tt(-c))(512-byte blocks on the size of core dumps.)
-sitem(tt(-d))(K-bytes on the size of the data segment.)
+sitem(tt(-d))(Kilobytes on the size of the data segment.)
 sitem(tt(-f))(512-byte blocks on the size of files written.)
 sitem(tt(-i))(The number of pending signals.)
-sitem(tt(-l))(K-bytes on the size of locked-in memory.)
-sitem(tt(-m))(K-bytes on the size of physical memory.)
+sitem(tt(-l))(Kilobytes on the size of locked-in memory.)
+sitem(tt(-m))(Kilobytes on the size of physical memory.)
 sitem(tt(-n))(open file descriptors.)
 sitem(tt(-q))(Bytes in POSIX message queues.)
-sitem(tt(-s))(K-bytes on the size of the stack.)
+sitem(tt(-s))(Kilobytes on the size of the stack.)
 sitem(tt(-t))(CPU seconds to be used.)
-sitem(tt(-u))(processes available to the user.)
-sitem(tt(-v))(K-bytes on the size of virtual memory.  On some systems this
+sitem(tt(-r))(The number of simultaneous threads available to the user.)
+sitem(tt(-u))(The number of processes available to the user.)
+sitem(tt(-v))(Kilobytes on the size of virtual memory.  On some systems this
 refers to the limit called `address space'.)
 sitem(tt(-x))(The number of locks on files.)
 endsitem()

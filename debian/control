@@ -55,7 +55,7 @@ Description: zsh documentation - info/HTML format
 
 Package: zsh-static
 Architecture: any
-Depends: zsh, ${shlibs:Depends}, ${misc:Depends}
+Depends: zsh, ${misc:Depends}
 Suggests: zsh-doc
 Description: shell with lots of features (static link)
  Zsh is a UNIX command interpreter (shell) usable as an

@@ -56,7 +56,7 @@ endif
 
 	cd obj && $(MAKE)
 
-	-cd obj && HOME="$(CURDIR)/obj/testhome" $(MAKE) check
+	cd obj && HOME="$(CURDIR)/obj/testhome" $(MAKE) check
 
 ifeq (zsh,$(package))
 	cd obj && $(MAKE) pdf

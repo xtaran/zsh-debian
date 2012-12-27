@@ -1,4 +1,4 @@
-zsh (4.3.17-2) unstable; urgency=low
+zsh (5.0.0-1) unstable; urgency=low
 
   This update includes a rewrite of keyboard handling in `/etc/zsh/zshrc'.
 

@@ -31,4 +31,6 @@ update-alternatives --install /bin/rzsh rzsh /bin/zsh5 50 \
 mkdir -m2775 -p /usr/local/share/zsh/site-functions && chown root:staff \
                /usr/local/share/zsh/site-functions || true
 
+#DEBHELPER#
+
 exit 0

@@ -7,3 +7,5 @@ case "$1" in
 	remove-shell /bin/zsh-static
 	;;
 esac
+
+#DEBHELPER#

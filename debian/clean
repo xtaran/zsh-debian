@@ -1,0 +1,6 @@
+stamp-configure
+stamp-configure-static
+config.cache
+config.status
+config.status.lineno
+Doc/zsh.idx

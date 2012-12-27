@@ -1,0 +1,4 @@
+bin
+usr/share/man/man1
+usr/share/doc/zsh-static
+usr/share/lintian/overrides

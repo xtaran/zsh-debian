@@ -2,6 +2,7 @@ Source: zsh
 Section: shells
 Priority: optional
 Build-Depends: bsdmainutils,
+               debhelper (>= 7~),
                ghostscript,
                groff,
                groff-base,
@@ -25,7 +26,7 @@ Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/zsh.git
 
 Package: zsh
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: ${shlibs:Recommends}
 Suggests: zsh-doc
 Description: shell with lots of features
@@ -40,7 +41,7 @@ Description: shell with lots of features
 Package: zsh-doc
 Architecture: all
 Section: doc
-Depends: dpkg (>= 1.15.4) | install-info
+Depends: dpkg (>= 1.15.4) | install-info, ${misc:Depends}
 Description: zsh documentation - info/HTML format
  Zsh is a UNIX command interpreter (shell) usable as an
  interactive login shell and as a shell script command
@@ -54,7 +55,7 @@ Description: zsh documentation - info/HTML format
 
 Package: zsh-static
 Architecture: any
-Depends: zsh, ${shlibs:Depends}
+Depends: zsh, ${shlibs:Depends}, ${misc:Depends}
 Suggests: zsh-doc
 Description: shell with lots of features (static link)
  Zsh is a UNIX command interpreter (shell) usable as an
@@ -69,6 +70,7 @@ Description: shell with lots of features (static link)
 
 Package: zsh-dev
 Architecture: any
+Depends: ${misc:Depends}
 Section: libdevel
 Description: shell with lots of features (development files)
  Zsh is a UNIX command interpreter (shell) usable as an
@@ -86,7 +88,7 @@ Package: zsh-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: zsh (= ${binary:Version})
+Depends: zsh (= ${binary:Version}), ${misc:Depends}
 Description: shell with lots of features (debugging symbols)
  Zsh is a UNIX command interpreter (shell) usable as an
  interactive login shell and as a shell script command

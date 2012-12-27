@@ -1,0 +1,10 @@
+obj/Src/*.epro usr/include/zsh
+obj/Src/sigcount.h usr/include/zsh
+Src/hashtable.h usr/include/zsh
+Src/prototypes.h usr/include/zsh
+Src/signals.h usr/include/zsh
+Src/zsh_system.h usr/include/zsh
+Src/zsh.h usr/include/zsh
+Src/ztype.h usr/include/zsh
+Src/makepro.awk usr/share/zsh-dev
+Config/aczshoot.m4 usr/share/aclocal

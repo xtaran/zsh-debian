@@ -10,3 +10,5 @@ case "$1" in
 	remove-shell /usr/bin/zsh
 	;;
 esac
+
+#DEBHELPER#

@@ -21,4 +21,6 @@ esac
 
 update-alternatives --install /bin/zsh-static zsh-static /bin/zsh5-static 40
 
+#DEBHELPER#
+
 exit 0

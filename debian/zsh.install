@@ -1,0 +1,6 @@
+debian/zlogin etc/zsh
+debian/zlogout etc/zsh
+debian/zprofile etc/zsh
+debian/zshenv etc/zsh
+debian/zshrc etc/zsh
+debian/newuser.zshrc.recommended etc/zsh

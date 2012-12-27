@@ -1,0 +1,14 @@
+Doc/zsh.texi
+Etc/BUGS
+Etc/CONTRIBUTORS
+Etc/ChangeLog*
+Etc/FTP-README
+Etc/TODO
+Etc/completion-style-guide
+Etc/zsh-development-guide
+FEATURES
+Functions/README.zftp
+MACHINES
+META-FAQ
+NEWS
+README

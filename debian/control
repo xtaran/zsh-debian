@@ -27,6 +27,7 @@ Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/zsh.git
 Package: zsh
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, zsh-common
+Pre-Depends: dpkg (>= 1.15.6~)
 Recommends: ${shlibs:Recommends}
 Suggests: zsh-doc
 Description: shell with lots of features
@@ -41,6 +42,7 @@ Description: shell with lots of features
 Package: zsh-common
 Architecture: all
 Depends: ${misc:Depends}
+Pre-Depends: dpkg (>= 1.15.6~)
 Recommends: zsh
 Suggests: zsh-doc
 Description: architecture independent files for Zsh
@@ -58,7 +60,8 @@ Description: architecture independent files for Zsh
 Package: zsh-doc
 Architecture: all
 Section: doc
-Depends: dpkg (>= 1.15.4) | install-info, ${misc:Depends}
+Depends: ${misc:Depends}
+Pre-Depends: dpkg (>= 1.15.6~)
 Description: zsh documentation - info/HTML format
  Zsh is a UNIX command interpreter (shell) usable as an
  interactive login shell and as a shell script command
@@ -106,6 +109,7 @@ Architecture: any
 Section: debug
 Priority: extra
 Depends: zsh (= ${binary:Version}), zsh-common (= ${source:Version}), ${misc:Depends}
+Pre-Depends: dpkg (>= 1.15.6~)
 Description: shell with lots of features (debugging symbols)
  Zsh is a UNIX command interpreter (shell) usable as an
  interactive login shell and as a shell script command

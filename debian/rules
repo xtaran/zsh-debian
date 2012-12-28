@@ -125,7 +125,7 @@ binary-indep:	checkroot build
 	dh_installdeb -p$(package)-doc
 	dh_md5sums -p$(package)-doc
 	dh_gencontrol -p$(package)-doc
-	dh_builddeb -p$(package)-doc
+	dh_builddeb -p$(package)-doc -- -Zxz
 
 ifneq (zsh-beta,$(package))
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
@@ -193,7 +193,7 @@ endif
 	dh_installdeb -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_md5sums -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_gencontrol -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_builddeb -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_builddeb -p$(package) -p$(package)-common -p$(package)-dbg -- -Zxz
 
 binary-arch-static:	checkroot build-static
 	dh_testdir

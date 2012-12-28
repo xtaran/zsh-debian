@@ -3,6 +3,7 @@ Section: shells
 Priority: optional
 Build-Depends: bsdmainutils,
                debhelper (>= 7~),
+               dh-autoreconf,
                ghostscript,
                groff,
                groff-base,

@@ -77,9 +77,12 @@ build-static: stamp-configure-static
 build-debug: DEB_BUILD_OPTIONS+=debug
 build-debug: build
 
-stamp-configure:
+configure:
+	touch stamp-h.in #configure
+	dh_autoreconf
+
+stamp-configure: configure
 	dh_testdir
-	touch stamp-h.in configure
 	chmod 755 configure
 	mkdir -p obj/testhome
 ifeq (zsh-beta,$(package))
@@ -89,7 +92,7 @@ endif
 	cd obj && CFLAGS='$(CFLAGS)' ../configure $(CONFIGFLAGS)
 	touch stamp-configure
 
-stamp-configure-static:
+stamp-configure-static: configure
 	dh_testdir
 	mkdir obj-static
 	cd obj-static && CFLAGS='$(CFLAGS)' ../configure $(CONFIGFLAGS) $(STATICFLAGS)
@@ -99,6 +102,7 @@ stamp-configure-static:
 
 clean:
 	dh_testdir
+	dh_autoreconf_clean
 ifeq (zsh-beta,$(package))
 	test ! -f Config/version.mk.orig || mv Config/version.mk.orig Config/version.mk
 endif

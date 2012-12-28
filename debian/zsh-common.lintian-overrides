@@ -1,0 +1,2 @@
+zsh-common: menu-command-not-in-package usr/share/menu/zsh-common:1 bin/zsh5
+zsh-common: pkg-not-in-package-test zsh usr/share/menu/zsh-common

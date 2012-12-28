@@ -1,2 +1,3 @@
 zsh-static: embedded-library bin/zsh5-static: libm
 zsh-static: embedded-library bin/zsh5-static: ncurses
+zsh-static: package-contains-broken-symlink usr/share/man/man1/zsh5-static.1.gz zsh.1.gz

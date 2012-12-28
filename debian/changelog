@@ -1,3 +1,25 @@
+zsh (5.0.2-2) experimental; urgency=low
+
+  * [37c73049] Convert package to debhelper
+  * [be35418d] Split off arch-independent files into zsh-common (Fixes
+    lintian warning arch-dep-package-has-big-usr-share 9873kB 84%; closes:
+    #632514, #656898)
+  * [d4d59f27] Use xz compression for the bigger binary packages
+    - Add "Pre-Depends: dpkg (>= 1.15.6~)" to the according packages
+  * [0033e9e8] Replace at2quilt with dh-autoreconf
+  * [a7986a4a] Don't ignore potential failures of the test suite
+  * Fixes the following lintian-warnings:
+    - [a0227ee9] debian-news-entry-has-unknown-version
+    - [6860acf8] package-file-is-executable
+    - [cd2dd67f] debian-rules-missing-recommended-target
+    - [cd2dd67f] package-would-benefit-from-build-arch-targets
+  * Fixes the following dpkg-gencontrol warnings:
+    - [d4e0e0af] unknown substitution variable ${shlibs:Depends}
+  * Override the following lintian warning due to false positives:
+    - [c2511a18] hardening-no-fortify-functions …/zleparameter.so
+
+ -- Axel Beckert <abe@debian.org>  Fri, 28 Dec 2012 14:18:21 +0100
+
 zsh (5.0.2-1) experimental; urgency=low
 
   * New upstream release

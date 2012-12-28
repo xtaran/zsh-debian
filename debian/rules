@@ -48,21 +48,25 @@ else
 CFLAGS += -O2
 endif
 
-build: stamp-configure
+build: build-arch build-indep
+build-stamp: stamp-configure
 	dh_testdir
 ifeq (zsh-beta,$(package))
 	touch stamp-h.in
 endif
 
+build-arch: build-stamp
 	cd obj && $(MAKE)
-
 	cd obj && HOME="$(CURDIR)/obj/testhome" $(MAKE) check
 
+	touch build-arch
+
+build-indep: build-stamp
 ifeq (zsh,$(package))
 	cd obj && $(MAKE) pdf
 endif
 
-	touch build
+	touch build-indep
 
 build-static: stamp-configure-static
 	dh_testdir
@@ -107,7 +111,7 @@ endif
 	dh_clean
 	-rm -rf config.cache obj obj-static autom4te.cache
 
-binary-indep:	checkroot build
+binary-indep:	checkroot build-indep
 	dh_testdir
 	dh_installdirs -p$(package)-doc
 
@@ -132,7 +136,7 @@ binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 else
 binary-arch: binary-arch-dynamic
 endif
-binary-arch-dynamic:	checkroot build
+binary-arch-dynamic:	checkroot build-arch
 	dh_testdir
 
 	dh_installdirs -p$(package) -p$(package)-common -p$(package)-dbg
@@ -222,7 +226,7 @@ endif
 	dh_builddeb -p$(package)-static
 
 
-binary-arch-dev:	checkroot build
+binary-arch-dev:	checkroot build-arch
 	dh_installdirs -p$(package)-dev
 	dh_install -p$(package)-dev
 	cd debian/$(package)-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4

@@ -137,32 +137,32 @@ binary-arch-dynamic:	checkroot build
 
 	dh_installdirs -p$(package) -p$(package)-common -p$(package)-dbg
 
-	cd obj && $(MAKE) install.man DESTDIR=$(CURDIR)/debian/zsh-common
+	cd obj && $(MAKE) install.man DESTDIR=$(CURDIR)/debian/$(package)-common
 	nroff -mandoc -Tascii Doc/zshbuiltins.1 | colcrt - | \
-	sed -e 's/±/{+|-}/' | ( cd debian/zsh-common/usr/share/$(package)/help && \
+	sed -e 's/±/{+|-}/' | ( cd debian/$(package)-common/usr/share/$(package)/help && \
 	perl $(CURDIR)/Util/helpfiles )
 
 ifeq (zsh-beta,$(package))
 	sed -r -i -e \
 	's/zsh(all|builtins|compctl|compsys|compwid|contrib|expn|misc|modules|options|param|roadmap|tcpsys|zftpsys|zle|calsys)/$(package)\1/g' \
-	debian/zsh-common/usr/share/man/man1/*.1
+	debian/$(package)-common/usr/share/man/man1/*.1
 endif
 
 # functions
 	dh_installexamples -p$(package)-common -X.distfiles
-	cd  debian/zsh-common/usr/share/doc/$(package)-common/examples/; mv Example Functions
+	cd  debian/$(package)-common/usr/share/doc/$(package)-common/examples/; mv Example Functions
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/$(package):;s#/usr/local/bin#/usr/bin#' \
-	   debian/zsh-common/usr/share/doc/$(package)-common/examples/Misc/*
+	   debian/$(package)-common/usr/share/doc/$(package)-common/examples/Misc/*
 
 	cd obj && $(MAKE) install.bin DESTDIR=$(CURDIR)/debian/$(package) INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
 	cd obj && $(MAKE) install.modules DESTDIR=$(CURDIR)/debian/$(package) INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
-	cd obj && $(MAKE) install.fns DESTDIR=$(CURDIR)/debian/zsh-common
+	cd obj && $(MAKE) install.fns DESTDIR=$(CURDIR)/debian/$(package)-common
 
-	rm -r debian/zsh-common/usr/local
+	rm -r debian/$(package)-common/usr/local
 
 # move this to a non-root section; also drop it for cross-compiles
 	awk '/^#define FPATH_DIR/ { head=$$3; gsub(/"/,"",head); }; /^#define FPATH_SUBDIRS/ { $$1=""; $$2=""; gsub(/[" ]/,""); tail=$$0; } END { printf "%s/%s\n", head, tail; };' obj/Src/zshpaths.h >obj/Src/zshpaths.temp
-	debian/zsh/bin/$(package) -fc 'setopt extendedglob; for i in debian/zsh-common/'`cat obj/Src/zshpaths.temp`'; do zcompile -U -M $$i.zwc $$i/*~*.zwc(^/) ; chmod 644 $$i.zwc ; done'
+	debian/zsh/bin/$(package) -fc 'setopt extendedglob; for i in debian/$(package)-common/'`cat obj/Src/zshpaths.temp`'; do zcompile -U -M $$i.zwc $$i/*~*.zwc(^/) ; chmod 644 $$i.zwc ; done'
 
 ifneq (zsh-beta,$(package))
 	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
@@ -174,13 +174,13 @@ endif
 	dh_link -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_install -p$(package) -p$(package)-common -p$(package)-dbg
 
-	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/$(package)/help},;s,:-more,:-/usr/bin/pager,;' debian/zsh-common/usr/share/$(package)/functions/Misc/run-help
-	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/$(package):;s#/usr/local/bin#/usr/bin#;' `find debian/zsh-common/usr/share/$(package)/functions -type f`
-	chmod 755 debian/zsh-common/usr/share/$(package)/functions/Misc/checkmail \
-	          debian/zsh-common/usr/share/$(package)/functions/Misc/harden \
-	          debian/zsh-common/usr/share/$(package)/functions/Misc/run-help \
-	          debian/zsh-common/usr/share/$(package)/functions/Misc/zkbd \
-	          debian/zsh-common/usr/share/$(package)/functions/Misc/zcalc \
+	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/$(package)/help},;s,:-more,:-/usr/bin/pager,;' debian/$(package)-common/usr/share/$(package)/functions/Misc/run-help
+	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/$(package):;s#/usr/local/bin#/usr/bin#;' `find debian/$(package)-common/usr/share/$(package)/functions -type f`
+	chmod 755 debian/$(package)-common/usr/share/$(package)/functions/Misc/checkmail \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/harden \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/run-help \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zkbd \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zcalc \
 
 	dh_installmenu -p$(package)-common
 

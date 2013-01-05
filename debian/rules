@@ -2,8 +2,6 @@
 INSTALL = install
 INSTALL_PROGRAM = $(INSTALL) -p    -o root -g root  -m  755
 
-package=zsh
-
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
 H_LDFLAGS = $(LDFLAGS)
@@ -18,10 +16,10 @@ CONFIGFLAGS += LDFLAGS="-Wl,--as-needed -g $(H_LDFLAGS)"
 CONFIGFLAGS += --infodir=/usr/share/info
 CONFIGFLAGS += --enable-maildir-support
 CONFIGFLAGS += --enable-max-jobtable-size=256
-CONFIGFLAGS += --enable-etcdir=/etc/$(package)
+CONFIGFLAGS += --enable-etcdir=/etc/zsh
 CONFIGFLAGS += --enable-function-subdirs
-CONFIGFLAGS += --enable-site-fndir=/usr/local/share/$(package)/site-functions
-CONFIGFLAGS += --enable-fndir=/usr/share/$(package)/functions
+CONFIGFLAGS += --enable-site-fndir=/usr/local/share/zsh/site-functions
+CONFIGFLAGS += --enable-fndir=/usr/share/zsh/functions
 CONFIGFLAGS += --with-tcsetpgrp
 CONFIGFLAGS += --with-term-lib="ncursesw tinfo"
 CONFIGFLAGS += --enable-cap --enable-pcre
@@ -97,122 +95,122 @@ clean:
 binary-indep: build-indep
 	dh_testdir
 	dh_testroot
-	dh_installdirs -p$(package)-doc
+	dh_installdirs -pzsh-doc
 
 	cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc
 	rm -f debian/zsh-doc/usr/share/info/dir*
-	cd obj && $(MAKE) install.html DESTDIR=$(CURDIR)/debian/zsh-doc htmldir=/usr/share/doc/$(package)-doc/html
+	cd obj && $(MAKE) install.html DESTDIR=$(CURDIR)/debian/zsh-doc htmldir=/usr/share/doc/zsh-doc/html
 # Work around texi2html unfriendliness
-	sed -i -e 's/<BODY.*>/<BODY LANG="EN">/' debian/zsh-doc/usr/share/doc/$(package)-doc/html/*.html
+	sed -i -e 's/<BODY.*>/<BODY LANG="EN">/' debian/zsh-doc/usr/share/doc/zsh-doc/html/*.html
 
-	dh_installdocs       -p$(package)-doc
-	dh_installchangelogs -p$(package)-doc
-	dh_link                               -pzsh-beta -pzsh-beta-doc
-	dh_compress          -p$(package)-doc -pzsh-beta -pzsh-beta-doc -Xpdf
-	dh_fixperms          -p$(package)-doc -pzsh-beta -pzsh-beta-doc
-	dh_installdeb        -p$(package)-doc -pzsh-beta -pzsh-beta-doc
-	dh_md5sums           -p$(package)-doc -pzsh-beta -pzsh-beta-doc
-	dh_gencontrol        -p$(package)-doc -pzsh-beta -pzsh-beta-doc
-	dh_builddeb                           -pzsh-beta -pzsh-beta-doc
-	dh_builddeb          -p$(package)-doc -- -Zxz
+	dh_installdocs       -pzsh-doc
+	dh_installchangelogs -pzsh-doc
+	dh_link                        -pzsh-beta -pzsh-beta-doc
+	dh_compress          -pzsh-doc -pzsh-beta -pzsh-beta-doc -Xpdf
+	dh_fixperms          -pzsh-doc -pzsh-beta -pzsh-beta-doc
+	dh_installdeb        -pzsh-doc -pzsh-beta -pzsh-beta-doc
+	dh_md5sums           -pzsh-doc -pzsh-beta -pzsh-beta-doc
+	dh_gencontrol        -pzsh-doc -pzsh-beta -pzsh-beta-doc
+	dh_builddeb                    -pzsh-beta -pzsh-beta-doc
+	dh_builddeb          -pzsh-doc -- -Zxz
 
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 binary-arch-dynamic: build-arch
 	dh_testdir
 	dh_testroot
 
-	dh_installdirs -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_installdirs -pzsh -pzsh-common -pzsh-dbg
 
-	cd obj && $(MAKE) install.man DESTDIR=$(CURDIR)/debian/$(package)-common
+	cd obj && $(MAKE) install.man DESTDIR=$(CURDIR)/debian/zsh-common
 	nroff -mandoc -Tascii Doc/zshbuiltins.1 | colcrt - | \
-	sed -e 's/±/{+|-}/' | ( cd debian/$(package)-common/usr/share/$(package)/help && \
+	sed -e 's/±/{+|-}/' | ( cd debian/zsh-common/usr/share/zsh/help && \
 	perl $(CURDIR)/Util/helpfiles )
 
 # functions
-	dh_installexamples -p$(package)-common -X.distfiles
-	cd  debian/$(package)-common/usr/share/doc/$(package)-common/examples/; mv Example Functions
-	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/$(package):;s#/usr/local/bin#/usr/bin#' \
-	   debian/$(package)-common/usr/share/doc/$(package)-common/examples/Misc/*
+	dh_installexamples -pzsh-common -X.distfiles
+	cd  debian/zsh-common/usr/share/doc/zsh-common/examples/; mv Example Functions
+	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#' \
+	   debian/zsh-common/usr/share/doc/zsh-common/examples/Misc/*
 
-	cd obj && $(MAKE) install.bin     DESTDIR=$(CURDIR)/debian/$(package) INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
-	cd obj && $(MAKE) install.modules DESTDIR=$(CURDIR)/debian/$(package) INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
-	cd obj && $(MAKE) install.fns     DESTDIR=$(CURDIR)/debian/$(package)-common
+	cd obj && $(MAKE) install.bin     DESTDIR=$(CURDIR)/debian/zsh INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
+	cd obj && $(MAKE) install.modules DESTDIR=$(CURDIR)/debian/zsh INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
+	cd obj && $(MAKE) install.fns     DESTDIR=$(CURDIR)/debian/zsh-common
 
-	rm -r debian/$(package)-common/usr/local
+	rm -r debian/zsh-common/usr/local
 
 # move this to a non-root section; also drop it for cross-compiles
 	awk '/^#define FPATH_DIR/ { head=$$3; gsub(/"/,"",head); }; /^#define FPATH_SUBDIRS/ { $$1=""; $$2=""; gsub(/[" ]/,""); tail=$$0; } END { printf "%s/%s\n", head, tail; };' obj/Src/zshpaths.h >obj/Src/zshpaths.temp
-	debian/zsh/bin/$(package) -fc 'setopt extendedglob; for i in debian/$(package)-common/'`cat obj/Src/zshpaths.temp`'; do zcompile -U -M $$i.zwc $$i/*~*.zwc(^/) ; chmod 644 $$i.zwc ; done'
+	debian/zsh/bin/zsh -fc 'setopt extendedglob; for i in debian/zsh-common/'`cat obj/Src/zshpaths.temp`'; do zcompile -U -M $$i.zwc $$i/*~*.zwc(^/) ; chmod 644 $$i.zwc ; done'
 
 	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
 	rm debian/zsh/bin/zsh-5.[0-9]*
 
-	dh_strip -p$(package) --dbg-package=$(package)-dbg
-	dh_link -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_install -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_strip   -pzsh              --dbg-package=zsh-dbg
+	dh_link    -pzsh -pzsh-common             -pzsh-dbg
+	dh_install -pzsh -pzsh-common             -pzsh-dbg
 
-	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/$(package)/help},;s,:-more,:-/usr/bin/pager,;' debian/$(package)-common/usr/share/$(package)/functions/Misc/run-help
-	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/$(package):;s#/usr/local/bin#/usr/bin#;' `find debian/$(package)-common/usr/share/$(package)/functions -type f`
-	chmod 755 debian/$(package)-common/usr/share/$(package)/functions/Misc/checkmail \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/harden    \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/run-help  \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zkbd      \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zcalc
+	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/zsh/help},;s,:-more,:-/usr/bin/pager,;' debian/zsh-common/usr/share/zsh/functions/Misc/run-help
+	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#;' `find debian/zsh-common/usr/share/zsh/functions -type f`
+	chmod 755 debian/zsh-common/usr/share/zsh/functions/Misc/checkmail \
+	          debian/zsh-common/usr/share/zsh/functions/Misc/harden    \
+	          debian/zsh-common/usr/share/zsh/functions/Misc/run-help  \
+	          debian/zsh-common/usr/share/zsh/functions/Misc/zkbd      \
+	          debian/zsh-common/usr/share/zsh/functions/Misc/zcalc
 
-	dh_shlibdeps         -p$(package)                     -p$(package)-dbg -- \
-		-dDepends    debian/zsh/bin/*                                     \
-		-dRecommends debian/zsh/usr/lib/$(package)/*/zsh/*.so
-	dh_installmenu                    -p$(package)-common
-	dh_installdocs                    -p$(package)-common -p$(package)-dbg
-	dh_installchangelogs              -p$(package)-common -p$(package)-dbg ChangeLog
-	dh_lintian           -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_compress          -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_fixperms          -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_installdeb        -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_md5sums           -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_gencontrol        -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_builddeb          -p$(package) -p$(package)-common -p$(package)-dbg -- -Zxz
+	dh_shlibdeps         -pzsh              -pzsh-dbg --   \
+		-dDepends    debian/zsh/bin/*                  \
+		-dRecommends debian/zsh/usr/lib/zsh/*/zsh/*.so
+	dh_installmenu             -pzsh-common
+	dh_installdocs             -pzsh-common -pzsh-dbg
+	dh_installchangelogs       -pzsh-common -pzsh-dbg ChangeLog
+	dh_lintian           -pzsh -pzsh-common -pzsh-dbg
+	dh_compress          -pzsh -pzsh-common -pzsh-dbg
+	dh_fixperms          -pzsh -pzsh-common -pzsh-dbg
+	dh_installdeb        -pzsh -pzsh-common -pzsh-dbg
+	dh_md5sums           -pzsh -pzsh-common -pzsh-dbg
+	dh_gencontrol        -pzsh -pzsh-common -pzsh-dbg
+	dh_builddeb          -pzsh -pzsh-common -pzsh-dbg -- -Zxz
 
 binary-arch-static: build-static
 	dh_testdir
 	dh_testroot
 
-	dh_installdirs -p$(package)-static
-	dh_lintian     -p$(package)-static
+	dh_installdirs -pzsh-static
+	dh_lintian     -pzsh-static
 
-	awk 'BEGIN { print "The following modules are statically-compiled into the static $(package) binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/$(package)-static/README.Debian
+	awk 'BEGIN { print "The following modules are statically-compiled into the static zsh binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/zsh-static/README.Debian
 
-	dh_install     -p$(package)-static
-	mv debian/$(package)-static/bin/zsh debian/$(package)-static/bin/zsh5-static
+	dh_install     -pzsh-static
+	mv debian/zsh-static/bin/zsh debian/zsh-static/bin/zsh5-static
 
-	dh_shlibdeps         -p$(package)-static
-	dh_strip             -p$(package)-static
-	dh_link              -p$(package)-static
-	dh_installdocs       -p$(package)-static
-	dh_installchangelogs -p$(package)-static
-	dh_compress          -p$(package)-static
-	dh_fixperms          -p$(package)-static
-	dh_installdeb        -p$(package)-static
-	dh_md5sums           -p$(package)-static
-	dh_gencontrol        -p$(package)-static
-	dh_builddeb          -p$(package)-static
+	dh_shlibdeps         -pzsh-static
+	dh_strip             -pzsh-static
+	dh_link              -pzsh-static
+	dh_installdocs       -pzsh-static
+	dh_installchangelogs -pzsh-static
+	dh_compress          -pzsh-static
+	dh_fixperms          -pzsh-static
+	dh_installdeb        -pzsh-static
+	dh_md5sums           -pzsh-static
+	dh_gencontrol        -pzsh-static
+	dh_builddeb          -pzsh-static
 
 
 binary-arch-dev: build-arch
 	dh_testdir
 	dh_testroot
 
-	dh_installdirs       -p$(package)-dev
-	dh_install           -p$(package)-dev
-	cd debian/$(package)-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4
-	dh_installdocs       -p$(package)-dev
-	dh_installchangelogs -p$(package)-dev
-	dh_compress          -p$(package)-dev
-	dh_fixperms          -p$(package)-dev
-	dh_installdeb        -p$(package)-dev
-	dh_md5sums           -p$(package)-dev
-	dh_gencontrol        -p$(package)-dev
-	dh_builddeb          -p$(package)-dev
+	dh_installdirs       -pzsh-dev
+	dh_install           -pzsh-dev
+	cd debian/zsh-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4
+	dh_installdocs       -pzsh-dev
+	dh_installchangelogs -pzsh-dev
+	dh_compress          -pzsh-dev
+	dh_fixperms          -pzsh-dev
+	dh_installdeb        -pzsh-dev
+	dh_md5sums           -pzsh-dev
+	dh_gencontrol        -pzsh-dev
+	dh_builddeb          -pzsh-dev
 
 binary:		binary-indep binary-arch binary-arch-static binary-arch-dev
 

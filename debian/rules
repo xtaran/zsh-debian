@@ -7,7 +7,7 @@ ifeq (zsh-beta,$(package))
 snapshot_date := $(shell dpkg-parsechangelog | sed -n '/^Version: [0-9.][0-9.]*.*+20[0-9][0-9]\([0-9][0-9][0-9][0-9]\)-[0-9][0-9]*$$/ {s//\1/;p}')
 endif
 
--include /usr/share/dpkg/buildflags.mk
+include /usr/share/dpkg/buildflags.mk
 export CFLAGS LDFLAGS CPPFLAGS
 H_LDFLAGS = $(LDFLAGS)
 
@@ -106,20 +106,20 @@ clean:
 ifeq (zsh-beta,$(package))
 	test ! -f Config/version.mk.orig || mv Config/version.mk.orig Config/version.mk
 endif
-	-rm -f build build-static
+	rm -f build build-static
 	dh_auto_clean -B obj
 	dh_auto_clean -B obj-static
 ifneq (zsh-beta,$(package))
 	dh_auto_clean
 endif
 	dh_clean
-	-rm -rf config.cache obj obj-static autom4te.cache
+	rm -rf config.cache obj obj-static autom4te.cache
 
 binary-indep:	checkroot build-indep
 	dh_testdir
 	dh_installdirs -p$(package)-doc
 
-	-cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc
+	cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc
 	rm -f debian/zsh-doc/usr/share/info/dir*
 	gzip -9frq debian/zsh-doc/usr/share/info/*
 	cd obj && $(MAKE) install.html DESTDIR=$(CURDIR)/debian/zsh-doc htmldir=/usr/share/doc/$(package)-doc/html

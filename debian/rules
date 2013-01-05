@@ -40,15 +40,13 @@ CONFIGFLAGS += --enable-zsh-hash-debug
 endif
 
 build: build-arch build-indep
-build-stamp: configure-stamp
-	dh_testdir
 
-build-arch: build-stamp
+build-arch: configure-stamp
 	dh_auto_build -B obj --parallel
 	HOME="$(CURDIR)/obj/testhome" dh_auto_test -B obj --parallel
 	touch $@
 
-build-indep: build-stamp
+build-indep: configure-stamp
 	dh_auto_build -B obj --parallel -- pdf
 	touch $@
 
@@ -220,7 +218,7 @@ binary-arch-dev: build-arch
 	dh_gencontrol        -pzsh-dev
 	dh_builddeb          -pzsh-dev
 
-binary:		binary-indep binary-arch binary-arch-static binary-arch-dev
+binary: binary-indep binary-arch
 
 prebuild:
 	Util/preconfig

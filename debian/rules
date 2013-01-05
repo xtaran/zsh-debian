@@ -46,25 +46,22 @@ build-stamp: configure-stamp
 build-arch: build-stamp
 	dh_auto_build -B obj --parallel
 	HOME="$(CURDIR)/obj/testhome" dh_auto_test -B obj --parallel
-
 	touch $@
 
 build-indep: build-stamp
 	dh_auto_build -B obj --parallel -- pdf
-
 	touch $@
 
 build-static: configure-static-stamp
 	dh_testdir
 	dh_auto_build -B obj-static --parallel
-
 	touch $@
 
 build-debug: DEB_BUILD_OPTIONS+=debug
 build-debug: build
 
 configure:
-	touch stamp-h.in #configure
+	touch stamp-h.in
 	dh_autoreconf
 
 configure-stamp: configure

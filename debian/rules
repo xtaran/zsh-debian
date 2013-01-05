@@ -39,7 +39,11 @@ STATICFLAGS += --disable-dynamic-nss
 endif
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-CONFIGFLAGS += --enable-zsh-debug --enable-zsh-mem-debug --enable-zsh-mem-warning --enable-zsh-secure-free --enable-zsh-hash-debug
+CONFIGFLAGS += --enable-zsh-debug
+CONFIGFLAGS += --enable-zsh-mem-debug
+CONFIGFLAGS += --enable-zsh-mem-warning
+CONFIGFLAGS += --enable-zsh-secure-free
+CONFIGFLAGS += --enable-zsh-hash-debug
 endif
 
 build: build-arch build-indep

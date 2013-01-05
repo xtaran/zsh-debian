@@ -139,8 +139,16 @@ binary-arch-dynamic: build-arch
 	rm -r debian/zsh-common/usr/local
 
 # move this to a non-root section; also drop it for cross-compiles
-	awk '/^#define FPATH_DIR/ { head=$$3; gsub(/"/,"",head); }; /^#define FPATH_SUBDIRS/ { $$1=""; $$2=""; gsub(/[" ]/,""); tail=$$0; } END { printf "%s/%s\n", head, tail; };' obj/Src/zshpaths.h >obj/Src/zshpaths.temp
-	debian/zsh/bin/zsh -fc 'setopt extendedglob; for i in debian/zsh-common/'`cat obj/Src/zshpaths.temp`'; do zcompile -U -M $$i.zwc $$i/*~*.zwc(^/) ; chmod 644 $$i.zwc ; done'
+	awk '/^#define FPATH_DIR/     { head=$$3;       gsub(/"/,"",head); };        \
+             /^#define FPATH_SUBDIRS/ { $$1=""; $$2=""; gsub(/[" ]/,""); tail=$$0; } \
+             END                      { printf "%s/%s\n", head, tail; };'            \
+	    obj/Src/zshpaths.h >obj/Src/zshpaths.temp
+	debian/zsh/bin/zsh -fc \
+            'setopt extendedglob; \
+	     for i in debian/zsh-common/'`cat obj/Src/zshpaths.temp`'; do \
+		 zcompile -U -M $$i.zwc $$i/*~*.zwc(^/);                  \
+		 chmod 644 $$i.zwc;                                       \
+	     done'
 
 	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
 	rm debian/zsh/bin/zsh-5.[0-9]*
@@ -149,8 +157,11 @@ binary-arch-dynamic: build-arch
 	dh_link    -pzsh -pzsh-common             -pzsh-dbg
 	dh_install -pzsh -pzsh-common             -pzsh-dbg
 
-	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/zsh/help},;s,:-more,:-/usr/bin/pager,;' debian/zsh-common/usr/share/zsh/functions/Misc/run-help
-	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#;' `find debian/zsh-common/usr/share/zsh/functions -type f`
+	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/zsh/help},; \
+                   s,:-more,:-/usr/bin/pager,;'                                         \
+		debian/zsh-common/usr/share/zsh/functions/Misc/run-help
+	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#;' \
+		`find debian/zsh-common/usr/share/zsh/functions -type f`
 	chmod 755 debian/zsh-common/usr/share/zsh/functions/Misc/checkmail \
 	          debian/zsh-common/usr/share/zsh/functions/Misc/harden    \
 	          debian/zsh-common/usr/share/zsh/functions/Misc/run-help  \

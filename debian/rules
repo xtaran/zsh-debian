@@ -105,10 +105,10 @@ ifeq (zsh-beta,$(package))
 	test ! -f Config/version.mk.orig || mv Config/version.mk.orig Config/version.mk
 endif
 	rm -f build build-static
-	dh_auto_clean -B obj --parallel
+	dh_auto_clean -B obj        --parallel
 	dh_auto_clean -B obj-static --parallel
 ifneq (zsh-beta,$(package))
-	dh_auto_clean --parallel
+	dh_auto_clean               --parallel
 endif
 	dh_clean
 	rm -rf config.cache obj obj-static autom4te.cache
@@ -124,14 +124,14 @@ binary-indep:	checkroot build-indep
 # Work around texi2html unfriendliness
 	sed -i -e 's/<BODY.*>/<BODY LANG="EN">/' debian/zsh-doc/usr/share/doc/$(package)-doc/html/*.html
 
-	dh_installdocs -p$(package)-doc
+	dh_installdocs       -p$(package)-doc
 	dh_installchangelogs -p$(package)-doc
-	dh_compress -p$(package)-doc -Xpdf
-	dh_fixperms -p$(package)-doc
-	dh_installdeb -p$(package)-doc
-	dh_md5sums -p$(package)-doc
-	dh_gencontrol -p$(package)-doc
-	dh_builddeb -p$(package)-doc -- -Zxz
+	dh_compress          -p$(package)-doc -Xpdf
+	dh_fixperms          -p$(package)-doc
+	dh_installdeb        -p$(package)-doc
+	dh_md5sums           -p$(package)-doc
+	dh_gencontrol        -p$(package)-doc
+	dh_builddeb          -p$(package)-doc -- -Zxz
 
 ifneq (zsh-beta,$(package))
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
@@ -160,9 +160,9 @@ endif
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/$(package):;s#/usr/local/bin#/usr/bin#' \
 	   debian/$(package)-common/usr/share/doc/$(package)-common/examples/Misc/*
 
-	cd obj && $(MAKE) install.bin DESTDIR=$(CURDIR)/debian/$(package) INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
+	cd obj && $(MAKE) install.bin     DESTDIR=$(CURDIR)/debian/$(package) INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
 	cd obj && $(MAKE) install.modules DESTDIR=$(CURDIR)/debian/$(package) INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
-	cd obj && $(MAKE) install.fns DESTDIR=$(CURDIR)/debian/$(package)-common
+	cd obj && $(MAKE) install.fns     DESTDIR=$(CURDIR)/debian/$(package)-common
 
 	rm -r debian/$(package)-common/usr/local
 
@@ -183,63 +183,64 @@ endif
 	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/$(package)/help},;s,:-more,:-/usr/bin/pager,;' debian/$(package)-common/usr/share/$(package)/functions/Misc/run-help
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/$(package):;s#/usr/local/bin#/usr/bin#;' `find debian/$(package)-common/usr/share/$(package)/functions -type f`
 	chmod 755 debian/$(package)-common/usr/share/$(package)/functions/Misc/checkmail \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/harden \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/run-help \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zkbd \
-	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zcalc \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/harden    \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/run-help  \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zkbd      \
+	          debian/$(package)-common/usr/share/$(package)/functions/Misc/zcalc
 
-	dh_installmenu -p$(package)-common
-
-	dh_shlibdeps -p$(package) -p$(package)-dbg -- -dDepends debian/zsh/bin/* -dRecommends debian/zsh/usr/lib/$(package)/*/zsh/*.so
-	dh_installdocs -p$(package)-common -p$(package)-dbg
-	dh_installchangelogs -p$(package)-common -p$(package)-dbg ChangeLog
-	dh_lintian -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_compress -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_fixperms -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_installdeb -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_md5sums -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_gencontrol -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_builddeb -p$(package) -p$(package)-common -p$(package)-dbg -- -Zxz
+	dh_shlibdeps         -p$(package)                     -p$(package)-dbg -- \
+		-dDepends    debian/zsh/bin/*                                     \
+		-dRecommends debian/zsh/usr/lib/$(package)/*/zsh/*.so
+	dh_installmenu                    -p$(package)-common
+	dh_installdocs                    -p$(package)-common -p$(package)-dbg
+	dh_installchangelogs              -p$(package)-common -p$(package)-dbg ChangeLog
+	dh_lintian           -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_compress          -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_fixperms          -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_installdeb        -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_md5sums           -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_gencontrol        -p$(package) -p$(package)-common -p$(package)-dbg
+	dh_builddeb          -p$(package) -p$(package)-common -p$(package)-dbg -- -Zxz
 
 binary-arch-static:	checkroot build-static
 	dh_testdir
 
 	dh_installdirs -p$(package)-static
-	dh_lintian -p$(package)-static
+	dh_lintian     -p$(package)-static
 
 	awk 'BEGIN { print "The following modules are statically-compiled into the static $(package) binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/$(package)-static/README.Debian
 
-	dh_install -p$(package)-static
+	dh_install     -p$(package)-static
 	mv debian/$(package)-static/bin/zsh debian/$(package)-static/bin/zsh5-static
 
 ifneq (zsh-beta,$(package))
-	dh_shlibdeps -p$(package)-static
+	dh_shlibdeps         -p$(package)-static
 endif
 
-	dh_strip -p$(package)-static
-	dh_link -p$(package)-static
-	dh_installdocs -p$(package)-static
+	dh_strip             -p$(package)-static
+	dh_link              -p$(package)-static
+	dh_installdocs       -p$(package)-static
 	dh_installchangelogs -p$(package)-static
-	dh_compress -p$(package)-static
-	dh_fixperms -p$(package)-static
-	dh_installdeb -p$(package)-static
-	dh_md5sums -p$(package)-static
-	dh_gencontrol -p$(package)-static
-	dh_builddeb -p$(package)-static
+	dh_compress          -p$(package)-static
+	dh_fixperms          -p$(package)-static
+	dh_installdeb        -p$(package)-static
+	dh_md5sums           -p$(package)-static
+	dh_gencontrol        -p$(package)-static
+	dh_builddeb          -p$(package)-static
 
 
 binary-arch-dev:	checkroot build-arch
-	dh_installdirs -p$(package)-dev
-	dh_install -p$(package)-dev
+	dh_installdirs       -p$(package)-dev
+	dh_install           -p$(package)-dev
 	cd debian/$(package)-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4
-	dh_installdocs -p$(package)-dev
+	dh_installdocs       -p$(package)-dev
 	dh_installchangelogs -p$(package)-dev
-	dh_compress -p$(package)-dev
-	dh_fixperms -p$(package)-dev
-	dh_installdeb -p$(package)-dev
-	dh_md5sums -p$(package)-dev
-	dh_gencontrol -p$(package)-dev
-	dh_builddeb -p$(package)-dev
+	dh_compress          -p$(package)-dev
+	dh_fixperms          -p$(package)-dev
+	dh_installdeb        -p$(package)-dev
+	dh_md5sums           -p$(package)-dev
+	dh_gencontrol        -p$(package)-dev
+	dh_builddeb          -p$(package)-dev
 
 ifneq (zsh-beta,$(package))
 binary:		binary-indep binary-arch binary-arch-static binary-arch-dev

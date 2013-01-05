@@ -3,27 +3,17 @@ INSTALL = install
 INSTALL_PROGRAM = $(INSTALL) -p    -o root -g root  -m  755
 
 package=zsh
-ifeq (zsh-beta,$(package))
-snapshot_date := $(shell dpkg-parsechangelog | sed -n '/^Version: [0-9.][0-9.]*.*+20[0-9][0-9]\([0-9][0-9][0-9][0-9]\)-[0-9][0-9]*$$/ {s//\1/;p}')
-endif
 
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
 H_LDFLAGS = $(LDFLAGS)
 
 CFLAGS += -Wall -g
-ifeq (zsh-beta,$(package))
-CFLAGS += -W
-endif
 
 CONFIGFLAGS =  --prefix=/usr
 CONFIGFLAGS += --mandir=/usr/share/man
 CONFIGFLAGS += --bindir=/bin
 CONFIGFLAGS += LDFLAGS="-Wl,--as-needed -g $(H_LDFLAGS)"
-
-ifeq (zsh-beta,$(package))
-CONFIGFLAGS += --program-suffix=-beta
-endif
 
 CONFIGFLAGS += --infodir=/usr/share/info
 CONFIGFLAGS += --enable-maildir-support
@@ -41,9 +31,7 @@ CONFIGFLAGS += --enable-additional-fpath=/usr/share/zsh/vendor-functions,/usr/sh
 
 STATICFLAGS =  --disable-dynamic
 STATICFLAGS += --enable-ldflags=-static
-ifneq (zsh-beta,$(package))
 STATICFLAGS += --disable-dynamic-nss
-endif
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 CONFIGFLAGS += --enable-zsh-debug
@@ -56,9 +44,6 @@ endif
 build: build-arch build-indep
 build-stamp: configure-stamp
 	dh_testdir
-ifeq (zsh-beta,$(package))
-	touch stamp-h.in
-endif
 
 build-arch: build-stamp
 	dh_auto_build -B obj --parallel
@@ -67,9 +52,7 @@ build-arch: build-stamp
 	touch $@
 
 build-indep: build-stamp
-ifeq (zsh,$(package))
 	dh_auto_build -B obj --parallel -- pdf
-endif
 
 	touch $@
 
@@ -90,10 +73,6 @@ configure-stamp: configure
 	dh_testdir
 	chmod 755 configure
 	mkdir -p obj/testhome
-ifeq (zsh-beta,$(package))
-	test -f Config/version.mk.orig || cp Config/version.mk Config/version.mk.orig
-	sed -i -e 's/^VERSION=\([^+]*\)$$/VERSION=\1-cvs$(snapshot_date)/' Config/version.mk
-endif
 	dh_auto_configure -B obj -- $(CONFIGFLAGS)
 	touch $@
 
@@ -108,15 +87,10 @@ configure-static-stamp: configure
 clean:
 	dh_testdir
 	dh_autoreconf_clean
-ifeq (zsh-beta,$(package))
-	test ! -f Config/version.mk.orig || mv Config/version.mk.orig Config/version.mk
-endif
 	rm -f build build-static
 	dh_auto_clean -B obj        --parallel
 	dh_auto_clean -B obj-static --parallel
-ifneq (zsh-beta,$(package))
 	dh_auto_clean               --parallel
-endif
 	dh_clean
 	rm -rf config.cache obj obj-static autom4te.cache
 
@@ -140,11 +114,7 @@ binary-indep: build-indep
 	dh_gencontrol        -p$(package)-doc
 	dh_builddeb          -p$(package)-doc -- -Zxz
 
-ifneq (zsh-beta,$(package))
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
-else
-binary-arch: binary-arch-dynamic
-endif
 binary-arch-dynamic: build-arch
 	dh_testdir
 	dh_testroot
@@ -155,12 +125,6 @@ binary-arch-dynamic: build-arch
 	nroff -mandoc -Tascii Doc/zshbuiltins.1 | colcrt - | \
 	sed -e 's/±/{+|-}/' | ( cd debian/$(package)-common/usr/share/$(package)/help && \
 	perl $(CURDIR)/Util/helpfiles )
-
-ifeq (zsh-beta,$(package))
-	sed -r -i -e \
-	's/zsh(all|builtins|compctl|compsys|compwid|contrib|expn|misc|modules|options|param|roadmap|tcpsys|zftpsys|zle|calsys)/$(package)\1/g' \
-	debian/$(package)-common/usr/share/man/man1/*.1
-endif
 
 # functions
 	dh_installexamples -p$(package)-common -X.distfiles
@@ -178,13 +142,10 @@ endif
 	awk '/^#define FPATH_DIR/ { head=$$3; gsub(/"/,"",head); }; /^#define FPATH_SUBDIRS/ { $$1=""; $$2=""; gsub(/[" ]/,""); tail=$$0; } END { printf "%s/%s\n", head, tail; };' obj/Src/zshpaths.h >obj/Src/zshpaths.temp
 	debian/zsh/bin/$(package) -fc 'setopt extendedglob; for i in debian/$(package)-common/'`cat obj/Src/zshpaths.temp`'; do zcompile -U -M $$i.zwc $$i/*~*.zwc(^/) ; chmod 644 $$i.zwc ; done'
 
-ifneq (zsh-beta,$(package))
 	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
 	rm debian/zsh/bin/zsh-5.[0-9]*
 
 	dh_strip -p$(package) --dbg-package=$(package)-dbg
-endif
-
 	dh_link -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_install -p$(package) -p$(package)-common -p$(package)-dbg
 
@@ -222,10 +183,7 @@ binary-arch-static: build-static
 	dh_install     -p$(package)-static
 	mv debian/$(package)-static/bin/zsh debian/$(package)-static/bin/zsh5-static
 
-ifneq (zsh-beta,$(package))
 	dh_shlibdeps         -p$(package)-static
-endif
-
 	dh_strip             -p$(package)-static
 	dh_link              -p$(package)-static
 	dh_installdocs       -p$(package)-static
@@ -254,11 +212,7 @@ binary-arch-dev: build-arch
 	dh_gencontrol        -p$(package)-dev
 	dh_builddeb          -p$(package)-dev
 
-ifneq (zsh-beta,$(package))
 binary:		binary-indep binary-arch binary-arch-static binary-arch-dev
-else
-binary:		binary-indep binary-arch
-endif
 
 prebuild:
 	Util/preconfig

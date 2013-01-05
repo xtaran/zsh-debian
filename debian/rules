@@ -107,11 +107,13 @@ binary-indep: build-indep
 
 	dh_installdocs       -p$(package)-doc
 	dh_installchangelogs -p$(package)-doc
-	dh_compress          -p$(package)-doc -Xpdf
-	dh_fixperms          -p$(package)-doc
-	dh_installdeb        -p$(package)-doc
-	dh_md5sums           -p$(package)-doc
-	dh_gencontrol        -p$(package)-doc
+	dh_link                               -pzsh-beta -pzsh-beta-doc
+	dh_compress          -p$(package)-doc -pzsh-beta -pzsh-beta-doc -Xpdf
+	dh_fixperms          -p$(package)-doc -pzsh-beta -pzsh-beta-doc
+	dh_installdeb        -p$(package)-doc -pzsh-beta -pzsh-beta-doc
+	dh_md5sums           -p$(package)-doc -pzsh-beta -pzsh-beta-doc
+	dh_gencontrol        -p$(package)-doc -pzsh-beta -pzsh-beta-doc
+	dh_builddeb                           -pzsh-beta -pzsh-beta-doc
 	dh_builddeb          -p$(package)-doc -- -Zxz
 
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev

@@ -120,8 +120,9 @@ endif
 	dh_clean
 	rm -rf config.cache obj obj-static autom4te.cache
 
-binary-indep:	checkroot build-indep
+binary-indep: build-indep
 	dh_testdir
+	dh_testroot
 	dh_installdirs -p$(package)-doc
 
 	cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc
@@ -144,8 +145,9 @@ binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 else
 binary-arch: binary-arch-dynamic
 endif
-binary-arch-dynamic:	checkroot build-arch
+binary-arch-dynamic: build-arch
 	dh_testdir
+	dh_testroot
 
 	dh_installdirs -p$(package) -p$(package)-common -p$(package)-dbg
 
@@ -208,8 +210,9 @@ endif
 	dh_gencontrol        -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_builddeb          -p$(package) -p$(package)-common -p$(package)-dbg -- -Zxz
 
-binary-arch-static:	checkroot build-static
+binary-arch-static: build-static
 	dh_testdir
+	dh_testroot
 
 	dh_installdirs -p$(package)-static
 	dh_lintian     -p$(package)-static
@@ -235,7 +238,10 @@ endif
 	dh_builddeb          -p$(package)-static
 
 
-binary-arch-dev:	checkroot build-arch
+binary-arch-dev: build-arch
+	dh_testdir
+	dh_testroot
+
 	dh_installdirs       -p$(package)-dev
 	dh_install           -p$(package)-dev
 	cd debian/$(package)-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4
@@ -261,8 +267,4 @@ prebuild:
 	make distclean
 	rm -rf autom4te.cache
 
-checkroot:
-	dh_testdir
-	test root = "`whoami`"
-
-.PHONY: binary binary-arch binary-indep clean checkroot binary-arch-dynamic binary-arch-static prebuild binary-arch-dev
+.PHONY: binary binary-arch binary-indep clean binary-arch-dynamic binary-arch-static prebuild binary-arch-dev

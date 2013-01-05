@@ -43,7 +43,7 @@ CONFIGFLAGS += --enable-zsh-debug --enable-zsh-mem-debug --enable-zsh-mem-warnin
 endif
 
 build: build-arch build-indep
-build-stamp: stamp-configure
+build-stamp: configure-stamp
 	dh_testdir
 ifeq (zsh-beta,$(package))
 	touch stamp-h.in
@@ -62,7 +62,7 @@ endif
 
 	touch build-indep
 
-build-static: stamp-configure-static
+build-static: configure-static-stamp
 	dh_testdir
 	dh_auto_build -B obj-static --parallel
 
@@ -75,7 +75,7 @@ configure:
 	touch stamp-h.in #configure
 	dh_autoreconf
 
-stamp-configure: configure
+configure-stamp: configure
 	dh_testdir
 	chmod 755 configure
 	mkdir -p obj/testhome
@@ -84,15 +84,15 @@ ifeq (zsh-beta,$(package))
 	sed -i -e 's/^VERSION=\([^+]*\)$$/VERSION=\1-cvs$(snapshot_date)/' Config/version.mk
 endif
 	dh_auto_configure -B obj -- $(CONFIGFLAGS)
-	touch stamp-configure
+	touch configure-stamp
 
-stamp-configure-static: configure
+configure-static-stamp: configure
 	dh_testdir
 	mkdir obj-static
 	dh_auto_configure -B obj-static -- $(CONFIGFLAGS) $(STATICFLAGS)
 #	cp debian/static.conf obj-static/Src/mymods.conf
 	sed -i -e 's/files.mdd link=no/files.mdd link=static/;s/stat.mdd link=no/stat.mdd link=static/' obj-static/config.modules
-	touch stamp-configure-static
+	touch configure-static-stamp
 
 clean:
 	dh_testdir

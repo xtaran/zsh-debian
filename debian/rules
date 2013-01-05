@@ -79,7 +79,8 @@ configure-static-stamp: configure
 	mkdir obj-static
 	dh_auto_configure -B obj-static -- $(CONFIGFLAGS) $(STATICFLAGS)
 #	cp debian/static.conf obj-static/Src/mymods.conf
-	sed -i -e 's/files.mdd link=no/files.mdd link=static/;s/stat.mdd link=no/stat.mdd link=static/' obj-static/config.modules
+	sed -i -e 's/files.mdd link=no/files.mdd link=static/;s/stat.mdd link=no/stat.mdd link=static/' \
+	    obj-static/config.modules
 	touch $@
 
 clean:
@@ -157,8 +158,7 @@ binary-arch-dynamic: build-arch
 	dh_link    -pzsh -pzsh-common             -pzsh-dbg
 	dh_install -pzsh -pzsh-common             -pzsh-dbg
 
-	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/zsh/help},; \
-                   s,:-more,:-/usr/bin/pager,;'                                         \
+	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/zsh/help},; s,:-more,:-/usr/bin/pager,;' \
 		debian/zsh-common/usr/share/zsh/functions/Misc/run-help
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#;' \
 		`find debian/zsh-common/usr/share/zsh/functions -type f`

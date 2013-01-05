@@ -7,8 +7,8 @@ ifeq (zsh-beta,$(package))
 snapshot_date := $(shell dpkg-parsechangelog | sed -n '/^Version: [0-9.][0-9.]*.*+20[0-9][0-9]\([0-9][0-9][0-9][0-9]\)-[0-9][0-9]*$$/ {s//\1/;p}')
 endif
 
+DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
-export CFLAGS LDFLAGS CPPFLAGS
 H_LDFLAGS = $(LDFLAGS)
 
 CFLAGS += -Wall -g

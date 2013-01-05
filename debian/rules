@@ -119,7 +119,6 @@ binary-indep:	checkroot build-indep
 
 	cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc
 	rm -f debian/zsh-doc/usr/share/info/dir*
-	gzip -9frq debian/zsh-doc/usr/share/info/*
 	cd obj && $(MAKE) install.html DESTDIR=$(CURDIR)/debian/zsh-doc htmldir=/usr/share/doc/$(package)-doc/html
 # Work around texi2html unfriendliness
 	sed -i -e 's/<BODY.*>/<BODY LANG="EN">/' debian/zsh-doc/usr/share/doc/$(package)-doc/html/*.html

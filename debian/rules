@@ -53,20 +53,20 @@ build-arch: build-stamp
 	dh_auto_build -B obj --parallel
 	HOME="$(CURDIR)/obj/testhome" dh_auto_test -B obj --parallel
 
-	touch build-arch
+	touch $@
 
 build-indep: build-stamp
 ifeq (zsh,$(package))
 	dh_auto_build -B obj --parallel -- pdf
 endif
 
-	touch build-indep
+	touch $@
 
 build-static: configure-static-stamp
 	dh_testdir
 	dh_auto_build -B obj-static --parallel
 
-	touch build-static
+	touch $@
 
 build-debug: DEB_BUILD_OPTIONS+=debug
 build-debug: build
@@ -84,7 +84,7 @@ ifeq (zsh-beta,$(package))
 	sed -i -e 's/^VERSION=\([^+]*\)$$/VERSION=\1-cvs$(snapshot_date)/' Config/version.mk
 endif
 	dh_auto_configure -B obj -- $(CONFIGFLAGS)
-	touch configure-stamp
+	touch $@
 
 configure-static-stamp: configure
 	dh_testdir
@@ -92,7 +92,7 @@ configure-static-stamp: configure
 	dh_auto_configure -B obj-static -- $(CONFIGFLAGS) $(STATICFLAGS)
 #	cp debian/static.conf obj-static/Src/mymods.conf
 	sed -i -e 's/files.mdd link=no/files.mdd link=static/;s/stat.mdd link=no/stat.mdd link=static/' obj-static/config.modules
-	touch configure-static-stamp
+	touch $@
 
 clean:
 	dh_testdir

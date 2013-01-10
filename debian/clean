@@ -2,5 +2,12 @@ config.cache
 config.status
 config.status.lineno
 Doc/zsh.idx
+Doc/Zsh/manmodmenu.yo
+Doc/Zsh/modlist.yo
+Doc/Zsh/modmenu.yo
+Doc/version.yo
+Doc/zsh*.1
+Doc/zsh.texi
+META-FAQ
 build-arch
 build-indep

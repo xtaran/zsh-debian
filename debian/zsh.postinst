@@ -26,6 +26,14 @@ update-alternatives --install /bin/zsh zsh /bin/zsh5 50 \
 update-alternatives --install /bin/rzsh rzsh /bin/zsh5 50 \
 		--slave /usr/share/man/man1/rzsh.1.gz rzsh.1.gz /usr/share/man/man1/zsh.1.gz
 
+# Replace documentation directory with symlink
+docdir="/usr/share/doc/zsh"
+if [ -d $docdir -a ! -L $docdir ]; then
+    if rmdir $docdir 2>/dev/null; then
+        ln -sf zsh-common $docdir
+    fi
+fi
+
 #DEBHELPER#
 
 exit 0

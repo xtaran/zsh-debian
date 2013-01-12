@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 INSTALL = install
-INSTALL_PROGRAM = $(INSTALL) -p    -o root -g root  -m  755
+INSTALL_PROGRAM = $(INSTALL) -p -o root -g root -m 755
 
 DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/buildflags.mk
@@ -124,7 +124,7 @@ binary-arch-dynamic: build-arch
 
 # functions
 	dh_installexamples -pzsh-common -X.distfiles
-	cd  debian/zsh-common/usr/share/doc/zsh-common/examples/; mv Example Functions
+	cd debian/zsh-common/usr/share/doc/zsh-common/examples/; mv Example Functions
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#' \
 	   debian/zsh-common/usr/share/doc/zsh-common/examples/Misc/*
 

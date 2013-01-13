@@ -2,7 +2,7 @@ Source: zsh
 Section: shells
 Priority: optional
 Build-Depends: bsdmainutils,
-               debhelper (>= 7~),
+               debhelper (>= 9~),
                dh-autoreconf,
                dpkg-dev (>= 1.16.1~),
                ghostscript,

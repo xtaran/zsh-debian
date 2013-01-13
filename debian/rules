@@ -233,7 +233,7 @@ endif
 	dh_installdeb        -p$(package)-static
 	dh_md5sums           -p$(package)-static
 	dh_gencontrol        -p$(package)-static
-	dh_builddeb          -p$(package)-static
+	dh_builddeb          -p$(package)-static -- -Zxz
 
 
 binary-arch-dev: build-arch

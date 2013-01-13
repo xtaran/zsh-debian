@@ -197,8 +197,8 @@ endif
 		-dDepends    debian/zsh/bin/*                                     \
 		-dRecommends debian/zsh/usr/lib/$(package)/*/zsh/*.so
 	dh_installmenu                    -p$(package)-common
-	dh_installdocs                    -p$(package)-common -p$(package)-dbg
-	dh_installchangelogs              -p$(package)-common -p$(package)-dbg ChangeLog
+	dh_installdocs                    -p$(package)-common
+	dh_installchangelogs              -p$(package)-common                  ChangeLog
 	dh_lintian           -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_compress          -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_fixperms          -p$(package) -p$(package)-common -p$(package)-dbg

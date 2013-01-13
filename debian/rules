@@ -205,7 +205,8 @@ endif
 	dh_installdeb        -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_md5sums           -p$(package) -p$(package)-common -p$(package)-dbg
 	dh_gencontrol        -p$(package) -p$(package)-common -p$(package)-dbg
-	dh_builddeb          -p$(package) -p$(package)-common -p$(package)-dbg -- -Zxz
+	dh_builddeb          -p$(package) -p$(package)-common                  -- -Zxz
+	dh_builddeb                                           -p$(package)-dbg
 
 binary-arch-static: build-static
 	dh_testdir

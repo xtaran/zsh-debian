@@ -131,6 +131,7 @@ Architecture: all
 Section: oldlibs
 Priority: extra
 Depends: ${misc:Depends}, zsh
+Suggests: zsh-beta-doc
 Description: transitional package to zsh
  The purpose of this package is solely the transition from the zsh-beta
  package to the zsh package. It can be safely removed if no more user

@@ -4,8 +4,8 @@ set -e
 
 case "$1" in
     (remove|deconfigure)
-	update-alternatives --remove zsh /bin/zsh5
-	update-alternatives --remove rzsh /bin/zsh5
+        rmdir /usr/local/share/zsh/site-functions || true
+        rmdir /usr/local/share/zsh || true
     ;;
     (upgrade)
     ;;

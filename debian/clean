@@ -11,3 +11,4 @@ Doc/zsh.texi
 META-FAQ
 build-arch
 build-indep
+stamp-h.in

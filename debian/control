@@ -112,7 +112,7 @@ Package: zsh-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: zsh (= ${binary:Version}), zsh-common (= ${source:Version}), ${misc:Depends}
+Depends: zsh (= ${binary:Version}), ${misc:Depends}
 Pre-Depends: dpkg (>= 1.15.6~)
 Description: shell with lots of features (debugging symbols)
  Zsh is a UNIX command interpreter (shell) usable as an

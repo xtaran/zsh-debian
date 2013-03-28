@@ -68,9 +68,11 @@ then
     # active. Only then are the values from $terminfo valid.
     if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
         function zle-line-init () {
+            emulate -L zsh
             printf '%s' ${terminfo[smkx]}
         }
         function zle-line-finish () {
+            emulate -L zsh
             printf '%s' ${terminfo[rmkx]}
         }
         zle -N zle-line-init

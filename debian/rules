@@ -215,6 +215,7 @@ binary-arch-static: build-static
 	dh_installdirs -p$(package)-static
 	dh_lintian     -p$(package)-static
 
+	dh_installdocs -p$(package)-static
 	awk 'BEGIN { print "The following modules are statically-compiled into the static $(package) binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/$(package)-static/README.Debian
 
 	dh_install     -p$(package)-static
@@ -226,7 +227,6 @@ endif
 
 	dh_strip             -p$(package)-static
 	dh_link              -p$(package)-static
-	dh_installdocs       -p$(package)-static
 	dh_installchangelogs -p$(package)-static
 	dh_compress          -p$(package)-static
 	dh_fixperms          -p$(package)-static

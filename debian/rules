@@ -215,6 +215,9 @@ binary-arch-static: build-static
 	dh_installdirs -p$(package)-static
 	dh_lintian     -p$(package)-static
 
+	# Do not symlink /usr/share/doc/zsh-static to
+	# /usr/share/doc/zsh-common because zsh-static has a uniqe,
+	# generated README.Debian
 	dh_installdocs -p$(package)-static
 	awk 'BEGIN { print "The following modules are statically-compiled into the static $(package) binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/$(package)-static/README.Debian
 

@@ -125,3 +125,24 @@ Description: shell with lots of features (debugging symbols)
  .
  This package contains gdb debugging symbols for the 'zsh'
  package.
+
+Package: zsh-beta
+Architecture: all
+Section: oldlibs
+Priority: extra
+Depends: ${misc:Depends}, zsh
+Suggests: zsh-beta-doc
+Description: transitional package to zsh
+ The purpose of this package is solely the transition from the zsh-beta
+ package to the zsh package. It can be safely removed if no more user
+ has zsh-beta as login shell.
+
+Package: zsh-beta-doc
+Architecture: all
+Section: oldlibs
+Priority: extra
+Depends: ${misc:Depends}, zsh-doc
+Description: transitional package to zsh-doc
+ The purpose of this package is solely the transition from the
+ zsh-beta-doc package to the zsh-doc package. It can be safely
+ removed.

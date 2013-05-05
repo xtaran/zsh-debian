@@ -193,9 +193,11 @@ binary-arch-static: build-static
 	awk 'BEGIN { print "The following modules are statically-compiled into the static zsh binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/zsh-static/README.Debian
 
 	dh_install     -pzsh-static
+	dh_strip       -pzsh-static
 	mv debian/zsh-static/bin/zsh debian/zsh-static/bin/zsh5-static
 
 	dh_installchangelogs -pzsh-static
+	dh_link              -pzsh-static
 	dh_compress          -pzsh-static
 	dh_fixperms          -pzsh-static
 	dh_installdeb        -pzsh-static

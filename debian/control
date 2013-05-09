@@ -13,6 +13,7 @@ Build-Depends: bsdmainutils,
                libpcre3-dev,
                texi2html (>= 1.76-3),
                texinfo,
+               texinfo (<< 5~) | texlive-latex-recommended,
                texlive-latex-base,
                yodl
 Maintainer: Debian Zsh Maintainers <pkg-zsh-devel@lists.alioth.debian.org>

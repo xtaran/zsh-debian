@@ -91,7 +91,7 @@ clean:
 binary-indep: build-indep
 	dh_testdir
 	dh_testroot
-	dh_installdocs -pzsh-doc --link-doc=zsh-common
+	dh_installdocs -pzsh-doc -pzsh-beta -pzsh-beta-doc --link-doc=zsh-common
 	dh_installdirs -pzsh-doc
 
 	cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc

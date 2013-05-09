@@ -131,7 +131,7 @@ Package: zsh-beta
 Architecture: all
 Section: oldlibs
 Priority: extra
-Depends: ${misc:Depends}, zsh
+Depends: ${misc:Depends}, zsh (>= 5), zsh-common (= ${source:Version})
 Suggests: zsh-beta-doc
 Description: transitional package to zsh
  The purpose of this package is solely the transition from the zsh-beta
@@ -142,7 +142,7 @@ Package: zsh-beta-doc
 Architecture: all
 Section: oldlibs
 Priority: extra
-Depends: ${misc:Depends}, zsh-doc
+Depends: ${misc:Depends}, zsh-doc, zsh-common (= ${source:Version})
 Description: transitional package to zsh-doc
  The purpose of this package is solely the transition from the
  zsh-beta-doc package to the zsh-doc package. It can be safely

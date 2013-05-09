@@ -22,7 +22,7 @@ Uploaders: Michael Prokop <mika@debian.org>,
            Clint Adams <clint@debian.org>,
            Frank Terbeck <ft@bewatermyfriend.org>,
            Richard Hartmann <richih.mailinglist@gmail.com>
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: http://www.zsh.org/
 Vcs-Git: git://anonscm.debian.org/collab-maint/zsh.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/zsh.git

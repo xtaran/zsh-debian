@@ -1,3 +1,89 @@
+zsh (5.0.2-3) unstable; urgency=low
+
+  * Upload to unstable again.
+
+  [ Axel Beckert ]
+  * [485652d2] Add dummy packages for transition from zsh-beta to zsh
+    - [099ce7e5] Remove all zsh-beta related conditionals from debian/rules
+    - [474dd5db] debian/rules: Replace "$(package)" with a hardcoded "zsh"
+    - [e020321f] Add symbolic link /bin/zsh-beta pointing to /bin/zsh5 for
+      backwards compatibility
+    - [128d9bcd] Remove zsh-beta alternatives and conffiles in
+      zsh-beta.postinst
+  * debian/rules enhancements:
+    - [f16a3cd4] Use dh_auto_{configure,build,install,clean}
+    - [c0cb3e2a] No more ignore potential failing of "include", "rm -f" or
+      "make install.xyz"
+      + [abe28723] Add build-dependency on dpkg-dev (>= 1.16.1~)
+    - [a9ee601d] Use DPKG_EXPORT_BUILDFLAGS instead of exporting flags
+      manually
+    - [7a8da596] Remove manuall handling of DEB_BUILD_OPTIONS=noopt
+    - [b4bab288] Allow parallel builds
+    - [b95dddd8] Replace checkroot target with dh_testroot
+    - [b3343504] Use dh_installdocs --link-doc instead of dh_link for
+      /usr/share/doc/zsh*
+  * No-op debian/rules refactoring:
+    - [a046f7bf] Rename targets stamp-configure and stamp-configure-static
+      to dh_clean compatible names
+    - [b78d2e2e] Wrap long lines
+    - [4bc34d4c] Don't line-break sed expressions. Do line-break before
+      their file parameters
+    - [336b60ea] CONFIGFLAGS and STATICFLAGS: Only one flag per line
+    - [0b48d60a] Split long debug CONFIGFLAGS line
+    - [4fe45240] Consequently use "touch $@" to create stamp files
+    - [74416133] Indent dh_* parameters and other code for a more
+      readable, table-like debian/rules
+    - [8c5e7918] Drop no more necessary manual compression of info files
+    - [724593d0,843e72f6] Remove some blank lines and commented code
+    - [e79f64cc] Simplify target dependencies (drops no-op build-stamp target)
+    - [b607fe2e] Reduce some occurrences of multiple whitespaces into single
+      ones
+    - [f1059538] Mention in debian/rules why /usr/share/doc/zsh-static is
+      no symlink
+  * [e4bf431f,76452cb3] zsh{,-dbg,-doc,-dev,-beta,-beta-doc}.postinst:
+    Create symlink to /usr/share/doc/zsh-common (Closes: #697808) Thanks
+    to Sebastian Ramacher <sramacher@debian.org>
+  * [76452cb3] Replace dependencies on zsh-common with versioned
+    dependencies. (Policy 12.3 + 12.7)
+  * [1ee01398] Add files generated before Makefile is generated to
+    debian/clean
+  * [6c668f5e] Bump dh compat to 9 for multiarch and additional debug
+    symbol features
+    - Enables compressed debugging symbols, saving > 50% space on disk
+    - Enables Build-IDs for debugging symbols
+    - Enables multiarch support, /usr/lib/zsh becomes e.g.
+      /usr/lib/x86_64-linux-gnu/zsh on amd64
+    - [b6bf39bd] Don't compress zsh-dbg with xz anymore, due to no more
+      savings
+  * [5ce8899a] No more install changelogs and copyright file into zsh-dbg.
+    zsh-dbg already has a symlink from /usr/share/doc/zsh-dbg to
+    zsh-common.
+  * [673851ec] Move /usr/local/share/zsh/… prerm removal from zsh to
+    zsh-common (Closes: #698224)
+  * [45d5aff1] Compress zsh-static with xz, too
+  * [014da817] Remove some more redundant entries from debian/zsh-*.dirs
+  * [59b7118e] lintian-overrides: Also match architecture-containing
+    /usr/lib* paths
+  * [8416fa14,eca34308] Fix FTBFS with texinfo versions >= 5 by
+    - cherry-picking commits 67a4be36c6203c26c3912c07441f42e3965f0fa8 and
+      b174a0df054929efd7804922750c71adeb8e0b57 from upstream, and
+    - adding a build-dependency on "texlive-latex-recommended | texinfo
+      (<< 5~)". Thanks to Sebastian Ramacher <sramacher@debian.org>, too!
+    (Closes: #707483)
+  * [15b0943d] Bump Standards-Version to 3.9.4
+    - [cb87cc19] Add Built-Using header to zsh-static, bump
+      build-dependency on dpkg-dev to >= 1.16.2~
+
+  [ Frank Terbeck ]
+  * [8f09d2b6] Make zle-line-init and -finish more robust against weird
+    option sets
+  * [d87b0050] Add sequence and bindings for BackSpace key
+
+  [ Richard Hartmann ]
+  * [590dcd96] Import watchfile by Bart Martens
+
+ -- Axel Beckert <abe@debian.org>  Fri, 10 May 2013 13:27:50 +0200
+
 zsh (5.0.2-2) experimental; urgency=low
 
   * [37c73049] Convert package to debhelper

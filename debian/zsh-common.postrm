@@ -4,4 +4,8 @@ set -e
 
 if test -x /usr/bin/update-menus ; then update-menus ; fi
 
+if [ "$1" = "purge" ]; then
+    rmdir -p /usr/local/share/zsh/site-functions || true
+fi
+
 #DEBHELPER#

@@ -26,6 +26,7 @@ CONFIGFLAGS += --enable-cap --enable-pcre
 CONFIGFLAGS += --enable-readnullcmd=pager
 CONFIGFLAGS += --enable-custom-patchlevel=Debian
 CONFIGFLAGS += --enable-additional-fpath=/usr/share/zsh/vendor-functions,/usr/share/zsh/vendor-completions
+CONFIGFLAGS += --disable-ansi2knr
 
 STATICFLAGS =  --disable-dynamic
 STATICFLAGS += --enable-ldflags=-static

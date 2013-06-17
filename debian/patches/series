@@ -1,3 +1,4 @@
 updates_needed_with_latest_texinfo.patch
 suppress_texinfo_warning_by_adding_item_arguments.patch
 texinfo_remove_leading_whitespace.patch
+vcs_info_guilt_support.patch

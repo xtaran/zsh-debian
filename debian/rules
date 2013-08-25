@@ -112,7 +112,7 @@ binary-indep: build-indep
 	dh_md5sums           -pzsh-doc -pzsh-beta -pzsh-beta-doc
 	dh_gencontrol        -pzsh-doc -pzsh-beta -pzsh-beta-doc
 	dh_builddeb                    -pzsh-beta -pzsh-beta-doc
-	dh_builddeb          -pzsh-doc -- -Zxz
+	dh_builddeb          -pzsh-doc
 
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 binary-arch-dynamic: build-arch
@@ -180,7 +180,7 @@ binary-arch-dynamic: build-arch
 	dh_installdeb        -pzsh -pzsh-common -pzsh-dbg
 	dh_md5sums           -pzsh -pzsh-common -pzsh-dbg
 	dh_gencontrol        -pzsh -pzsh-common -pzsh-dbg
-	dh_builddeb          -pzsh -pzsh-common           -- -Zxz
+	dh_builddeb          -pzsh -pzsh-common
 	dh_builddeb                             -pzsh-dbg
 
 binary-arch-static: build-static
@@ -207,7 +207,7 @@ binary-arch-static: build-static
 	dh_installdeb        -pzsh-static
 	dh_md5sums           -pzsh-static
 	dh_gencontrol        -pzsh-static -- -VBuilt-Using="$(BUILT_USING)"
-	dh_builddeb          -pzsh-static -- -Zxz
+	dh_builddeb          -pzsh-static
 
 binary-arch-dev: build-arch
 	dh_testdir

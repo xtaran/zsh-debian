@@ -1,2 +1,4 @@
 zsh-common: menu-command-not-in-package usr/share/menu/zsh-common:1 bin/zsh5
 zsh-common: pkg-not-in-package-test zsh usr/share/menu/zsh-common
+# Clearly a false positive:
+zsh-common: extra-license-file usr/share/zsh/functions/Completion/BSD.zwc

@@ -111,8 +111,7 @@ binary-indep: build-indep
 	dh_installdeb        -pzsh-doc -pzsh-beta -pzsh-beta-doc
 	dh_md5sums           -pzsh-doc -pzsh-beta -pzsh-beta-doc
 	dh_gencontrol        -pzsh-doc -pzsh-beta -pzsh-beta-doc
-	dh_builddeb                    -pzsh-beta -pzsh-beta-doc
-	dh_builddeb          -pzsh-doc
+	dh_builddeb          -pzsh-doc -pzsh-beta -pzsh-beta-doc
 
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 binary-arch-dynamic: build-arch
@@ -180,8 +179,7 @@ binary-arch-dynamic: build-arch
 	dh_installdeb        -pzsh -pzsh-common -pzsh-dbg
 	dh_md5sums           -pzsh -pzsh-common -pzsh-dbg
 	dh_gencontrol        -pzsh -pzsh-common -pzsh-dbg
-	dh_builddeb          -pzsh -pzsh-common
-	dh_builddeb                             -pzsh-dbg
+	dh_builddeb          -pzsh -pzsh-common -pzsh-dbg
 
 binary-arch-static: build-static
 	dh_testdir

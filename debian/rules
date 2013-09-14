@@ -160,11 +160,6 @@ binary-arch-dynamic: build-arch
 		debian/zsh-common/usr/share/zsh/functions/Misc/run-help
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#;' \
 		`find debian/zsh-common/usr/share/zsh/functions -type f`
-	chmod 755 debian/zsh-common/usr/share/zsh/functions/Misc/checkmail \
-	          debian/zsh-common/usr/share/zsh/functions/Misc/harden    \
-	          debian/zsh-common/usr/share/zsh/functions/Misc/run-help  \
-	          debian/zsh-common/usr/share/zsh/functions/Misc/zkbd      \
-	          debian/zsh-common/usr/share/zsh/functions/Misc/zcalc
 
 	dh_shlibdeps         -pzsh              -pzsh-dbg --   \
 		-dDepends    debian/zsh/bin/*                  \

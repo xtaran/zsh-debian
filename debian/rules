@@ -163,7 +163,7 @@ binary-arch-dynamic: build-arch
 
 	dh_shlibdeps         -pzsh              -pzsh-dbg --   \
 		-dDepends    debian/zsh/bin/*                  \
-		-dRecommends debian/zsh/usr/lib/zsh/*/zsh/*.so
+		-dRecommends debian/zsh/usr/lib/*/zsh/*/zsh/*.so
 
 	dh_installmenu             -pzsh-common
 	dh_installdocs       -pzsh -pzsh-common -pzsh-dbg --link-doc=zsh-common

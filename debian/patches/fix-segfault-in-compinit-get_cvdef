@@ -1,0 +1,17 @@
+Description: Fixes segfault on "task <Tab><Tab>"
+Bug-Zsh: http://www.zsh.org/mla/workers/2013/msg00772.html
+Author: Axel Beckert <abe@debian.org>
+
+Index: zsh/Src/Zle/computil.c
+===================================================================
+--- zsh.orig/Src/Zle/computil.c	2013-09-18 23:09:08.000000000 +0200
++++ zsh/Src/Zle/computil.c	2013-09-18 23:28:55.000000000 +0200
+@@ -2992,7 +2992,7 @@
+ 	    return *p;
+ 	} else if (!min || !*p || (*p)->lastt < (*min)->lastt)
+ 	    min = p;
+-    if (i)
++    if (i > 0)
+ 	min = p;
+     if ((new = parse_cvdef(nam, args))) {
+ 	freecvdef(*min);

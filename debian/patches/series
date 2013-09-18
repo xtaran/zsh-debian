@@ -3,3 +3,4 @@ suppress_texinfo_warning_by_adding_item_arguments.patch
 texinfo_remove_leading_whitespace.patch
 vcs_info_guilt_support.patch
 replace-texi2html-with-makeinfo
+fix-segfault-in-compinit-get_cvdef

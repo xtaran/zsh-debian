@@ -1,7 +1,7 @@
 Description: Remove leading whitespace from texinfo directory entry
  The leading whitespace makes Emacs' info menu not work as expected,
  at least With newer version or combinations of texinfo and/or yodl.
-Author: Axel Beckert <abe@debian.org>
+Author: Bruce Stephens <bruce.stephens@isode.com>
 Bug-Debian: http://bugs.debian.org/711516
 Forwarded: http://www.zsh.org/mla/workers/2013/msg00520.html
 

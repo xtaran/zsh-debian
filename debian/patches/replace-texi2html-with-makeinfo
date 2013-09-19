@@ -1,4 +1,5 @@
 Description: Replace deprecated texi2html with makeinfo
+Forwarded: http://www.zsh.org/mla/workers/2013/msg00723.html
 Author: Axel Beckert <abe@debian.org>
 
 Index: zsh/Doc/Makefile.in

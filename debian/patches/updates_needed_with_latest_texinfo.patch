@@ -1,9 +1,10 @@
 Description: 31261: updates needed with latest texinfo
 Author: Peter Stephenson <p.w.stephenson@ntlworld.com>
 Date: Fri Apr 12 22:47:22 2013 +0100
-Upstream-Commit: b174a0df054929efd7804922750c71adeb8e0b57
-Revised: Axel Beckert <abe@debian.org>
-Debian-Bug: 707483
+Origin: commit:b174a0df054929efd7804922750c71adeb8e0b57
+Reviewed-By: Axel Beckert <abe@debian.org>
+Bug-Debian: 707483
+Bug: http://www.zsh.org/mla/workers/2013/msg00321.html
 
 diff --git a/Doc/Zsh/compsys.yo b/Doc/Zsh/compsys.yo
 index 2991c1f..4a436da 100644

@@ -1,3 +1,41 @@
+zsh (5.0.2-4) unstable; urgency=low
+
+  [ Axel Beckert ]
+  * [4a56474b] Clean up postinst created dirs again in postrm purge
+    (Closes: #708106)
+  * [35d13111] Remove redundant update-menus calls in maintainer scripts.
+    (Done by dh_installmenu via the #DEBHELPER# marker nowadays.)
+  * [5ee2676c] Run test-suite on static build, too, but ignore result for now
+  * [a5afb115] Remove leading whitespace from texinfo directory entry
+    (Closes: #711516)
+  * [80916d06] Disable ansi2knr as it's no more available since automake
+    1.12.  Fixes FTBFS with recent automake versions.
+  * [3ff89eb4] Add patch to fix warnings in VCS_INFO's stgit support when
+    guilt is used. Thanks to Frank Terbeck <ft@bewatermyfriend.org>.
+  * [f0ab89ab] No more pass -Zxz to dpkg-deb explicitly as dpkg-deb uses
+    xz as compressor by default since version 1.17.0.
+    - [8e7e6852] Merge now common dh_builddeb lines
+    - This also allows us to remove the Pre-Depends on dpkg >= 1.15.6~.
+  * [0c130d4f] Add configure to debian/clean. (Not doing so may cause FTBFS)
+  * [d5b36d06] Add lintian override: Completion/BSD.zwc is no extra
+    license file
+  * [6362089b] Add patch to replace texi2html by makeinfo. Fixes lintian
+    warning build-depends-on-obsolete-package.
+  * [0614e2d4] Remove redundant chmod from debian/rules (done by
+    dh_fixperms anyways)
+  * [76708e10] Add patch to fix segfault in compinit's get_cvdef/freecvdef.
+    Segfault was triggered by task's tab completion.
+  * [89e7f594] Fix path passed to dh_shlibdeps for multiarch. Fixes error
+    message "objdump: 'debian/zsh/usr/lib/zsh/*/zsh/*.so': No such file"
+    in build log. Has been broken since 6c668f5e.
+  * [e2c05caf] Reformat all patch headers to be DEP3 compliant.  Also add
+    more meta-data about upstream relations.
+
+  [ Richard Hartmann ]
+  * [242f65bd] debian/control: richih@debian.org
+
+ -- Axel Beckert <abe@debian.org>  Fri, 20 Sep 2013 01:06:11 +0200
+
 zsh (5.0.2-3) unstable; urgency=low
 
   * Upload to unstable again.

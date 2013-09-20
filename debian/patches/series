@@ -4,3 +4,4 @@ texinfo_remove_leading_whitespace.patch
 vcs_info_guilt_support.patch
 replace-texi2html-with-makeinfo
 fix-segfault-in-compinit-get_cvdef
+check-for-dev-tty-before-using-it.patch

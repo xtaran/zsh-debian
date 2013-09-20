@@ -42,9 +42,13 @@ endif
 
 BUILT_USING=$(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libcap-dev libncursesw5-dev libpcre3-dev eglibc)
 
+# Check for /dev/tty and find potential alternatives to avoid test
+# suite failures on hurd
+TESTTTY=$(shell if [ -c /dev/tty ]; then echo /dev/tty; else find /dev -name 'tty*' -type c | head -1; fi)
+
 build: build-arch build-indep
 
-build-arch: configure-stamp
+build-arch: configure-stamp prepare-tests-stamp
 	dh_auto_build -B obj --parallel
 	HOME="$(CURDIR)/obj/testhome" dh_auto_test -B obj --parallel
 	touch $@
@@ -53,7 +57,7 @@ build-indep: configure-stamp
 	dh_auto_build -B obj --parallel -- pdf
 	touch $@
 
-build-static: configure-static-stamp
+build-static: configure-static-stamp prepare-tests-stamp
 	dh_testdir
 	dh_auto_build -B obj-static --parallel
 	HOME="$(CURDIR)/obj-static/testhome" dh_auto_test -B obj-static --parallel || true
@@ -61,6 +65,10 @@ build-static: configure-static-stamp
 
 build-debug: DEB_BUILD_OPTIONS+=debug
 build-debug: build
+
+prepare-tests-stamp:
+	debian/patch-test-suite.sh "$(TESTTTY)"
+	touch $@
 
 configure:
 	touch stamp-h.in
@@ -89,6 +97,7 @@ clean:
 	dh_auto_clean -B obj        --parallel
 	dh_auto_clean -B obj-static --parallel
 	dh_auto_clean               --parallel
+	debian/patch-test-suite.sh  --reverse $(TESTTTY)
 	dh_clean
 	rm -rf config.cache obj obj-static autom4te.cache
 

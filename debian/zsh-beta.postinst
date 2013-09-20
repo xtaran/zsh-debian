@@ -19,7 +19,9 @@ esac
 for conffile in zlogin zlogout zprofile zshenv zshrc; do
     dpkg-maintscript-helper rm_conffile /etc/zsh-beta/$conffile 5 -- "$@"
 done
-rmdir /etc/zsh-beta || true
+if [ -d /etc/zsh-beta ]; then
+    rmdir /etc/zsh-beta || true
+fi
 
 update-alternatives --remove zsh-beta /usr/bin/zsh
 update-alternatives --remove zsh-beta /bin/zsh4

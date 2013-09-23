@@ -156,7 +156,7 @@ binary-arch-dynamic: build-arch
 	dh_testdir
 	dh_testroot
 
-	dh_installdirs -pzsh -pzsh-dbg
+	dh_installdirs -pzsh             -pzsh-dbg
 
 # modules
 	cd obj && $(MAKE) install.bin     DESTDIR=$(CURDIR)/debian/zsh INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
@@ -165,29 +165,30 @@ binary-arch-dynamic: build-arch
 	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
 	rm debian/zsh/bin/zsh-5.[0-9]*
 
-	dh_strip   -pzsh --dbg-package=zsh-dbg
-	dh_install -pzsh             -pzsh-dbg
+	dh_strip       -pzsh --dbg-package=zsh-dbg
+	dh_install     -pzsh             -pzsh-dbg
 
-	dh_shlibdeps         -pzsh -pzsh-dbg -- \
+	dh_shlibdeps   -pzsh             -pzsh-dbg -- \
 		-dDepends    debian/zsh/bin/*   \
 		-dRecommends debian/zsh/usr/lib/*/zsh/*/zsh/*.so
 
-	dh_installdocs       -pzsh -pzsh-dbg --link-doc=zsh-common
+	dh_installdocs -pzsh             -pzsh-dbg --link-doc=zsh-common
 
 binary-arch-static: build-static
 	dh_testdir
 	dh_testroot
 
-	dh_installdirs -pzsh-static
+	dh_installdirs       -pzsh-static
 
 	# Do not symlink /usr/share/doc/zsh-static to
 	# /usr/share/doc/zsh-common because zsh-static has a unique,
 	# generated README.Debian
-	dh_installdocs -pzsh-static
+	dh_installdocs       -pzsh-static
 	awk 'BEGIN { print "The following modules are statically-compiled into the static zsh binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/zsh-static/README.Debian
 
-	dh_install     -pzsh-static
-	dh_strip       -pzsh-static
+	dh_install           -pzsh-static
+	dh_strip             -pzsh-static
+
 	mv debian/zsh-static/bin/zsh debian/zsh-static/bin/zsh5-static
 
 	dh_installchangelogs -pzsh-static
@@ -196,10 +197,12 @@ binary-arch-dev: build-arch
 	dh_testdir
 	dh_testroot
 
-	dh_installdirs       -pzsh-dev
-	dh_install           -pzsh-dev
+	dh_installdirs -pzsh-dev
+	dh_install     -pzsh-dev
+
 	cd debian/zsh-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4
-	dh_installdocs       -pzsh-dev --link-doc=zsh-common
+
+	dh_installdocs -pzsh-dev --link-doc=zsh-common
 
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 	dh_lintian    -a

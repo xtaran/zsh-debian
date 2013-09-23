@@ -11,8 +11,8 @@ Build-Depends: bsdmainutils,
                libcap-dev [linux-any],
                libncursesw5-dev,
                libpcre3-dev,
-               texinfo,
-               texlive-latex-recommended | texinfo (<< 5~),
+               texinfo (>= 5~),
+               texlive-latex-recommended,
                texlive-latex-base,
                yodl
 Maintainer: Debian Zsh Maintainers <pkg-zsh-devel@lists.alioth.debian.org>

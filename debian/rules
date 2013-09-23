@@ -92,33 +92,11 @@ clean:
 	dh_clean
 	rm -rf config.cache obj obj-static autom4te.cache
 
-binary-indep: build-indep
+binary-indep: build-indep binary-arch-dynamic
 	dh_testdir
 	dh_testroot
 	dh_installdocs -pzsh-doc -pzsh-beta -pzsh-beta-doc --link-doc=zsh-common
-	dh_installdirs -pzsh-doc
-
-	cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc
-	rm -f debian/zsh-doc/usr/share/info/dir*
-	cd obj && $(MAKE) install.html DESTDIR=$(CURDIR)/debian/zsh-doc htmldir=/usr/share/doc/zsh-doc/html
-# Work around texi2html unfriendliness
-	sed -i -e 's/<BODY.*>/<BODY LANG="EN">/' debian/zsh-doc/usr/share/doc/zsh-doc/html/*.html
-
-	dh_installchangelogs -pzsh-doc
-	dh_link                        -pzsh-beta -pzsh-beta-doc
-	dh_compress          -pzsh-doc -pzsh-beta -pzsh-beta-doc -Xpdf
-	dh_fixperms          -pzsh-doc -pzsh-beta -pzsh-beta-doc
-	dh_installdeb        -pzsh-doc -pzsh-beta -pzsh-beta-doc
-	dh_md5sums           -pzsh-doc -pzsh-beta -pzsh-beta-doc
-	dh_gencontrol        -pzsh-doc -pzsh-beta -pzsh-beta-doc
-	dh_builddeb          -pzsh-doc -pzsh-beta -pzsh-beta-doc
-
-binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
-binary-arch-dynamic: build-arch
-	dh_testdir
-	dh_testroot
-
-	dh_installdirs -pzsh -pzsh-common -pzsh-dbg
+	dh_installdirs -pzsh-doc                                    -pzsh-common
 
 	cd obj && $(MAKE) install.man DESTDIR=$(CURDIR)/debian/zsh-common
 	nroff -mandoc -Tascii Doc/zshbuiltins.1 | colcrt - | \
@@ -131,10 +109,7 @@ binary-arch-dynamic: build-arch
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#' \
 	   debian/zsh-common/usr/share/doc/zsh-common/examples/Misc/*
 
-	cd obj && $(MAKE) install.bin     DESTDIR=$(CURDIR)/debian/zsh INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
-	cd obj && $(MAKE) install.modules DESTDIR=$(CURDIR)/debian/zsh INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
-	cd obj && $(MAKE) install.fns     DESTDIR=$(CURDIR)/debian/zsh-common
-
+	cd obj && $(MAKE) install.fns DESTDIR=$(CURDIR)/debian/zsh-common
 	rm -r debian/zsh-common/usr/local
 
 # move this to a non-root section; also drop it for cross-compiles
@@ -142,39 +117,72 @@ binary-arch-dynamic: build-arch
              /^#define FPATH_SUBDIRS/ { $$1=""; $$2=""; gsub(/[" ]/,""); tail=$$0; } \
              END                      { printf "%s/%s\n", head, tail; };'            \
 	    obj/Src/zshpaths.h >obj/Src/zshpaths.temp
-	debian/zsh/bin/zsh -fc \
+	debian/zsh/bin/zsh5 -fc \
             'setopt extendedglob; \
 	     for i in debian/zsh-common/'`cat obj/Src/zshpaths.temp`'; do \
 		 zcompile -U -M $$i.zwc $$i/*~*.zwc(^/);                  \
 		 chmod 644 $$i.zwc;                                       \
 	     done'
 
-	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
-	rm debian/zsh/bin/zsh-5.[0-9]*
+# Docs: Info + HTML
+	cd obj && $(MAKE) install.info DESTDIR=$(CURDIR)/debian/zsh-doc
+	rm -f debian/zsh-doc/usr/share/info/dir*
+	cd obj && $(MAKE) install.html DESTDIR=$(CURDIR)/debian/zsh-doc htmldir=/usr/share/doc/zsh-doc/html
 
-	dh_strip   -pzsh              --dbg-package=zsh-dbg
-	dh_link    -pzsh -pzsh-common             -pzsh-dbg
-	dh_install -pzsh -pzsh-common             -pzsh-dbg
+# Work around texi2html unfriendliness
+	sed -i -e 's/<BODY.*>/<BODY LANG="EN">/' debian/zsh-doc/usr/share/doc/zsh-doc/html/*.html
 
+	dh_install                                               -pzsh-common
+
+# Doesn't this need to go before we zcompile stuff into .zwc files? -- Axel
 	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/zsh/help},; s,:-more,:-/usr/bin/pager,;' \
 		debian/zsh-common/usr/share/zsh/functions/Misc/run-help
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#;' \
 		`find debian/zsh-common/usr/share/zsh/functions -type f`
 
-	dh_shlibdeps         -pzsh              -pzsh-dbg --   \
-		-dDepends    debian/zsh/bin/*                  \
+	dh_link                        -pzsh-beta -pzsh-beta-doc -pzsh-common
+	dh_installmenu                                           -pzsh-common
+	dh_installdocs                                           -pzsh-common
+	dh_installchangelogs -pzsh-doc                           -pzsh-common ChangeLog
+	dh_lintian                                               -pzsh-common
+	dh_compress          -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common -Xpdf
+	dh_fixperms          -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
+	dh_installdeb        -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
+	dh_md5sums           -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
+	dh_gencontrol        -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
+	dh_builddeb          -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
+
+binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
+binary-arch-dynamic: build-arch
+	dh_testdir
+	dh_testroot
+
+	dh_installdirs -pzsh -pzsh-dbg
+
+# modules
+	cd obj && $(MAKE) install.bin     DESTDIR=$(CURDIR)/debian/zsh INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
+	cd obj && $(MAKE) install.modules DESTDIR=$(CURDIR)/debian/zsh INSTALL_PROGRAM='$(INSTALL_PROGRAM)'
+
+	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
+	rm debian/zsh/bin/zsh-5.[0-9]*
+
+	dh_strip   -pzsh --dbg-package=zsh-dbg
+	dh_link    -pzsh             -pzsh-dbg
+	dh_install -pzsh             -pzsh-dbg
+
+	dh_shlibdeps         -pzsh -pzsh-dbg -- \
+		-dDepends    debian/zsh/bin/*   \
 		-dRecommends debian/zsh/usr/lib/*/zsh/*/zsh/*.so
 
-	dh_installmenu             -pzsh-common
-	dh_installdocs       -pzsh -pzsh-common -pzsh-dbg --link-doc=zsh-common
-	dh_installchangelogs       -pzsh-common -pzsh-dbg ChangeLog
-	dh_lintian           -pzsh -pzsh-common -pzsh-dbg
-	dh_compress          -pzsh -pzsh-common -pzsh-dbg
-	dh_fixperms          -pzsh -pzsh-common -pzsh-dbg
-	dh_installdeb        -pzsh -pzsh-common -pzsh-dbg
-	dh_md5sums           -pzsh -pzsh-common -pzsh-dbg
-	dh_gencontrol        -pzsh -pzsh-common -pzsh-dbg
-	dh_builddeb          -pzsh -pzsh-common -pzsh-dbg
+	dh_installdocs       -pzsh -pzsh-dbg --link-doc=zsh-common
+	dh_installchangelogs       -pzsh-dbg ChangeLog
+	dh_lintian           -pzsh -pzsh-dbg
+	dh_compress          -pzsh -pzsh-dbg
+	dh_fixperms          -pzsh -pzsh-dbg
+	dh_installdeb        -pzsh -pzsh-dbg
+	dh_md5sums           -pzsh -pzsh-dbg
+	dh_gencontrol        -pzsh -pzsh-dbg
+	dh_builddeb          -pzsh -pzsh-dbg
 
 binary-arch-static: build-static
 	dh_testdir

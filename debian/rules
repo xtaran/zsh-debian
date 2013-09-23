@@ -152,7 +152,6 @@ binary-indep: build-indep binary-arch-dynamic
 	dh_gencontrol        -i
 	dh_builddeb          -i
 
-binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 binary-arch-dynamic: build-arch
 	dh_testdir
 	dh_testroot
@@ -167,7 +166,6 @@ binary-arch-dynamic: build-arch
 	rm debian/zsh/bin/zsh-5.[0-9]*
 
 	dh_strip   -pzsh --dbg-package=zsh-dbg
-	dh_link    -pzsh             -pzsh-dbg
 	dh_install -pzsh             -pzsh-dbg
 
 	dh_shlibdeps         -pzsh -pzsh-dbg -- \
@@ -176,20 +174,12 @@ binary-arch-dynamic: build-arch
 
 	dh_installdocs       -pzsh -pzsh-dbg --link-doc=zsh-common
 	dh_installchangelogs       -pzsh-dbg ChangeLog
-	dh_lintian           -pzsh -pzsh-dbg
-	dh_compress          -pzsh -pzsh-dbg
-	dh_fixperms          -pzsh -pzsh-dbg
-	dh_installdeb        -pzsh -pzsh-dbg
-	dh_md5sums           -pzsh -pzsh-dbg
-	dh_gencontrol        -pzsh -pzsh-dbg
-	dh_builddeb          -pzsh -pzsh-dbg
 
 binary-arch-static: build-static
 	dh_testdir
 	dh_testroot
 
 	dh_installdirs -pzsh-static
-	dh_lintian     -pzsh-static
 
 	# Do not symlink /usr/share/doc/zsh-static to
 	# /usr/share/doc/zsh-common because zsh-static has a uniqe,
@@ -202,13 +192,6 @@ binary-arch-static: build-static
 	mv debian/zsh-static/bin/zsh debian/zsh-static/bin/zsh5-static
 
 	dh_installchangelogs -pzsh-static
-	dh_link              -pzsh-static
-	dh_compress          -pzsh-static
-	dh_fixperms          -pzsh-static
-	dh_installdeb        -pzsh-static
-	dh_md5sums           -pzsh-static
-	dh_gencontrol        -pzsh-static -- -VBuilt-Using="$(BUILT_USING)"
-	dh_builddeb          -pzsh-static
 
 binary-arch-dev: build-arch
 	dh_testdir
@@ -219,12 +202,17 @@ binary-arch-dev: build-arch
 	cd debian/zsh-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4
 	dh_installdocs       -pzsh-dev --link-doc=zsh-common
 	dh_installchangelogs -pzsh-dev
-	dh_compress          -pzsh-dev
-	dh_fixperms          -pzsh-dev
-	dh_installdeb        -pzsh-dev
-	dh_md5sums           -pzsh-dev
-	dh_gencontrol        -pzsh-dev
-	dh_builddeb          -pzsh-dev
+
+binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
+	dh_lintian    -a
+	dh_link       -a
+	dh_compress   -a
+	dh_fixperms   -a
+	dh_installdeb -a
+	dh_gencontrol -a -- -VBuilt-Using="$(BUILT_USING)"
+	dh_md5sums    -a
+	dh_builddeb   -a
+
 
 binary: binary-indep binary-arch binary-arch-static binary-arch-dev
 

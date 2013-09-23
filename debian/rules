@@ -95,8 +95,8 @@ clean:
 binary-indep: build-indep binary-arch-dynamic
 	dh_testdir
 	dh_testroot
-	dh_installdocs -pzsh-doc -pzsh-beta -pzsh-beta-doc --link-doc=zsh-common
-	dh_installdirs -pzsh-doc                                    -pzsh-common
+	dh_installdocs -i --link-doc=zsh-common
+	dh_installdirs -i
 
 	cd obj && $(MAKE) install.man DESTDIR=$(CURDIR)/debian/zsh-common
 	nroff -mandoc -Tascii Doc/zshbuiltins.1 | colcrt - | \
@@ -132,7 +132,7 @@ binary-indep: build-indep binary-arch-dynamic
 # Work around texi2html unfriendliness
 	sed -i -e 's/<BODY.*>/<BODY LANG="EN">/' debian/zsh-doc/usr/share/doc/zsh-doc/html/*.html
 
-	dh_install                                               -pzsh-common
+	dh_install -i
 
 # Doesn't this need to go before we zcompile stuff into .zwc files? -- Axel
 	sed -i -e 's,^local HELPDIR=.*,local HELPDIR=$${HELPDIR:-/usr/share/zsh/help},; s,:-more,:-/usr/bin/pager,;' \
@@ -140,17 +140,17 @@ binary-indep: build-indep binary-arch-dynamic
 	sed -i -e '1!b;s:^#!.*[ /]zsh:#!/bin/zsh:;s#/usr/local/bin#/usr/bin#;' \
 		`find debian/zsh-common/usr/share/zsh/functions -type f`
 
-	dh_link                        -pzsh-beta -pzsh-beta-doc -pzsh-common
-	dh_installmenu                                           -pzsh-common
-	dh_installdocs                                           -pzsh-common
-	dh_installchangelogs -pzsh-doc                           -pzsh-common ChangeLog
-	dh_lintian                                               -pzsh-common
-	dh_compress          -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common -Xpdf
-	dh_fixperms          -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
-	dh_installdeb        -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
-	dh_md5sums           -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
-	dh_gencontrol        -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
-	dh_builddeb          -pzsh-doc -pzsh-beta -pzsh-beta-doc -pzsh-common
+	dh_link              -i
+	dh_installmenu                    -pzsh-common
+	dh_installdocs                    -pzsh-common
+	dh_installchangelogs    -pzsh-doc -pzsh-common ChangeLog
+	dh_lintian           -i
+	dh_compress          -i                        -Xpdf
+	dh_fixperms          -i
+	dh_installdeb        -i
+	dh_md5sums           -i
+	dh_gencontrol        -i
+	dh_builddeb          -i
 
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 binary-arch-dynamic: build-arch

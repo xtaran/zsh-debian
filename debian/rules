@@ -181,7 +181,7 @@ binary-arch-static: build-static
 	dh_installdirs -pzsh-static
 
 	# Do not symlink /usr/share/doc/zsh-static to
-	# /usr/share/doc/zsh-common because zsh-static has a uniqe,
+	# /usr/share/doc/zsh-common because zsh-static has a unique,
 	# generated README.Debian
 	dh_installdocs -pzsh-static
 	awk 'BEGIN { print "The following modules are statically-compiled into the static zsh binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/zsh-static/README.Debian

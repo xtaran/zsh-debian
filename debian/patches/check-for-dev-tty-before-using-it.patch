@@ -15,7 +15,7 @@ Index: zsh/Test/C02cond.ztst
 -  char=/dev/tty
 -  [[ -c $char && ! -c $zerolength ]]
 +  # Hardcoded /dev/tty as necessary for Cygwin may fail on Hurd
-+  tty=$(find /dev/ -name 'tty*' -type c -print)
++  tty=$(find /dev/ -nowarn -maxdepth 1 -name 'tty*' -type c -print)
 +  if [[ -n $tty ]]; then
 +    [[ -c $tty[(f)1] && ! -c $zerolength ]]
 +  else

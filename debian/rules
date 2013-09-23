@@ -143,7 +143,7 @@ binary-indep: build-indep binary-arch-dynamic
 	dh_link              -i
 	dh_installmenu                    -pzsh-common
 	dh_installdocs                    -pzsh-common
-	dh_installchangelogs    -pzsh-doc -pzsh-common ChangeLog
+	dh_installchangelogs    -pzsh-doc -pzsh-common
 	dh_lintian           -i
 	dh_compress          -i                        -Xpdf
 	dh_fixperms          -i
@@ -173,7 +173,6 @@ binary-arch-dynamic: build-arch
 		-dRecommends debian/zsh/usr/lib/*/zsh/*/zsh/*.so
 
 	dh_installdocs       -pzsh -pzsh-dbg --link-doc=zsh-common
-	dh_installchangelogs       -pzsh-dbg ChangeLog
 
 binary-arch-static: build-static
 	dh_testdir
@@ -201,7 +200,6 @@ binary-arch-dev: build-arch
 	dh_install           -pzsh-dev
 	cd debian/zsh-dev/usr/share/aclocal; mv aczshoot.m4 zshoot.m4
 	dh_installdocs       -pzsh-dev --link-doc=zsh-common
-	dh_installchangelogs -pzsh-dev
 
 binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 	dh_lintian    -a

@@ -1,3 +1,19 @@
+zsh (5.0.2-5) unstable; urgency=low
+
+  * [22bc9278,f7cf9ffb] Add patch to make test suite "-c" test more
+    flexible, should prevent FTBFS on Hurd.  Thanks to Pino Toscano.
+  * [e19ee43a] Only try to remove /etc/zsh-beta if it exists.
+  * [5348f04a] No more built zsh-common on binary-arch by reordering
+    debian/rules. Fixes error "binary-arch-produces-all" reported by the
+    build log scanner.
+  * [addc1a88,e2d2908b] Simplify dh_* calls by using -a/-i instead of
+    listing all arch/indep packages.
+  * [29efa515] Clean up dh_installchangelog calls by removing redundancy
+  * [f309e67a] Require texinfo >= 5, it no more builds properly with older
+    versions.
+
+ -- Axel Beckert <abe@debian.org>  Mon, 30 Sep 2013 14:58:41 +0200
+
 zsh (5.0.2-4) unstable; urgency=low
 
   [ Axel Beckert ]

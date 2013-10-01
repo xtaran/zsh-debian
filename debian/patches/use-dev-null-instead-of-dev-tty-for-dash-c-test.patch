@@ -1,0 +1,21 @@
+Description: Use /dev/null instead of /dev/tty for -c test
+ Hopefully solves the according test suite failures on Hurd. Suggested
+ by Bart Martens.
+Author: Axel Beckert <abe@debian.org>
+Bug: http://www.zsh.org/mla/workers/2013/msg00547.html
+
+Index: zsh/Test/C02cond.ztst
+===================================================================
+--- zsh.orig/Test/C02cond.ztst	2013-09-20 16:21:32.000000000 +0200
++++ zsh/Test/C02cond.ztst	2013-09-20 17:59:03.000000000 +0200
+@@ -41,8 +41,8 @@
+   fi
+ 0D:-b cond
+ 
+-  # Use hardcoded /dev/tty because globbing inside /dev fails on Cygwin
+-  char=/dev/tty
++  # Use hardcoded /dev/null because of /dev/tty issues on GNU/Hurd
++  char=/dev/null
+   [[ -c $char && ! -c $zerolength ]]
+ 0:-c cond
+ 

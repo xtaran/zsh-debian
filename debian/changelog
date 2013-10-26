@@ -1,3 +1,10 @@
+zsh (5.0.2-6) unstable; urgency=low
+
+  * [57d31fe2] Replace patch to search for usable tty by patch to use
+    /dev/null for -c test. Suggested on zsh-workers by Bart Schaefer.
+
+ -- Axel Beckert <abe@debian.org>  Sat, 26 Oct 2013 15:09:56 +0200
+
 zsh (5.0.2-5) unstable; urgency=low
 
   * [22bc9278,f7cf9ffb] Add patch to make test suite "-c" test more

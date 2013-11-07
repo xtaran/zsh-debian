@@ -567,7 +567,9 @@ raw_getbyte(long do_keytmout, char *cptr)
 	gettyinfo(&ti);
 	ti.tio.c_cc[VMIN] = 0;
 	settyinfo(&ti);
+	winch_unblock();
 	ret = read(SHTTY, cptr, 1);
+	winch_block();
 	ti.tio.c_cc[VMIN] = 1;
 	settyinfo(&ti);
 	if (ret > 0)
@@ -597,7 +599,9 @@ raw_getbyte(long do_keytmout, char *cptr)
 	    else
 		poll_timeout = -1;
 
+	    winch_unblock();
 	    selret = poll(fds, errtry ? 1 : nfds, poll_timeout);
+	    winch_block();
 # else
 	    int fdmax = SHTTY;
 	    struct timeval *tvptr;
@@ -622,8 +626,10 @@ raw_getbyte(long do_keytmout, char *cptr)
 	    else
 		tvptr = NULL;
 
+	    winch_unblock();
 	    selret = select(fdmax+1, (SELECT_ARG_2_T) & foofd,
 			    NULL, NULL, tvptr);
+	    winch_block();
 # endif
 	    /*
 	     * Make sure a user interrupt gets passed on straight away.
@@ -788,7 +794,9 @@ raw_getbyte(long do_keytmout, char *cptr)
 #  else
 	ioctl(SHTTY, TCSETA, &ti.tio);
 #  endif
+	winch_unblock();
 	ret = read(SHTTY, cptr, 1);
+	winch_block();
 #  ifdef HAVE_TERMIOS_H
 	tcsetattr(SHTTY, TCSANOW, &shttyinfo.tio);
 #  else
@@ -799,7 +807,9 @@ raw_getbyte(long do_keytmout, char *cptr)
 #endif
     }
 
+    winch_unblock();
     ret = read(SHTTY, cptr, 1);
+    winch_block();
 
     return ret;
 }
@@ -1105,7 +1115,7 @@ zlecore(void)
 
 /**/
 char *
-zleread(char **lp, char **rp, int flags, int context)
+zleread(char **lp, char **rp, int flags, int context, char *init, char *finish)
 {
     char *s;
     int old_errno = errno;
@@ -1178,6 +1188,13 @@ zleread(char **lp, char **rp, int flags, int context)
     viinsbegin = 0;
     statusline = NULL;
     selectkeymap("main", 1);
+    /*
+     * If main is linked to the viins keymap, we need to register
+     * explicitly that we're now in vi insert mode as there's
+     * no user operation to indicate this.
+     */
+    if (openkeymap("main") == openkeymap("viins"))
+	viinsert(NULL);
     selectlocalmap(NULL);
     fixsuffix();
     if ((s = getlinknode(bufstack))) {
@@ -1223,7 +1240,9 @@ zleread(char **lp, char **rp, int flags, int context)
 
     unqueue_signals();	/* Should now be safe to acknowledge SIGWINCH */
 
-    zlecallhook("zle-line-init", NULL);
+    zlecallhook(init, NULL);
+
+    zrefresh();
 
     zlecore();
 
@@ -1231,7 +1250,7 @@ zleread(char **lp, char **rp, int flags, int context)
 	setsparam("ZLE_LINE_ABORTED", zlegetline(NULL, NULL));
 
     if (done && !exit_pending && !errflag)
-	zlecallhook("zle-line-finish", NULL);
+	zlecallhook(finish, NULL);
 
     statusline = NULL;
     invalidatelist();
@@ -1471,7 +1490,7 @@ bin_vared(char *name, char **args, Options ops, UNUSED(int func))
     Param pm = 0;
     int ifl;
     int type = PM_SCALAR, obreaks = breaks, haso = 0, oSHTTY = 0;
-    char *p1, *p2, *main_keymapname, *vicmd_keymapname;
+    char *p1, *p2, *main_keymapname, *vicmd_keymapname, *init, *finish;
     Keymap main_keymapsave = NULL, vicmd_keymapsave = NULL;
     FILE *oshout = NULL;
 
@@ -1499,6 +1518,8 @@ bin_vared(char *name, char **args, Options ops, UNUSED(int func))
     p2 = OPT_ARG_SAFE(ops,'r');
     main_keymapname = OPT_ARG_SAFE(ops,'M');
     vicmd_keymapname = OPT_ARG_SAFE(ops,'m');
+    init = OPT_ARG_SAFE(ops,'i');
+    finish = OPT_ARG_SAFE(ops,'f');
 
     if (type != PM_SCALAR && !OPT_ISSET(ops,'c')) {
 	zwarnnam(name, "-%s ignored", type == PM_ARRAY ? "a" : "A");
@@ -1600,6 +1621,7 @@ bin_vared(char *name, char **args, Options ops, UNUSED(int func))
 
 	haso = 1;
     }
+
     /* edit the parameter value */
     zpushnode(bufstack, s);
 
@@ -1615,7 +1637,10 @@ bin_vared(char *name, char **args, Options ops, UNUSED(int func))
     if (OPT_ISSET(ops,'h'))
 	hbegin(2);
     isfirstln = OPT_ISSET(ops,'e');
-    t = zleread(&p1, &p2, OPT_ISSET(ops,'h') ? ZLRF_HISTORY : 0, ZLCON_VARED);
+
+    t = zleread(&p1, &p2, OPT_ISSET(ops,'h') ? ZLRF_HISTORY : 0, ZLCON_VARED,
+		init ? init : "zle-line-init",
+		finish ? finish : "zle-line-finish");
     if (OPT_ISSET(ops,'h'))
 	hend(NULL);
     isfirstln = ifl;
@@ -1880,7 +1905,8 @@ zle_main_entry(int cmd, va_list ap)
 	flags = va_arg(ap, int);
 	context = va_arg(ap, int);
 
-	return zleread(lp, rp, flags, context);
+	return zleread(lp, rp, flags, context,
+		       "zle-line-init", "zle-line-finish");
     }
 
     case ZLE_CMD_ADD_TO_LINE:
@@ -1915,6 +1941,13 @@ zle_main_entry(int cmd, va_list ap)
 	break;
     }
 
+    case ZLE_CMD_SET_HIST_LINE:
+    {
+	histline = va_arg(ap, zlong);
+
+	break;
+    }
+
     default:
 #ifdef DEBUG
 	    dputs("Bad command %d in zle_main_entry", cmd);
@@ -1926,7 +1959,7 @@ zle_main_entry(int cmd, va_list ap)
 
 static struct builtin bintab[] = {
     BUILTIN("bindkey", 0, bin_bindkey, 0, -1, 0, "evaM:ldDANmrsLRp", NULL),
-    BUILTIN("vared",   0, bin_vared,   1,  1, 0, "aAcehM:m:p:r:t:", NULL),
+    BUILTIN("vared",   0, bin_vared,   1,  1, 0, "aAcef:hi:M:m:p:r:t:", NULL),
     BUILTIN("zle",     0, bin_zle,     0, -1, 0, "aAcCDFgGIKlLmMNrRTU", NULL),
 };
 

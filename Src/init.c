@@ -281,9 +281,10 @@ parseargs(char **argv, char **runscript)
 
 /**/
 static void
-parseopts_insert(LinkList optlist, void *ptr)
+parseopts_insert(LinkList optlist, void *base, int optno)
 {
     LinkNode node;
+    void *ptr = base + (optno < 0 ? -optno : optno);
 
     for (node = firstnode(optlist); node; incnode(node)) {
 	if (ptr < getdata(node)) {
@@ -390,7 +391,7 @@ parseopts(char *nam, char ***argvp, char *new_opts, char **cmdp,
 		    if (dosetopt(optno, action, !nam, new_opts) && nam) {
 			WARN_OPTION("can't change option: %s", *argv);
 		    } else if (optlist) {
-			parseopts_insert(optlist, new_opts+optno);
+			parseopts_insert(optlist, new_opts, optno);
 		    }
 		}
               break;
@@ -415,7 +416,7 @@ parseopts(char *nam, char ***argvp, char *new_opts, char **cmdp,
 		    if (dosetopt(optno, action, !nam, new_opts) && nam) {
 			WARN_OPTION("can't change option: -%c", **argv);
 		    } else if (optlist) {
-			parseopts_insert(optlist, new_opts+optno);
+			parseopts_insert(optlist, new_opts, optno);
 		    }
 		}
 	    }
@@ -1113,6 +1114,7 @@ init_signals(void)
     install_handler(SIGCHLD);
 #ifdef SIGWINCH
     install_handler(SIGWINCH);
+    winch_block();	/* See utils.c:preprompt() */
 #endif
     if (interact) {
 	install_handler(SIGALRM);
@@ -1582,6 +1584,7 @@ zsh_main(UNUSED(int argc), char **argv)
 
     fdtable_size = zopenmax();
     fdtable = zshcalloc(fdtable_size*sizeof(*fdtable));
+    fdtable[0] = fdtable[1] = fdtable[2] = FDT_EXTERNAL;
 
     createoptiontable();
     emulate(zsh_name, 1, &emulation, opts);   /* initialises most options */

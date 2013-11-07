@@ -114,7 +114,7 @@ float PI E
 (( PI = 4 * atan(1), E = exp(1) ))
 
 # Process command line
-while [[ -n $1 && $1 = -(|[#-]*) ]]; do
+while [[ -n $1 && $1 = -(|[#-]*|f) ]]; do
   optlist=${1[2,-1]}
   shift
   [[ $optlist = (|-) ]] && break
@@ -139,6 +139,9 @@ while [[ -n $1 && $1 = -(|[#-]*) ]]; do
 	    fi
             defbase="[#${arg}]"
 	    ;;
+	(f) # Force floating point operation
+	    setopt forcefloat
+	    ;;
     esac
   done
 done
@@ -152,7 +155,25 @@ for (( num = 1; num <= $#; num++ )); do
 done
 
 psvar[1]=$num
-while vared -cehp "${ZCALCPROMPT}" line; do
+local prev_line cont_prompt
+while vared -cehp "${cont_prompt}${ZCALCPROMPT}" line; do
+  if [[ $line = (|*[^\\])('\\')#'\' ]]; then
+    prev_line+=$line[1,-2]
+    cont_prompt="..."
+    line=
+    continue
+  fi
+  line="$prev_line$line"
+  prev_line=
+  cont_prompt=
+  # Test whether there are as many open as close
+  # parentheses in the line so far.
+  if [[ ${#line//[^\(]} -gt ${#line//[^\)]} ]]; then
+      prev_line+=$line
+      cont_prompt="..."
+      line=
+      continue
+  fi
   [[ -z $line ]] && break
   # special cases
   # Set default base if `[#16]' or `[##16]' etc. on its own.
@@ -165,6 +186,7 @@ while vared -cehp "${ZCALCPROMPT}" line; do
 	defbase=$match[1]
       fi
       print -s -- $line
+      print -- $(( ${defbase} ans ))
       line=
       continue
     else
@@ -220,7 +242,7 @@ while vared -cehp "${ZCALCPROMPT}" line; do
       continue
     ;;
 
-    ((:|)function[[:blank:]]##(#b)([^[:blank:]]##)(|[[:blank:]]##([^[:blank:]]*)))
+    ((function|:f(unc(tion|)|))[[:blank:]]##(#b)([^[:blank:]]##)(|[[:blank:]]##([^[:blank:]]*)))
       zmathfuncdef $match[1] $match[3]
       line=
       continue

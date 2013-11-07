@@ -362,8 +362,9 @@ mathevall(char *s, enum prec_type prec_tp, char **ep)
     if (mlevel >= MAX_MLEVEL) {
 	xyyval.type = MN_INTEGER;
 	xyyval.u.l = 0;
+	*ep = s;
 
-	zerr("math recursion limit exceeded");
+	zerr("math recursion limit exceeded: %s", *ep);
 
 	return xyyval;
     }
@@ -456,6 +457,11 @@ lexconstant(void)
 	    yyval.u.l = zstrtol_underscore(ptr, &ptr, 0, 1);
 	    /* Should we set lastbase here? */
 	    lastbase = 16;
+	    if (isset(FORCEFLOAT))
+	    {
+		yyval.type = MN_FLOAT;
+		yyval.u.d = (double)yyval.u.l;
+	    }
 	    return NUM;
 	}
 	else if (isset(OCTALZEROES))
@@ -475,6 +481,11 @@ lexconstant(void)
 	    {
 		yyval.u.l = zstrtol_underscore(ptr, &ptr, 0, 1);
 		lastbase = 8;
+		if (isset(FORCEFLOAT))
+		{
+		    yyval.type = MN_FLOAT;
+		    yyval.u.d = (double)yyval.u.l;
+		}
 		return NUM;
 	    }
 	    nptr = ptr2;
@@ -536,6 +547,11 @@ lexconstant(void)
 	    ptr++;
 	    lastbase = yyval.u.l;
 	    yyval.u.l = zstrtol_underscore(ptr, &ptr, lastbase, 1);
+	}
+	if (isset(FORCEFLOAT))
+	{
+	    yyval.type = MN_FLOAT;
+	    yyval.u.d = (double)yyval.u.l;
 	}
     }
     return NUM;
@@ -1443,7 +1459,8 @@ mathparse(int pc)
 	case QUEST:
 	    if (stack[sp].val.type == MN_UNSET)
 		stack[sp].val = getmathparam(stack + sp);
-	    q = (stack[sp].val.type == MN_FLOAT) ? (zlong)stack[sp].val.u.d :
+	    q = (stack[sp].val.type == MN_FLOAT) ?
+		(stack[sp].val.u.d == 0 ? 0 : 1) :
 		stack[sp].val.u.l;
 
 	    if (!q)

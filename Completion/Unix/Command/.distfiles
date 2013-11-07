@@ -20,6 +20,7 @@ _bzip2
 _bzr
 _cal
 _calendar
+_cat
 _ccal
 _cdcd
 _cdrdao
@@ -57,6 +58,7 @@ _elm
 _enscript
 _env
 _espeak
+_etags
 _fakeroot
 _feh
 _fetchmail
@@ -152,7 +154,6 @@ _nmap
 _notmuch
 _npm
 _nslookup
-_osc
 _pack
 _patch
 _pax
@@ -173,6 +174,7 @@ _pon
 _postfix
 _prcs
 _printenv
+_prove
 _psutils
 _pump
 _pydoc

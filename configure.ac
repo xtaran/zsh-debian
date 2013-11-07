@@ -1222,7 +1222,7 @@ AC_CHECK_FUNCS(strftime strptime mktime timelocal \
 	       getrlimit getrusage \
 	       setlocale \
 	       uname \
-	       signgam \
+	       signgam tgamma \
 	       putenv getenv setenv unsetenv xw\
 	       brk sbrk \
 	       pathconf sysconf \
@@ -1237,7 +1237,8 @@ AC_CHECK_FUNCS(strftime strptime mktime timelocal \
 	       regcomp regexec regerror regfree \
 	       gdbm_open getxattr \
 	       realpath canonicalize_file_name \
-	       symlink getcwd)
+	       symlink getcwd \
+	       cygwin_conv_path)
 AC_FUNC_STRCOLL
 
 if test x$enable_cap = xyes; then
@@ -1811,6 +1812,10 @@ zsh_LIMIT_PRESENT(RLIMIT_SIGPENDING)
 zsh_LIMIT_PRESENT(RLIMIT_MSGQUEUE)
 zsh_LIMIT_PRESENT(RLIMIT_NICE)
 zsh_LIMIT_PRESENT(RLIMIT_RTPRIO)
+zsh_LIMIT_PRESENT(RLIMIT_POSIXLOCKS)
+zsh_LIMIT_PRESENT(RLIMIT_NPTS)
+zsh_LIMIT_PRESENT(RLIMIT_SWAP)
+zsh_LIMIT_PRESENT(RLIMIT_KQUEUES)
 
 AH_TEMPLATE([RLIMIT_VMEM_IS_RSS],
 [Define to 1 if RLIMIT_VMEM and RLIMIT_RSS both exist and are equal.])

@@ -44,7 +44,6 @@ Package: zsh-common
 Architecture: all
 Depends: ${misc:Depends}
 Replaces: zsh (<= 5.0.2-1)
-Breaks: zsh (<= 5.0.2-1)
 Recommends: zsh
 Suggests: zsh-doc
 Description: architecture independent files for Zsh

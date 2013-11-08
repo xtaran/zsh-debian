@@ -2,8 +2,13 @@
 
 set -e
 
-if [ "$1" = "purge" ]; then
-    rmdir -p /usr/local/share/zsh-beta/site-functions || true
-fi
+case "$1" in
+    (purge)
+        rmdir -p /usr/local/share/zsh-beta/site-functions || true
+        ;;
+    (remove)
+        remove-shell /bin/zsh-beta
+        ;;
+esac
 
 #DEBHELPER#

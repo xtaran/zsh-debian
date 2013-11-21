@@ -1,3 +1,17 @@
+zsh (5.0.2+test1-1) UNRELEASED; urgency=low
+
+  * [d799ac78] New upstream release candidate 5.0.2-test-1
+    - [b95cf81b] Remove patches applied upstream
+    - Includes many completion updates (Closes: #691601, #697247, #699851)
+  * [abfb3b13] Bump Standards-Version to 3.9.5 (no changes)
+  * [dcc18dd5] zsh-beta.postrm: Unregister /etc/shells entry on removal
+    (Closes: #724251)
+  * [f75d7101] Make lintian override zsh version agnostic
+  * [8fe0f364] zsh-common: Remove Breaks against older zsh version
+    (Hopefully closes: #707760)
+
+ -- Axel Beckert <abe@debian.org>  Thu, 21 Nov 2013 17:34:50 +0100
+
 zsh (5.0.2-6) unstable; urgency=low
 
   * [57d31fe2] Replace patch to search for usable tty by patch to use

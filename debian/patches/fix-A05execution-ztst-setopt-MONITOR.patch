@@ -1,0 +1,16 @@
+Description: Make A05execution.ztst not fail if setopt MONITOR fails
+Author: Bart E. Schaefer <schaefer@brasslantern.com>
+
+diff --git a/Test/A05execution.ztst b/Test/A05execution.ztst
+index ba7e02c..61f6f5a 100644
+--- a/Test/A05execution.ztst
++++ b/Test/A05execution.ztst
+@@ -179,7 +179,7 @@
+ 0:Status reset by starting a backgrounded command
+ >0
+
+-  setopt MONITOR
++  { setopt MONITOR } 2>/dev/null
+   [[ -o MONITOR ]] || print -u $ZTST_fd 'Unable to change MONITOR option'
+   repeat 2048; do (return 2 |
+                    return 1 |

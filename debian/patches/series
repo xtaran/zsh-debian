@@ -1,2 +1,3 @@
 replace-texi2html-with-makeinfo
 use-dev-null-instead-of-dev-tty-for-dash-c-test.patch
+fix-A05execution-ztst-setopt-MONITOR.patch

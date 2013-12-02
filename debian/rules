@@ -100,8 +100,8 @@ binary-indep: build-indep binary-arch-dynamic
 
 	cd obj && $(MAKE) install.man DESTDIR=$(CURDIR)/debian/zsh-common
 	nroff -mandoc -Tascii Doc/zshbuiltins.1 | colcrt - | \
-	sed -e 's/±/{+|-}/' | ( cd debian/zsh-common/usr/share/zsh/help && \
-	perl $(CURDIR)/Util/helpfiles )
+	sed -e 's/±/{+|-}/' | \
+	perl $(CURDIR)/Util/helpfiles /dev/stdin debian/zsh-common/usr/share/zsh/help
 
 # functions
 	dh_installexamples -pzsh-common -X.distfiles

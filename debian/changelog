@@ -15,7 +15,7 @@ zsh (5.0.2-test-3-1) UNRELEASED; urgency=low
     (Hopefully closes: #707760)
   * [df234cd6] Update watch file to also catch release candidates
 
- -- Axel Beckert <abe@debian.org>  Thu, 21 Nov 2013 17:34:50 +0100
+ -- Axel Beckert <abe@debian.org>  Mon, 02 Dec 2013 17:08:36 +0100
 
 zsh (5.0.2-6) unstable; urgency=low
 

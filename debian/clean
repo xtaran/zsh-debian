@@ -2,6 +2,8 @@ config.cache
 config.status
 config.status.lineno
 configure
+Doc/help.txt
+Doc/help/*
 Doc/zsh.idx
 Doc/Zsh/manmodmenu.yo
 Doc/Zsh/modlist.yo

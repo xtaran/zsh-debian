@@ -197,10 +197,11 @@ static int delayzsetterm;
  */
 /**/
 int nwatch;		/* Number of fd's we are watching */
+/*
+ * Array of nwatch structures.
+ */
 /**/
-int *watch_fds;		/* The list of fds, not terminated! */
-/**/
-char **watch_funcs;	/* The corresponding functions to call, normal array */
+Watch_fd watch_fds;
 
 /* set up terminal */
 
@@ -586,7 +587,7 @@ raw_getbyte(long do_keytmout, char *cptr)
 	 */
 	fds[0].events = POLLIN;
 	for (i = 0; i < nwatch; i++) {
-	    fds[i+1].fd = watch_fds[i];
+	    fds[i+1].fd = watch_fds[i].fd;
 	    fds[i+1].events = POLLIN;
 	}
 # endif
@@ -611,7 +612,7 @@ raw_getbyte(long do_keytmout, char *cptr)
 	    FD_SET(SHTTY, &foofd);
 	    if (!errtry) {
 		for (i = 0; i < nwatch; i++) {
-		    int fd = watch_fds[i];
+		    int fd = watch_fds[i].fd;
 		    FD_SET(fd, &foofd);
 		    if (fd > fdmax)
 			fdmax = fd;
@@ -723,42 +724,51 @@ raw_getbyte(long do_keytmout, char *cptr)
 		 * handler function.
 		 */
 		int lnwatch = nwatch;
-		int *lwatch_fds = zalloc(lnwatch*sizeof(int));
-		char **lwatch_funcs = zarrdup(watch_funcs);
-		memcpy(lwatch_fds, watch_fds, lnwatch*sizeof(int));
+		Watch_fd lwatch_fds = zalloc(lnwatch*sizeof(struct watch_fd));
+		memcpy(lwatch_fds, watch_fds, lnwatch*sizeof(struct watch_fd));
+		for (i = 0; i < lnwatch; i++)
+		    lwatch_fds[i].func = ztrdup(lwatch_fds[i].func);
 		for (i = 0; i < lnwatch; i++) {
+		    Watch_fd lwatch_fd = lwatch_fds + i;
 		    if (
 # ifdef HAVE_POLL
 			(fds[i+1].revents & POLLIN)
 # else
-			FD_ISSET(lwatch_fds[i], &foofd)
+			FD_ISSET(lwatch_fd->fd, &foofd)
 # endif
 			) {
 			/* Handle the fd. */
-			LinkList funcargs = znewlinklist();
-			zaddlinknode(funcargs, ztrdup(lwatch_funcs[i]));
+			char *fdbuf;
 			{
 			    char buf[BDIGBUFSIZE];
-			    convbase(buf, lwatch_fds[i], 10);
-			    zaddlinknode(funcargs, ztrdup(buf));
+			    convbase(buf, lwatch_fd->fd, 10);
+			    fdbuf = ztrdup(buf);
 			}
+
+			if (lwatch_fd->widget) {
+			    zlecallhook(lwatch_fd->func, fdbuf);
+			    zsfree(fdbuf);
+			} else {
+			    LinkList funcargs = znewlinklist();
+			    zaddlinknode(funcargs, ztrdup(lwatch_fd->func));
+			    zaddlinknode(funcargs, fdbuf);
 # ifdef HAVE_POLL
 #  ifdef POLLERR
-			if (fds[i+1].revents & POLLERR)
-			    zaddlinknode(funcargs, ztrdup("err"));
+			    if (fds[i+1].revents & POLLERR)
+				zaddlinknode(funcargs, ztrdup("err"));
 #  endif
 #  ifdef POLLHUP
-			if (fds[i+1].revents & POLLHUP)
-			    zaddlinknode(funcargs, ztrdup("hup"));
+			    if (fds[i+1].revents & POLLHUP)
+				zaddlinknode(funcargs, ztrdup("hup"));
 #  endif
 #  ifdef POLLNVAL
-			if (fds[i+1].revents & POLLNVAL)
-			    zaddlinknode(funcargs, ztrdup("nval"));
+			    if (fds[i+1].revents & POLLNVAL)
+				zaddlinknode(funcargs, ztrdup("nval"));
 #  endif
 # endif
-
-
-			callhookfunc(lwatch_funcs[i], funcargs, 0, NULL);
+			    callhookfunc(lwatch_fd->func, funcargs, 0, NULL);
+			    freelinklist(funcargs, freestr);
+			}
 			if (errflag) {
 			    /* No sensible way of handling errors here */
 			    errflag = 0;
@@ -768,14 +778,14 @@ raw_getbyte(long do_keytmout, char *cptr)
 			     */
 			    errtry = 1;
 			}
-			freelinklist(funcargs, freestr);
 		    }
 		}
 		/* Function may have invalidated the display. */
 		if (resetneeded)
 		    zrefresh();
-		zfree(lwatch_fds, lnwatch*sizeof(int));
-		freearray(lwatch_funcs);
+		for (i = 0; i < lnwatch; i++)
+		    zsfree(lwatch_fds[i].func);
+		zfree(lwatch_fds, lnwatch*sizeof(struct watch_fd));
 	    }
 	}
 # ifdef HAVE_POLL
@@ -1960,7 +1970,7 @@ zle_main_entry(int cmd, va_list ap)
 static struct builtin bintab[] = {
     BUILTIN("bindkey", 0, bin_bindkey, 0, -1, 0, "evaM:ldDANmrsLRp", NULL),
     BUILTIN("vared",   0, bin_vared,   1,  1, 0, "aAcef:hi:M:m:p:r:t:", NULL),
-    BUILTIN("zle",     0, bin_zle,     0, -1, 0, "aAcCDFgGIKlLmMNrRTU", NULL),
+    BUILTIN("zle",     0, bin_zle,     0, -1, 0, "aAcCDFgGIKlLmMNrRTUw", NULL),
 };
 
 /* The order of the entries in this table has to match the *HOOK

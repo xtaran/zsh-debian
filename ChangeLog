@@ -1,9 +1,154 @@
+2013-12-01  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: Config/version.mk: 5.0.2-test-3.
+
+2013-11-30  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Hong Xu: 32069: Completion/Unix/Command/_git: completion for
+	"git submodule update --remote"
+
+2013-11-29  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32066 (via 31985 Clemens Hammacher and 32064 Hong Xu):
+	Functions/VCS_Info/Backends/VCS_INFO_get_data_git,
+	Functions/VCS_Info/VCS_INFO_reposub: fix %r and %S in vcs_info
+	formats when a repository subdirectory is accessed via a symlink.
+
+2013-11-27  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32061: Src/utils.c: Fix "use of uninitialized memory" in metafy
+
+2013-11-27  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* unposted, see 32054 and thread:
+	Completion/Unix/Command/_cdrdao, Completion/Unix/Command/_git,
+	Completion/Unix/Command/_growisofs, Etc/ChangeLog-3.0,
+	Etc/ChangeLog-3.1, LICENCE, Src/Modules/clone.c,
+	Src/Modules/example.c, Src/module.c: Rationalise character
+	encodings: shell functions are strictly ASCII for maximum
+	portability; other files needed for building and documentation
+	are ASCII are UTF-8; test files may use ISO-8859-X (we don't
+	require the Euro symbol) where needed to get single character
+	input with the top bit set.
+
+2013-11-25  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* unposted, see 32050, 32051: remove non-ASCII characters in
+	installed functions as this causes sed on MacOS problems.
+
+2013-11-25  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: Completion/Unix/Command/.distfiles,
+	Config/version.mk: update for 5.0.2-test-2.
+
+2013-11-25  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32045 (as corrected by Martin Vaeth 32047): Config/defs.mk.in,
+	Doc/Makefile.in, configure.ac: use dependencies to determine
+	whether to rebuild helpfiles.
+
+2013-11-23  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* 32031 plus missed _run_help: Completion/Zsh/Command/_run-help,
+	Config/defs.mk.in, Config/installfns.sh, Doc/Makefile.in,
+	Functions/Misc/run-help, Makefile.in: turn @runhelpdir@ in
+	installed functions into the actual installation path.
+
+2013-11-20  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* 32030: revert 31995 as it caused (N) to fail on an empty
+	failed glob.  Add test for this case.
+
+2013-11-19  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32023: Src/utils.c: better interrupt handling at RM_STAR_WAIT
+
+2013-11-18  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* unposted but see 32012: Doc/help/.cvsignore,
+	Doc/help/.distfiles: were created in the wrong place, so move.
+
+2013-11-18  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Martin Vaeth: 32008: Completion/Zsh/Command/.distfiles
+	Completion/Zsh/Command/_run-help Doc/Makefile.in: follow-up to
+	31988 - complete "." and ":" for run-help, distribute _run-help,
+	clean up better during make
+
+	* Han Pingtian: 31995: Src/glob.c: glob	qualifiers cannot
+	follow an empty pattern, so a leading paren means grouping
+
+2013-11-17  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* 32001: Src/subst.c: fix crash on empty arrays with array
+	intersection and disjunction.
+
+2013-11-15  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Martin Vaeth: 31988: Doc/Makefile.in, Util/helpfiles: remove
+	LC_CTYPE heuristics, assure clean environment, force LANG=C
+
+2013-11-14  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Jun T.: 31984: Completion/Unix/Command/_df: new completion.
+
+	* 31983: Src/zsh.mdd: suppress warning from cmp that doesn't
+	indicate a problem when generating patchlevel header.
+
+	* 31982: Src/math.c, Test/C01arith.ztst: detection of floating
+	point constants had run rampant in users/17445.  Fix the original
+	problem another way.
+
+2013-11-13  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* 31977: Src/module.c: no error if autoloading a feature that
+	is already loaded in a consistent fashion.
+
+	* Jun T.: 31971: locale fix for helpfiles.
+
+	* Martin Vaeth: 31959: .gitignore, Doc/help/.cvsignore,
+	Doc/help/.distfiles: missed files.
+
+2013-11-12  Bart Schaefer  <schaefer@zsh.org>
+
+	* 31966: Util/helpfiles: skip introductory paragraphs processing
+	"man zshbuiltins" by assuming that all real command names start
+	with a lower case letter.  Check "ztcp" file as a guess that all
+	builtins were processed.
+
+2013-11-12  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* Martin Vaeth: 31959: .gitignore,
+	Completion/Zsh/Command/_run-help, Doc/.cvsignore,
+	Doc/.distfiles, Doc/Makefile.in, Makefile.in,
+	StartupFiles/zshrc, Util/helpfiles, configure.ac: make help
+	files during installation.
+
+	* 31961: Src/Zle/zle.h, Src/Zle/zle_main.c,
+	Src/Zle/zle_thingy.c: rationalise fd watch to use structures.
+
+2013-11-08  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* unposted: fix ChangeLog to say 5.0.3 instead of 4.0.3.
+
+	* unposted: NEWS: refer to zle -Fw.
+
+	* 31940: Doc/Zsh/contrib.yo, Functions/Misc/zcalc: add -e option
+	to zcalc to use input from arguments to command.
+
+2013-11-07  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* 31937: Doc/Zsh/zle.yo, Src/Zle/zle_main.c,
+	Src/Zle/zle_thingy.c, Src/Zle/zle_utils.c, Src/math.c,
+	Test/C01arith.ztst: zle -Fw uses widget semantics for
+	file descriptor handler.
+
 2013-11-06  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* unposted: Completion/Debian/Command/.distfiles,
 	Completion/Unix/Type/.distfiles, Config/version.mk, Etc/FAQ.yo,
 	README, Src/pattern.c, Src/signals.c, Test/.distfiles: updates
-	for 4.0.2-test-1 in preparation for 4.0.3.  Updated files
+	for 5.0.2-test-1 in preparation for 5.0.3.  Updated files
 	in .distfiles and add mod_export declarations.
 
 2013-11-03  Peter Stephenson  <p.w.stephenson@ntlworld.com>
@@ -54,7 +199,7 @@
 
 2013-10-27  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
-	* 31909: Jun T: Completion/Unix/Command/_cat: new completion.
+	* Jun T: 31909: Completion/Unix/Command/_cat: new completion.
 
 2013-10-26  Barton E. Schaefer  <schaefer@zsh.org>
 

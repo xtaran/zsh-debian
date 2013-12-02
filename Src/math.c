@@ -448,9 +448,7 @@ lexconstant(void)
     if (*nptr == '-')
 	nptr++;
 
-    if (*nptr == '0' &&
-	(memchr(nptr, '.', strlen(nptr)) == NULL))
-    {
+    if (*nptr == '0') {
 	nptr++;
 	if (*nptr == 'x' || *nptr == 'X') {
 	    /* Let zstrtol parse number with base */
@@ -491,11 +489,8 @@ lexconstant(void)
 	    nptr = ptr2;
 	}
     }
-    else
-    {
-	while (idigit(*nptr) || *nptr == '_')
-	    nptr++;
-    }
+    while (idigit(*nptr) || *nptr == '_')
+	nptr++;
 
     if (*nptr == '.' || *nptr == 'e' || *nptr == 'E') {
 	char *ptr2;
@@ -1374,6 +1369,19 @@ mathevalarg(char *s, char **ss)
     mnumber x;
     int xmtok = mtok;
 
+    /*
+     * At this entry point we don't allow an empty expression,
+     * whereas we do with matheval().  I'm not sure if this
+     * difference is deliberate, but it does mean that e.g.
+     * $array[$ind] where ind hasn't been set produces an error,
+     * which is probably safe.
+     *
+     * To avoid a more opaque error further in, bail out here.
+     */
+    if (!*s) {
+	zerr("bad math expression: empty string");
+	return (zlong)0;
+    }
     x = mathevall(s, MPREC_ARG, ss);
     if (mtok == COMMA)
 	(*ss)--;
@@ -1401,6 +1409,7 @@ checkunary(int mtokc, char *mptr)
     }
     if (errmsg) {
 	int len, over = 0;
+	char *errtype = errmsg == 2 ? "operator" : "operand";
 	while (inblank(*mptr))
 	    mptr++;
 	len = ztrlen(mptr);
@@ -1408,9 +1417,12 @@ checkunary(int mtokc, char *mptr)
 	    len = 10;
 	    over = 1;
 	}
-	zerr("bad math expression: %s expected at `%l%s'",
-	     errmsg == 2 ? "operator" : "operand",
-	     mptr, len, over ? "..." : "");
+	if (!*mptr)
+	    zerr("bad math expression: %s expected at end of string",
+		errtype);
+	else
+	    zerr("bad math expression: %s expected at `%l%s'",
+		 errtype, mptr, len, over ? "..." : "");
     }
     unary = !(tp & OP_OPF);
 }

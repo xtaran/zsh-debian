@@ -4,9 +4,9 @@ Author: Axel Beckert <abe@debian.org>
 
 Index: zsh/Doc/Makefile.in
 ===================================================================
---- zsh.orig/Doc/Makefile.in	2013-01-14 01:49:37.000000000 +0100
-+++ zsh/Doc/Makefile.in	2013-08-26 08:25:54.468926080 +0200
-@@ -40,7 +40,7 @@
+--- zsh.orig/Doc/Makefile.in	2013-12-02 15:26:29.000000000 +0100
++++ zsh/Doc/Makefile.in	2013-12-02 15:26:29.000000000 +0100
+@@ -41,7 +41,7 @@
  MAKEINFO = makeinfo
  TEXI2DVI = texi2dvi
  DVIPS = dvips

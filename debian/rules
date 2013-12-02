@@ -75,7 +75,7 @@ configure-stamp: configure
 
 configure-static-stamp: configure
 	dh_testdir
-	mkdir obj-static
+	mkdir -p obj-static/testhome
 	dh_auto_configure -B obj-static -- $(CONFIGFLAGS) $(STATICFLAGS)
 #	cp debian/static.conf obj-static/Src/mymods.conf
 	sed -i -e 's/files.mdd link=no/files.mdd link=static/;s/stat.mdd link=no/stat.mdd link=static/' \

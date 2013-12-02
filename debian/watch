@@ -1,4 +1,5 @@
 version=3
 http://www.zsh.org/pub/zsh-(\d[^\sd]*)\.(?:tgz|tbz2|txz|tar\.(?:gz|bz2|xz))
+http://www.zsh.org/pub/development/zsh-(\d[^\sd]*)\.(?:tgz|tbz2|txz|tar\.(?:gz|bz2|xz))
 # ftp.zsh.org produced timeout again
 # Bart Martens <bartm@debian.org>  Sat, 05 Jan 2013 08:58:36 +0000

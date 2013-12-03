@@ -1,16 +1,27 @@
 Description: Make A05execution.ztst not fail if setopt MONITOR fails
 Author: Bart E. Schaefer <schaefer@brasslantern.com>
+Origin: http://www.zsh.org/mla/workers/2013/msg01135.html
+Origin: http://www.zsh.org/mla/workers/2013/msg01142.html
 
-diff --git a/Test/A05execution.ztst b/Test/A05execution.ztst
-index ba7e02c..61f6f5a 100644
---- a/Test/A05execution.ztst
-+++ b/Test/A05execution.ztst
+Index: zsh/Test/A05execution.ztst
+===================================================================
+--- zsh.orig/Test/A05execution.ztst	2013-12-03 08:49:42.000000000 +0100
++++ zsh/Test/A05execution.ztst	2013-12-03 08:49:58.000000000 +0100
 @@ -179,7 +179,7 @@
  0:Status reset by starting a backgrounded command
  >0
-
+ 
 -  setopt MONITOR
 +  { setopt MONITOR } 2>/dev/null
    [[ -o MONITOR ]] || print -u $ZTST_fd 'Unable to change MONITOR option'
    repeat 2048; do (return 2 |
                     return 1 |
+@@ -195,7 +195,7 @@
+ F:This test checks for a bug in `$pipestatus[]' handling.  If it breaks then
+ F:the bug is still there or it reappeared. See workers-29973 for details.
+ 
+-  setopt MONITOR
++  { setopt MONITOR } 2>/dev/null
+   externFunc() { awk >/dev/null 2>&1; true; }
+   false | true | false | true | externFunc
+   echo $pipestatus

@@ -1,10 +1,10 @@
-zsh (5.0.2-test-3-1) UNRELEASED; urgency=low
+zsh (5.0.2-test-3-1) experimental; urgency=low
 
   * [d799ac78] New upstream release candidate 5.0.2-test-3
     - [b95cf81b] Remove patches applied upstream
     - [e30f4023] Refresh patch replace-texi2html-with-makeinfo
     - [d1fce554] debian/rules: Util/helpfiles now requires parameters, but
-      allows to reduce our own magic around it.
+      allows one to reduce our own magic around it.
     - [8efa92fb] Add newly generated help files to debian/clean
     - Includes many completion updates (Closes: #691601, #697247, #699851)
   * [abfb3b13] Bump Standards-Version to 3.9.5 (no changes)
@@ -14,8 +14,12 @@ zsh (5.0.2-test-3-1) UNRELEASED; urgency=low
   * [8fe0f364] zsh-common: Remove Breaks against older zsh version
     (Hopefully closes: #707760)
   * [df234cd6] Update watch file to also catch release candidates
+  * [1e707e44] Fix one test-suite failure on static builds due to
+    non-existent $HOME. Thanks to Bart Schaefer and Peter Stephenson for
+    spotting the cause.
+  * [04b8f147,640ecca3] Fix test suite failures on Jenkins builds.
 
- -- Axel Beckert <abe@debian.org>  Mon, 02 Dec 2013 17:08:36 +0100
+ -- Axel Beckert <abe@debian.org>  Tue, 03 Dec 2013 14:23:42 +0100
 
 zsh (5.0.2-6) unstable; urgency=low
 

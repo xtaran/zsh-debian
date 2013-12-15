@@ -1,8 +1,17 @@
-zsh (5.0.3-1) UNRELEASED; urgency=low
+zsh (5.0.3-1) unstable; urgency=low
 
   * [929ba17da] New upstream release
+    + [97ed366a] Drop fix-A05execution-ztst-setopt-MONITOR patch (applied
+      upstream)
+  * [7cdfd51c] Ignore test suite results on hurd-i386 for now
+  * [54e2f2ee] Remove use-dev-null-instead-of-dev-tty-for-dash-c-test
+    patch again. It was introduced in the hope it would fix test suite
+    failures on hurd, but instead it made the test suite hang.
+  * [07e365ef] Built-Using: Use libc-dev-bin instead of eglibc as
+    parameter to dpkg-query since it needs to be a binary package and
+    existing on all architectures.
 
- -- Axel Beckert <abe@debian.org>  Sun, 15 Dec 2013 01:41:00 +0100
+ -- Axel Beckert <abe@debian.org>  Sun, 15 Dec 2013 03:20:32 +0100
 
 zsh (5.0.2-test-3-1) experimental; urgency=low
 

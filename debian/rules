@@ -214,7 +214,6 @@ binary-arch: binary-arch-dynamic binary-arch-static binary-arch-dev
 	dh_md5sums    -a
 	dh_builddeb   -a
 
-
 binary: binary-indep binary-arch binary-arch-static binary-arch-dev
 
 prebuild:

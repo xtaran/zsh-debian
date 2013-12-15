@@ -1,3 +1,50 @@
+2013-12-14  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: version 5.0.3, finally.
+
+2013-12-13  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Martin Vaeth: 32105: Util/helpfiles: support all combinations of
+	man or nroff with colcrt or col.
+
+	* Aaron Peschel: 32103: Completion/Unix/Type/_hosts: parse
+	host:port format in ssh known_hosts files.
+
+2013-12-10  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32099: Src/init.c: fix pointer declaration to avoid compile
+	time error when arithmetic on void * is not allowed.
+
+2013-12-09  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* users/18210: Doc/Zsh/builtins.yo: document print -D better.
+
+	* 32093: INSTALL: describe the dependency issues fixed
+	by the doc bundle.
+
+2013-12-09  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Jun T.: 32056: Completion/Unix/Command/_iconv: Handle
+	different versions of iconv.
+
+2013-12-06  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Daniel Shahaf: 32091: Src/exec.c, Test/E01options.ztst:
+	WARN_CREATE_GLOBAL false positive for assignment before
+	commands.
+
+2013-12-05  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* Daniel Shahaf: 32089:
+	Functions/VCS_Info/Backends/VCS_INFO_detect_svn: tweak for
+	detecting Subversion repository.
+
+2013-12-02  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32080 (plus unposted second instance of same):
+	Test/A05execution.ztst: suppress any error output from
+	nonessential "setopt MONITOR"
+
 2013-12-01  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* unposted: Config/version.mk: 5.0.2-test-3.
@@ -27,7 +74,7 @@
 	Src/Modules/example.c, Src/module.c: Rationalise character
 	encodings: shell functions are strictly ASCII for maximum
 	portability; other files needed for building and documentation
-	are ASCII are UTF-8; test files may use ISO-8859-X (we don't
+	are ASCII or UTF-8; test files may use ISO-8859-X (we don't
 	require the Euro symbol) where needed to get single character
 	input with the top bit set.
 

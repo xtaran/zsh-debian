@@ -1,3 +1,9 @@
+zsh (5.0.4-1) UNRELEASED; urgency=low
+
+  * [59152a34] New upstream release
+
+ -- Axel Beckert <abe@debian.org>  Fri, 20 Dec 2013 22:11:29 +0100
+
 zsh (5.0.3-1) unstable; urgency=low
 
   * [929ba17da] New upstream release

@@ -1,4 +1,56 @@
+2013-12-20  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: Config/version.mk, Etc/FAQ.yo, README: release 5.0.4.
+
+2013-12-18  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32157: Doc/Zsh/params.yo, Src/Zle/zle_refresh.c, Src/init.c,
+	Src/params.c: make ZLE_RPROMPT_INDENT a special variable tied to
+	an internal C global, to avoid having the shell variable value
+	fetched on every keystroke and to make it available when testing
+	how to reposition the cursor after the right-prompt is output.
+	Fixes erasure in completion listing when ZLE_RPROMPT_INDENT=0.
+
+	* 32150: Completion/compaudit: Reference loop variable rather
+	than absolute path in executable ownership test
+
+2013-12-17  Phil Pennock  <pdpennock@users.sourceforge.net>
+
+	* 32143: INSTALL: Fix --enable-custom-patchlevel name in INSTALL
+
+2013-12-16  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Jun Takimoto: 32137: Test/comptest: set pseudo-terminal speed to
+	prevent padding characters which confuse output parsing.
+
+2013-12-16  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* 32136: Src/pattern.c, Src/zsh.h, Test/D02glob.ztst:
+	fix problem with +*, @*, !* when kshglob is set introduced
+	by pattern disable feature.
+
+	* unposted: NEWS: add ZLE_PROMPT_INDENT.
+
+	* Patrick Oscity + pws: 32114: Doc/Zsh/params.yo,
+	Src/Zle/zle_refresh.c, Src/Zle/zle_tricky.c: ZLE_RPROMPT_INDENT
+	allows you to make the right prompt flush if your terminal
+	supports it.
+
+2013-12-16  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Jun Takimoto + Bart: 32131: Src/Modules/zpty.c: avoid infinite
+	loop reading pseudo-terminal on platforms that do not buffer pty
+	contents after child process exits
+
+2013-12-15  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* users/18219: Completion/Zsh/Type/_command_names: compadd -Q for
+	builtins, aliases, and reserved words to preserve special chars
+
 2013-12-14  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: increment version to 5.0.3-dev-0 to avoid confusion
+	with released 5.0.3.
 
 	* unposted: version 5.0.3, finally.
 

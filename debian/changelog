@@ -1,10 +1,10 @@
-zsh (5.0.5-1) UNRELEASED; urgency=low
+zsh (5.0.5-1) unstable; urgency=medium
 
   * [8f137a4a] New upstream release
     + No more freeze when piping a function's output (Closes: #732726)
     + Command tab-completion works again after semicolon (Closes: #733075)
 
- -- Axel Beckert <abe@debian.org>  Sun, 05 Jan 2014 21:26:33 +0100
+ -- Axel Beckert <abe@debian.org>  Sun, 05 Jan 2014 22:17:34 +0100
 
 zsh (5.0.4-1) unstable; urgency=low
 

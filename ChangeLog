@@ -1,3 +1,97 @@
+2014-01-05  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: Config/version.mk, Doc/Zsh/compsys.yo: update
+	release to 5.0.5 and correct typo in compsys.yo making texinfo
+	format unusable.
+
+	* unposted but c.f. 32231: Doc/Zsh/compsys.yo: the parameter
+        'line' doesn't include the original command.
+
+	* Jun T: 32231: Completion/Unix/Command/_chmod: was confused by
+	options before the mode argument.
+
+	* Axel Beckert: 32229: LICENCE: was not correctly referring to
+	Gnu General Public License.
+
+2014-01-03  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: README: update another reference to 5.0.5.
+
+	* users/18271 plus some additional rewriting: Etc/FAQ.yo: add
+	FAQ entry to explain pattern exclusions.
+
+	* unposted: README, Etc/FAQ.yo: update source documentation for
+	5.0.5.
+
+2014-01-02  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* Danek Duvall: 32216: Completion/Solaris/Command/_svcadm,
+	Completion/Solaris/Command/_zoneadm,
+	Completion/Unix/Command/_zfs, Completion/Unix/Command/_zpool,
+	Completion/Unix/Type/_zfs_dataset: updates for Solaris 11,
+	Update 1.
+
+	* 32196: Carl Drougge: Src/Zle/zle_misc.c: copy-prev-shell-word
+	needs an extra flag to work properly.
+
+2013-12-31  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Eric Cook: 32210: Completion/Linux/Command/_sysstat: completion
+	for mpstat, iostat, etc.
+
+2013-12-30  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32208: Src/params.c: always reset pathchecked when the path
+	array is modified in arrvarsetfn(), to avoid bad dereference
+
+	* 32205: Completion/Zsh/Command/_cd: skip cdpath search when
+	the prefix begins with "../" (bug introduced by 31714)
+
+	* unposted (cf. Carlo: 32202): MACHINES: OS X 10.9.1. gcc problem
+
+2013-12-28  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32190 (cf. Alexey Bezhan: 32189): Completion/Zsh/Command/_cd:
+	quote _path_files -W path in case of spaces or special characters
+	when completing relative to ../
+
+	* 32186: Completion/Base/Completer/_expand: fix bad backreference;
+	handle glob patterns that include backslashed quote characters
+
+2013-12-26  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* unposted (cf. Jun Takimoto: 32184): Test/comptest,
+	Test/Y01completion.ztst: back 32183 out of comptest and instead
+	reset path in the individual tests in Y01completion.ztst
+
+2013-12-25  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32183: Test/comptest, Test/Y01completion.ztst: regression tests
+	for 32182 and 31611
+
+	* 32182: Src/Zle/zle_tricky.c: re-enable command completion after
+	a separator (tweak to 31611)
+
+	* 32178: Src/jobs.c: fix another acquire_pgrp() infinite loop
+
+2013-12-21  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* PWS + Bart: 32176: plug additional descriptor leaks causing
+	deadlock via different code paths; expand regression test
+
+2013-12-21  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* Config/version.mk: update version to 5.0.4-dev-0 so as
+	not to clash with release.
+
+2013-12-20  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 32172; Test/A05execution.ztst: regression test for 32171
+	
+	* 32171: Src/exec.c: fix leaked pipe descriptor that could
+	deadlock a pipeline from a complex shell construct or function
+	into an external command
+
 2013-12-20  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* unposted: Config/version.mk, Etc/FAQ.yo, README: release 5.0.4.
@@ -31,10 +125,12 @@
 
 	* unposted: NEWS: add ZLE_PROMPT_INDENT.
 
+	* 32119: Src/Zle/zle_tricky.c: left square bracket completed in
+	command position is not part of a subscript expression
+
 	* Patrick Oscity + pws: 32114: Doc/Zsh/params.yo,
-	Src/Zle/zle_refresh.c, Src/Zle/zle_tricky.c: ZLE_RPROMPT_INDENT
-	allows you to make the right prompt flush if your terminal
-	supports it.
+	Src/Zle/zle_refresh.c: ZLE_RPROMPT_INDENT allows you to make the
+	right prompt flush if your terminal supports it.
 
 2013-12-16  Barton E. Schaefer  <schaefer@zsh.org>
 

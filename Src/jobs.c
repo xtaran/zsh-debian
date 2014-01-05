@@ -1173,6 +1173,30 @@ addfilelist(const char *name, int fd)
     zaddlinknode(ll, jf);
 }
 
+/* Clean up pipes no longer needed associated with a job */
+
+/**/
+void
+pipecleanfilelist(LinkList filelist)
+{
+    LinkNode node;
+
+    if (!filelist)
+	return;
+    node = firstnode(filelist);
+    while (node) {
+	Jobfile jf = (Jobfile)getdata(node);
+	if (jf->is_fd) {
+	    LinkNode next = nextnode(node);
+	    zclose(jf->u.fd);
+	    (void)remnode(filelist, node);
+	    zfree(jf, sizeof(*jf));
+	    node = next;
+	} else
+	    incnode(node);
+    }
+}
+
 /* Finished with list of files for a job */
 
 /**/
@@ -1415,19 +1439,7 @@ zwaitjob(int job, int wait_cmd)
 	     * we can't deadlock on the fact that those still exist, so
 	     * that's not a problem.
 	     */
-	    LinkNode node = firstnode(jn->filelist);
-	    while (node) {
-		Jobfile jf = (Jobfile)getdata(node);
-		if (jf->is_fd) {
-		    LinkNode next = nextnode(node);
-		    (void)remnode(jn->filelist, node);
-		    zclose(jf->u.fd);
-		    zfree(jf, sizeof(*jf));
-		    node = next;
-		} else {
-		    incnode(node);
-		}
-	    }
+	    pipecleanfilelist(jn->filelist);
 	}
 	while (!errflag && jn->stat &&
 	       !(jn->stat & STAT_DONE) &&
@@ -2607,6 +2619,7 @@ acquire_pgrp(void)
     sigset_t blockset, oldset;
 
     if ((mypgrp = GETPGRP()) > 0) {
+	long lastpgrp = mypgrp;
 	sigemptyset(&blockset);
 	sigaddset(&blockset, SIGTTIN);
 	sigaddset(&blockset, SIGTTOU);
@@ -2627,6 +2640,9 @@ acquire_pgrp(void)
 	    if (read(0, NULL, 0) != 0) {} /* Might generate SIGT* */
 	    signal_block(blockset);
 	    mypgrp = GETPGRP();
+	    if (mypgrp == lastpgrp && !interact)
+		break; /* Unlikely that pgrp will ever change */
+	    lastpgrp = mypgrp;
 	}
 	if (mypgrp != mypid) {
 	    if (setpgrp(0, 0) == 0) {

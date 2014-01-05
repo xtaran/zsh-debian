@@ -1691,6 +1691,7 @@ execpline2(Estate state, wordcode pcode,
 	execcmd(state, input, output, how, last1 ? 1 : 2);
     else {
 	int old_list_pipe = list_pipe;
+	int subsh_close = -1;
 	Wordcode next = state->pc + (*state->pc), pc;
 	wordcode code;
 
@@ -1738,6 +1739,7 @@ execpline2(Estate state, wordcode pcode,
 	} else {
 	    /* otherwise just do the pipeline normally. */
 	    addfilelist(NULL, pipes[0]);
+	    subsh_close = pipes[0];
 	    execcmd(state, input, pipes[1], how, 0);
 	}
 	zclose(pipes[1]);
@@ -1750,6 +1752,8 @@ execpline2(Estate state, wordcode pcode,
 	execpline2(state, *state->pc++, how, pipes[0], output, last1);
 	list_pipe = old_list_pipe;
 	cmdpop();
+	if (subsh_close != pipes[0])
+	    zclose(pipes[0]);
     }
 }
 
@@ -2385,7 +2389,7 @@ static void
 execcmd(Estate state, int input, int output, int how, int last1)
 {
     HashNode hn = NULL;
-    LinkList args;
+    LinkList args, filelist = NULL;
     LinkNode node;
     Redir fn;
     struct multio *mfds[10];
@@ -2907,6 +2911,7 @@ execcmd(Estate state, int input, int output, int how, int last1)
 	    flags |= ESUB_KEEPTRAP;
 	if (type == WC_SUBSH && !(how & Z_ASYNC))
 	    flags |= ESUB_JOB_CONTROL;
+	filelist = jobtab[thisjob].filelist;
 	entersubsh(flags);
 	close(synch[1]);
 	forked = 1;
@@ -3260,6 +3265,7 @@ execcmd(Estate state, int input, int output, int how, int last1)
 
 	    if (is_shfunc) {
 		/* It's a shell function */
+		pipecleanfilelist(filelist);
 		execshfunc((Shfunc) hn, args);
 	    } else {
 		/* It's a builtin */
@@ -3338,6 +3344,7 @@ execcmd(Estate state, int input, int output, int how, int last1)
 		DPUTS(varspc,
 		      "BUG: assignment before complex command");
 		list_pipe = 0;
+		pipecleanfilelist(filelist);
 		/* If we're forked (and we should be), no need to return */
 		DPUTS(last1 != 1 && !forked, "BUG: not exiting?");
 		DPUTS(type != WC_SUBSH, "Not sure what we're doing.");

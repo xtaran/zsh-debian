@@ -12,6 +12,7 @@ Build-Depends: bsdmainutils,
                libncursesw5-dev,
                libpcre3-dev,
                texinfo (>= 5~),
+               texlive-fonts-recommended,
                texlive-latex-recommended,
                texlive-latex-base,
                yodl

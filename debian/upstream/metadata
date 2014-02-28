@@ -1,0 +1,12 @@
+%YAML 1.1
+---
+# https://wiki.debian.org/UpstreamMetadata
+Bug-Submit: mailto:zsh-workers@zsh.org
+Changelog: http://zsh.sourceforge.net/releases.html
+Contact: zsh-workers@zsh.org
+FAQ: http://zsh.sourceforge.net/FAQ/
+Name: Z shell
+Homepage: http://www.zsh.org/
+Homepage: http://zsh.sourceforge.net/
+Repository: git://git.code.sf.net/p/zsh/code
+Repository-Browse: http://sourceforge.net/p/zsh/code/ci/master/tree/

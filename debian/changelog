@@ -1,3 +1,11 @@
+zsh (5.0.5-2) unstable; urgency=medium
+
+  * [9cfeffbc] Add build-dependency on texlive-fonts-recommended
+    (c.f. #738402, closes: #738452)
+  * [c14fd3a8] Add a debian/upstream/metadata file according to DEP-12
+
+ -- Axel Beckert <abe@debian.org>  Wed, 12 Mar 2014 00:21:06 +0100
+
 zsh (5.0.5-1) unstable; urgency=medium
 
   * [8f137a4a] New upstream release

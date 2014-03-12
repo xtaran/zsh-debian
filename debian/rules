@@ -46,7 +46,9 @@ build: build-arch build-indep
 
 build-arch: configure-stamp
 	dh_auto_build -B obj --parallel
-	HOME="$(CURDIR)/obj/testhome" dh_auto_test -B obj --parallel || test `dpkg-architecture -qDEB_BUILD_ARCH` = hurd-i386
+	if dpkg-architecture -qDEB_BUILD_ARCH_OS | grep -qv hurd; then \
+		HOME="$(CURDIR)/obj/testhome" dh_auto_test -B obj --parallel; \
+	fi
 	touch $@
 
 build-indep: configure-stamp

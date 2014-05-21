@@ -31,3 +31,22 @@ Now you can use the usual gdb commands like step / continue / ...
 to debug the Zsh process at source level.
 
   -- Michael Prokop <mika@debian.org>
+
+
+Load-path for functions from other packages
+-------------------------------------------
+
+In respsonse to #620452, the zsh-binary from Debian's zsh package started to
+provide two entries to $fpath (the search path for loadable functions) for
+other packages to drop function files into:
+
+  - /usr/share/zsh/vendor-completions for functions that add functionality to
+    zsh's function based completion system (compsys)
+
+  - /usr/share/zsh/vendor-functions for all other functions
+
+If you maintain another Debian package that wants to add functions to zsh's
+function load-path, please use the those conventions when installing function
+files.
+
+ -- Frank Terbeck <ft@bewatermyfriend.org>, Wed, 21 May 2014 13:15:58 +0200

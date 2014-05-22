@@ -143,6 +143,7 @@ binary-indep: build-indep binary-arch-dynamic
 		`find debian/zsh-common/usr/share/zsh/functions -type f`
 
 	dh_link              -i
+	dh_bugfiles          -i
 	dh_installmenu                    -pzsh-common
 	dh_installdocs                    -pzsh-common
 	dh_installchangelogs    -pzsh-doc -pzsh-common
@@ -167,6 +168,7 @@ binary-arch-dynamic: build-arch
 	mv debian/zsh/bin/zsh debian/zsh/bin/zsh5
 	rm debian/zsh/bin/zsh-5.[0-9]*
 
+	dh_bugfiles    -pzsh
 	dh_strip       -pzsh --dbg-package=zsh-dbg
 	dh_install     -pzsh             -pzsh-dbg
 
@@ -188,6 +190,7 @@ binary-arch-static: build-static
 	dh_installdocs       -pzsh-static
 	awk 'BEGIN { print "The following modules are statically-compiled into the static zsh binary:\n"; } /link=static/ { printf "%s (%s %s)\n", substr($$1,6), $$4, $$5; }' obj-static/config.modules >debian/zsh-static/usr/share/doc/zsh-static/README.Debian
 
+	dh_bugfiles          -pzsh-static
 	dh_install           -pzsh-static
 	dh_strip             -pzsh-static
 

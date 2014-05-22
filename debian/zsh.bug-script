@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ -x /usr/bin/aptitude ]; then
+    echo "*** Packages which depend, recommend, suggest or enhance a zsh package and hence may provide code meant to be sourced in .zshrc ***"
+    aptitude -q search '( ?enhances(?name(^zsh)) | ?depends(?name(^zsh)) | ?recommends(?name(^zsh)) | ?suggests(?name(^zsh)) ) !?source-package(^zsh$) ~i'
+else
+    echo "*** Packages which provide code meant to be sourced in .zshrc ***"
+    # Hardcoded list of (future) packages containing code meant to be
+    # sourced in .zshrc
+    dpkg-query -l fizsh oh-my-zsh zsh-antigen autojump zec 'grml-*'
+fi
+
+echo ""
+echo "*** Packages which provide vendor completions ***"
+dpkg-query -S /usr/share/zsh/vendor-completions/ | awk -F: '{print $1}' | sed -e 's/,//g' | xargs -r dpkg-query -l
+
+echo ""
+echo "*** Packages which provide vendor functions ***"
+dpkg-query -S /usr/share/zsh/vendor-functions/ | awk -F: '{print $1}' | sed -e 's/,//g' | xargs -r dpkg-query -l

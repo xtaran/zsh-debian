@@ -1,0 +1,59 @@
+commit 60bedea3e712178beac392af1ca6ed7291630459
+Author: Sebastian Ramacher <sebastian@ramacher.at>
+Date:   Sun Apr 6 18:04:39 2014 +0200
+
+    32533: add completion for "apt-mark"
+
+diff --git a/Completion/Debian/Command/_apt b/Completion/Debian/Command/_apt
+index 6f0bded..bf5343a 100644
+--- a/Completion/Debian/Command/_apt
++++ b/Completion/Debian/Command/_apt
+@@ -1,4 +1,4 @@
+-#compdef apt apt-get apt-cache apt-cdrom apt-config
++#compdef apt apt-get apt-cache apt-cdrom apt-config apt-mark
+ 
+ _apt () {
+   case "$service" in
+@@ -7,6 +7,7 @@ _apt () {
+     apt-cache) _apt-cache "$@";;
+     apt-cdrom) _apt-cdrom "$@";;
+     apt-config) _apt-config "$@";;
++    apt-mark) _apt-mark "$@";;
+     *) _message "unknown command $service";;
+   esac
+ }
+@@ -619,4 +620,34 @@ _apt_caching_policy () {
+      /var/lib/dpkg/available -nt "$1" ]]
+ }
+ 
++_apt-mark () {
++  _apt_arguments _apt-mark_sm \
++    -h,--help:bool \
++    -v,--version:bool \
++    -f,--file:configfile \
++    -c,--config-file:configfile \
++    -o,--option:arbitem \
++    -qq:bool \
++    -s:bool \
++    -- \
++    /$'auto\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
++    /$'manual\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
++    /$'hold\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
++    /$'unhold\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
++    /$'showauto\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
++    /$'showmanual\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
++    /$'showhold\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
++    /"[]"/	':argument-1::compadd "$expl_action[@]" auto manual hold unhold showauto showmanual showhold'
++
++  _apt-mark () {
++    local expl_action expl_packages
++    _description actions expl_action 'action'
++    _description packages expl_packages 'package'
++
++    _apt-mark_sm
++  }
++
++  _apt-mark "$@"
++}
++
+ _apt "$@"

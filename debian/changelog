@@ -1,3 +1,21 @@
+zsh (5.0.5-3) unstable; urgency=medium
+
+  [ Axel Beckert ]
+  * [befdc25a] Don't even try to run test suite on hurd, it hangs.
+  * [53e4180a] Add bug scripts to list packages that could interfere with
+    zsh's behaviour.
+  * [1af939ec] Cherry-pick apt and apt-mark completion updates from
+    upstream. (Closes: #691526)
+  * [ce0c912b] Cherry-pick upstream fix for INC_APPEND_HISTORY
+    regression. (Closes: #749969)
+  * [655a374b] Add build-dependency on cm-super-minimal. It FTBFS with TeX
+    Live >= 2014 otherwise.
+
+  [ Frank Terbeck ]
+  * [5ac620f4] Add note about $fpath entries to README.Debian.
+
+ -- Axel Beckert <abe@debian.org>  Fri, 13 Jun 2014 11:49:44 +0200
+
 zsh (5.0.5-2) unstable; urgency=medium
 
   * [9cfeffbc] Add build-dependency on texlive-fonts-recommended

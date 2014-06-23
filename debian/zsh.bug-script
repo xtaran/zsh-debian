@@ -1,5 +1,8 @@
 #!/bin/sh
 
+exec 1>&3
+exec 2>&3
+
 if [ -x /usr/bin/aptitude ]; then
     echo "*** Packages which depend, recommend, suggest or enhance a zsh package and hence may provide code meant to be sourced in .zshrc ***"
     aptitude -q search '( ?enhances(?name(^zsh)) | ?depends(?name(^zsh)) | ?recommends(?name(^zsh)) | ?suggests(?name(^zsh)) ) !?source-package(^zsh$) ~i'

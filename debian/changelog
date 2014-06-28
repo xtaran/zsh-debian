@@ -1,3 +1,15 @@
+zsh (5.0.5-4) unstable; urgency=medium
+
+  * [5cebe890] Fix output file descriptor of bug script. reportbug
+    only captures output to fd 3 and ignores STDOUT.
+  * [11486424] Simplify helpfiles generation in debian/rules.
+    + nroff is no more called twice (Closes: #737582)
+    + There's no more need to replace any ISO Latin-1 character.
+    + debian/rules is now pure 7-bit ASCII again
+  * [d1d4dabe] Add lintian overrides for spelling error false positives.
+
+ -- Axel Beckert <abe@debian.org>  Sat, 28 Jun 2014 17:37:54 +0200
+
 zsh (5.0.5-3) unstable; urgency=medium
 
   [ Axel Beckert ]

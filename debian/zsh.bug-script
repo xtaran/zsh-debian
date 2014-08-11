@@ -1,19 +1,39 @@
 #!/bin/sh
 
+exec 1>&3
+exec 2>&3
+
+list_packages() {
+    text="$1"
+    shift
+    if [ -n "$1" ]; then
+        printf "$text:\n\n"
+        dpkg-query -l "$@"
+        if [ -x /usr/bin/debsums ]; then
+            FILES="$(debsums -ce "$@")"
+            if [ -n "$FILES" ]; then
+                printf "\nThe following files were modified:\n\n$FILES\n"
+            fi
+        fi
+    fi
+    printf "\n"
+}
+
 if [ -x /usr/bin/aptitude ]; then
-    echo "*** Packages which depend, recommend, suggest or enhance a zsh package and hence may provide code meant to be sourced in .zshrc ***"
-    aptitude -q search '( ?enhances(?name(^zsh)) | ?depends(?name(^zsh)) | ?recommends(?name(^zsh)) | ?suggests(?name(^zsh)) ) !?source-package(^zsh$) ~i'
+    TEXT="Packages which depend, recommend, suggest or enhance a zsh package and hence may provide code meant to be sourced in .zshrc"
+    PKGS=$(aptitude -q -F '%p' search '( ?enhances(?name(^zsh)) | ?depends(?name(^zsh)) | ?recommends(?name(^zsh)) | ?suggests(?name(^zsh)) ) !?source-package(^zsh$) ~i')
 else
-    echo "*** Packages which provide code meant to be sourced in .zshrc ***"
+    TEXT="Packages which provide code meant to be sourced in .zshrc"
     # Hardcoded list of (future) packages containing code meant to be
     # sourced in .zshrc
-    dpkg-query -l fizsh oh-my-zsh zsh-antigen autojump zec 'grml-*'
+    PKGS=$(dpkg-query -W -f '${Package}\n' fizsh oh-my-zsh zsh-antigen autojump zec 'grml-*' 2>/dev/null)
 fi
 
-echo ""
-echo "*** Packages which provide vendor completions ***"
-dpkg-query -S /usr/share/zsh/vendor-completions/ | awk -F: '{print $1}' | sed -e 's/,//g' | xargs -r dpkg-query -l
+list_packages "$TEXT" $PKGS
 
-echo ""
-echo "*** Packages which provide vendor functions ***"
-dpkg-query -S /usr/share/zsh/vendor-functions/ | awk -F: '{print $1}' | sed -e 's/,//g' | xargs -r dpkg-query -l
+list_packages "Packages which provide vendor completions" \
+$(dpkg-query -S /usr/share/zsh/vendor-completions/ | awk -F: '{print $1}' | sed -e 's/,//g')
+
+list_packages "Packages which provide vendor functions" \
+$(dpkg-query -S /usr/share/zsh/vendor-functions/ | awk -F: '{print $1}' | sed -e 's/,//g')
+

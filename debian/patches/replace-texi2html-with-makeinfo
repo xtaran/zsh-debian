@@ -4,14 +4,14 @@ Author: Axel Beckert <abe@debian.org>
 
 Index: zsh/Doc/Makefile.in
 ===================================================================
---- zsh.orig/Doc/Makefile.in	2013-12-02 15:26:29.000000000 +0100
-+++ zsh/Doc/Makefile.in	2013-12-02 15:26:29.000000000 +0100
+--- zsh.orig/Doc/Makefile.in	2014-08-11 17:45:12.000000000 +0200
++++ zsh/Doc/Makefile.in	2014-08-11 17:45:12.000000000 +0200
 @@ -41,7 +41,7 @@
  MAKEINFO = makeinfo
  TEXI2DVI = texi2dvi
  DVIPS = dvips
--TEXI2HTML = @TEXI2HTML@ --output . --ifinfo --split=chapter --node-files
-+TEXI2HTML = makeinfo --html --output . --ifinfo --split=chapter --node-files
+-TEXI2HTML = @TEXI2HTML@ --output . --ifinfo --split=chapter --node-files \
++TEXI2HTML = makeinfo --html --output . --ifinfo --split=chapter --node-files \
+             --init-file $(sdir)/texi2html.conf
  
  .SUFFIXES: .yo .1
- 

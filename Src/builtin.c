@@ -111,7 +111,7 @@ static struct builtin builtins[] =
     BUILTIN("return", BINF_PSPECIAL, bin_break, 0, 1, BIN_RETURN, NULL, NULL),
     BUILTIN("set", BINF_PSPECIAL | BINF_HANDLES_OPTS, bin_set, 0, -1, 0, NULL, NULL),
     BUILTIN("setopt", 0, bin_setopt, 0, -1, BIN_SETOPT, NULL, NULL),
-    BUILTIN("shift", BINF_PSPECIAL, bin_shift, 0, -1, 0, NULL, NULL),
+    BUILTIN("shift", BINF_PSPECIAL, bin_shift, 0, -1, 0, "p", NULL),
     BUILTIN("source", BINF_PSPECIAL, bin_dot, 1, -1, 0, NULL, NULL),
     BUILTIN("suspend", 0, bin_suspend, 0, 0, 0, "f", NULL),
     BUILTIN("test", BINF_HANDLES_OPTS, bin_test, 0, -1, BIN_TEST, NULL, NULL),
@@ -1422,6 +1422,10 @@ bin_fc(char *nam, char **argv, Options ops, int func)
 	unqueue_signals();
 	return 0;
     }
+    if (OPT_ISSET(ops,'I')) {
+	zwarnnam(nam, "-I requires one of -R/-W/-A");
+	return 1;
+    }
 
     if (zleactive) {
 	zwarnnam(nam, "no interactive history within ZLE");
@@ -1727,7 +1731,7 @@ fclist(FILE *f, Options ops, zlong first, zlong last,
 	    if (tdfmt != NULL) {
 		struct tm *ltm;
 		ltm = localtime(&ent->stim);
-		if (ztrftime(timebuf, 256, tdfmt, ltm))
+		if (ztrftime(timebuf, 256, tdfmt, ltm, 0L))
 		    fprintf(f, "%s  ", timebuf);
 	    }
 	    /* display the time taken by the command, if required */
@@ -4509,7 +4513,7 @@ bin_print(char *name, char **args, Options ops, int func)
 
 /**/
 int
-bin_shift(char *name, char **argv, UNUSED(Options ops), UNUSED(int func))
+bin_shift(char *name, char **argv, Options ops, UNUSED(int func))
 {
     int num = 1, l, ret = 0;
     char **s;
@@ -4533,7 +4537,19 @@ bin_shift(char *name, char **argv, UNUSED(Options ops), UNUSED(int func))
 		    ret++;
 		    continue;
 		}
-		s = zarrdup(s + num);
+		if (OPT_ISSET(ops,'p')) {
+		    char **s2, **src, **dst;
+		    int count;
+		    l = arrlen(s);
+		    src = s;
+		    dst = s2 = (char **)zalloc((l - num + 1) * sizeof(char *));
+		    for (count = l - num; count; count--)
+			*dst++ = ztrdup(*src++);
+		    *dst = NULL;
+		    s = s2;
+		} else {
+		    s = zarrdup(s + num);
+		}
                 setaparam(*argv, s);
             }
     } else {
@@ -4542,9 +4558,16 @@ bin_shift(char *name, char **argv, UNUSED(Options ops), UNUSED(int func))
 	    ret = 1;
 	} else {
 	    s = zalloc((l - num + 1) * sizeof(char *));
-	    memcpy(s, pparams + num, (l - num + 1) * sizeof(char *));
-	    while (num--)
-		zsfree(pparams[num]);
+	    if (OPT_ISSET(ops,'p')) {
+		memcpy(s, pparams, (l - num) * sizeof(char *));
+		s[l-num] = NULL;
+		while (num--)
+		    zsfree(pparams[l-1-num]);
+	    } else {
+		memcpy(s, pparams + num, (l - num + 1) * sizeof(char *));
+		while (num--)
+		    zsfree(pparams[num]);
+	    }
 	    zfree(pparams, (l + 1) * sizeof(char *));
 	    pparams = s;
 	}
@@ -4669,9 +4692,10 @@ exit_pending;
 int
 bin_break(char *name, char **argv, UNUSED(Options ops), int func)
 {
-    int num = lastval, nump = 0;
+    int num = lastval, nump = 0, implicit;
 
     /* handle one optional numeric argument */
+    implicit = !*argv;
     if (*argv) {
 	num = mathevali(*argv++);
 	nump = 1;
@@ -4702,7 +4726,13 @@ bin_break(char *name, char **argv, UNUSED(Options ops), int func)
 	    retflag = 1;
 	    breaks = loops;
 	    lastval = num;
-	    if (trap_state == TRAP_STATE_PRIMED && trap_return == -2) {
+	    if (trap_state == TRAP_STATE_PRIMED && trap_return == -2
+		/*
+		 * With POSIX, "return" on its own in a trap doesn't
+		 * update $? --- we keep the status from before the
+		 * trap.
+		 */
+		&& !(isset(POSIXTRAPS) && implicit)) {
 		trap_state = TRAP_STATE_FORCE_RETURN;
 		trap_return = lastval;
 	    }
@@ -6069,8 +6099,9 @@ bin_test(char *name, char **argv, UNUSED(Options ops), int func)
 }
 
 /* display a time, provided in units of 1/60s, as minutes and seconds */
-#define pttime(X) printf("%ldm%ld.%02lds",((long) (X))/3600,\
-			 ((long) (X))/60%60,((long) (X))*100/60%100)
+#define pttime(X) printf("%ldm%ld.%02lds",((long) (X))/(60 * clktck),\
+			 ((long) (X))/clktck%clktck,\
+			 ((long) (X))*100/clktck%100)
 
 /* times: display, in a two-line format, the times provided by times(3) */
 
@@ -6079,6 +6110,7 @@ int
 bin_times(UNUSED(char *name), UNUSED(char **argv), UNUSED(Options ops), UNUSED(int func))
 {
     struct tms buf;
+    long clktck = get_clktck();
 
     /* get time accounting information */
     if (times(&buf) == -1)

@@ -67,15 +67,23 @@ int viinsbegin;
 static struct modifier lastmod;
 static int inrepeat, vichgrepeat;
 
+/**
+ * im: >= 0: is an insertmode
+ *    -1: skip setting insert mode
+ *    -2: entering viins at start of editing from clean --- don't use
+ *        inrepeat or lastchar, synthesise an i to enter insert mode.
+ */
+
 /**/
 static void
 startvichange(int im)
 {
     if (im != -1) {
-	insmode = im;
 	vichgflag = 1;
+	if (im > -1)
+	    insmode = im;
     }
-    if (inrepeat) {
+    if (inrepeat && im != -2) {
 	zmod = lastmod;
 	inrepeat = vichgflag = 0;
 	vichgrepeat = 1;
@@ -84,7 +92,12 @@ startvichange(int im)
 	if (vichgbuf)
 	    free(vichgbuf);
 	vichgbuf = (char *)zalloc(vichgbufsz = 16);
-	vichgbuf[0] = lastchar;
+	if (im == -2) {
+	    vichgbuf[0] =
+		zlell ? (insmode ? (zlecs < zlell ? 'i' : 'a') : 'R') : 'o';
+	} else {
+	    vichgbuf[0] = lastchar;
+	}
 	vichgbufptr = 1;
 	vichgrepeat = 0;
     }
@@ -96,7 +109,7 @@ startvitext(int im)
 {
     startvichange(im);
     selectkeymap("main", 1);
-    undoing = 0;
+    vistartchange = (curchange && curchange->prev) ? curchange->prev->changeno : 0;
     viinsbegin = zlecs;
 }
 
@@ -303,6 +316,18 @@ viinsert(UNUSED(char **args))
     return 0;
 }
 
+/*
+ * Go to vi insert mode when we first start the line editor.
+ * Iniialises some other stuff.
+ */
+
+/**/
+void
+viinsert_init(void)
+{
+    startvitext(-2);
+}
+
 /**/
 int
 viinsertbol(UNUSED(char **args))
@@ -376,7 +401,7 @@ vichange(UNUSED(char **args))
 	forekill(c2 - zlecs, CUT_RAW);
 	selectkeymap("main", 1);
 	viinsbegin = zlecs;
-	undoing = 0;
+	vistartchange = (curchange && curchange->prev) ? curchange->prev->changeno : 0;
     }
     return ret;
 }
@@ -561,7 +586,7 @@ vicmdmode(UNUSED(char **args))
 {
     if (invicmdmode() || selectkeymap("vicmd", 0))
 	return 1;
-    undoing = 1;
+    mergeundo();
     vichgflag = 0;
     if (zlecs != findbol())
 	DECCS();

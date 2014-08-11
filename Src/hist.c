@@ -935,8 +935,10 @@ hbegin(int dohist)
 
     hf = getsparam("HISTFILE");
     /*
-     * For INCAPPENDHISTORY, when interactive, save the history here
+     * For INCAPPENDHISTORYTIME, when interactive, save the history here
      * as it gives a better estimate of the times of commands.
+     *
+     * If INCAPPENDHISTORY is also set we've already done it.
      *
      * If SHAREHISTORY is also set continue to do so in the
      * standard place, because that's safer about reading and
@@ -950,7 +952,8 @@ hbegin(int dohist)
      * so that (correctly) nothing happens here.  But it shows
      * I thought about it.
      */
-    if (isset(INCAPPENDHISTORY) && !isset(SHAREHISTORY) &&
+    if (isset(INCAPPENDHISTORYTIME) && !isset(SHAREHISTORY) &&
+	!isset(INCAPPENDHISTORY) &&
 	!(histactive & HA_NOINC) && !strin && histsave_stack_pos == 0)
 	savehistfile(hf, 0, HFILE_USE_OPTIONS | HFILE_FAST);
 }
@@ -1378,7 +1381,8 @@ hend(Eprog prog)
      * For normal INCAPPENDHISTORY case and reasoning, see hbegin().
      */
     if (isset(SHAREHISTORY) ? histfileIsLocked() :
-	(isset(INCAPPENDHISTORY) && histsave_stack_pos != 0))
+	(isset(INCAPPENDHISTORY) || (isset(INCAPPENDHISTORYTIME) &&
+				     histsave_stack_pos != 0)))
 	savehistfile(hf, 0, HFILE_USE_OPTIONS | HFILE_FAST);
     unlockhistfile(hf); /* It's OK to call this even if we aren't locked */
     /*
@@ -1764,7 +1768,8 @@ chrealpath(char **junkptr)
 	str++;
     }
 
-    *junkptr = metafy(bicat(real, nonreal), -1, META_HEAPDUP);
+    *junkptr = metafy(str = bicat(real, nonreal), -1, META_HEAPDUP);
+    zsfree(str);
 #ifdef HAVE_CANONICALIZE_FILE_NAME
     free(real);
 #endif
@@ -2303,8 +2308,7 @@ readhistline(int start, char **bufp, int *bufsiz, FILE *in)
 	}
 	else {
 	    buf[len - 1] = '\0';
-	    if (len > 1 && buf[len - 2] == '\\' &&
-		(len < 3 || buf[len - 3] != '\\')) {
+	    if (len > 1 && buf[len - 2] == '\\') {
 		buf[--len - 1] = '\n';
 		if (!feof(in))
 		    return readhistline(len, bufp, bufsiz, in);
@@ -2541,7 +2545,7 @@ savehistfile(char *fn, int err, int writeflags)
     }
     if (writeflags & HFILE_USE_OPTIONS) {
 	if (isset(APPENDHISTORY) || isset(INCAPPENDHISTORY)
-	 || isset(SHAREHISTORY))
+	 || isset(INCAPPENDHISTORYTIME) || isset(SHAREHISTORY))
 	    writeflags |= HFILE_APPEND | HFILE_SKIPOLD;
 	else
 	    histfile_linect = 0;
@@ -2577,7 +2581,7 @@ savehistfile(char *fn, int err, int writeflags)
 		tmpfile = NULL;
 		if (err) {
 		    if (isset(APPENDHISTORY) || isset(INCAPPENDHISTORY)
-		     || isset(SHAREHISTORY))
+		     || isset(INCAPPENDHISTORYTIME) || isset(SHAREHISTORY))
 			zerr("rewriting %s would change its ownership -- skipped", fn);
 		    else
 			zerr("rewriting %s would change its ownership -- history not saved", fn);
@@ -2613,6 +2617,8 @@ savehistfile(char *fn, int err, int writeflags)
 
 	ret = 0;
 	for (; he && he->histnum <= xcurhist; he = down_histent(he)) {
+	    int count_backslashes = 0;
+
 	    if ((writeflags & HFILE_SKIPDUPS && he->node.flags & HIST_DUP)
 	     || (writeflags & HFILE_SKIPFOREIGN && he->node.flags & HIST_FOREIGN)
 	     || he->node.flags & HIST_TMPSTORE)
@@ -2644,9 +2650,18 @@ savehistfile(char *fn, int err, int writeflags)
 		if (*t == '\n')
 		    if ((ret = fputc('\\', out)) < 0)
 			break;
+		if (*t == '\\')
+		    count_backslashes++;
+		else
+		    count_backslashes = 0;
 		if ((ret = fputc(*t, out)) < 0)
 		    break;
 	    }
+	    if (ret < 0)
+	    	break;
+	    if (count_backslashes && (count_backslashes % 2 == 0))
+		if ((ret = fputc(' ', out)) < 0)
+		    break;
 	    if (ret < 0 || (ret = fputc('\n', out)) < 0)
 		break;
 	}
@@ -2719,6 +2734,25 @@ savehistfile(char *fn, int err, int writeflags)
 
 static int lockhistct;
 
+static int
+checklocktime(char *lockfile, time_t then)
+{
+    time_t now = time(NULL);
+
+    if (now + 10 < then) {
+	/* File is more than 10 seconds in the future? */
+	errno = EEXIST;
+	return -1;
+    }
+
+    if (now - then < 10)
+	sleep(1);
+    else
+	unlink(lockfile);
+
+    return 0;
+}
+
 /*
  * Lock history file.  Return 0 on success, 1 on failure to lock this
  * time, 2 on permanent failure (e.g. permission).
@@ -2736,9 +2770,7 @@ lockhistfile(char *fn, int keep_trying)
 
 #ifdef HAVE_FCNTL_H
     if (isset(HISTFCNTLLOCK) && flock_fd < 0) {
-	ret = flockhistfile(fn, keep_trying);
-	if (ret)
-	    return ret;
+	return flockhistfile(fn, keep_trying);
     }
 #endif
 
@@ -2775,10 +2807,10 @@ lockhistfile(char *fn, int keep_trying)
 		    continue;
 		break;
 	    }
-	    if (time(NULL) - sb.st_mtime < 10)
-		sleep(1);
-	    else
-		unlink(lockfile);
+	    if (checklocktime(lockfile, sb.st_mtime) < 0) {
+		ret = 1;
+		break;
+	    }
 	}
 	if (fd < 0)
 	    lockhistct--;
@@ -2803,10 +2835,10 @@ lockhistfile(char *fn, int keep_trying)
 			continue;
 		    ret = 2;
 		} else {
-		    if (time(NULL) - sb.st_mtime < 10)
-			sleep(1);
-		    else
-			unlink(lockfile);
+		    if (checklocktime(lockfile, sb.st_mtime) < 0) {
+			ret = 1;
+			break;
+		    }
 		    continue;
 		}
 		lockhistct--;
@@ -2831,10 +2863,10 @@ lockhistfile(char *fn, int keep_trying)
 		ret = 2;
 		break;
 	    }
-	    if (time(NULL) - sb.st_mtime < 10)
-		sleep(1);
-	    else
-		unlink(lockfile);
+	    if (checklocktime(lockfile, sb.st_mtime) < 0) {
+		ret = 1;
+		break;
+	    }
 	}
 	if (fd < 0)
 	    lockhistct--;

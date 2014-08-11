@@ -126,6 +126,11 @@ fi
 
 _completer_num=1
 
+# We assume localtraps to be in effect here ...
+integer SECONDS=0
+trap 'zle -M "Killed by signal in ${funcstack[0]} after ${SECONDS}s";
+      zle -R; return 130' INT QUIT
+
 # Call the pre-functions.
 
 funcs=( "$compprefuncs[@]" )
@@ -327,6 +332,14 @@ elif [[ nm -eq 0 && -z "$_comp_mesg" &&
   _setup warnings
   zformat -f mesg "$format" "d:$str" "D:${(F)${(@)_lastdescr:#}}"
   compadd -x "$mesg"
+fi
+
+if zstyle -s ":completion:${curcontext}:" show-ambiguity tmp; then
+  local prefix=${${compstate[unambiguous]}[1,${compstate[unambiguous_cursor]}-1]}
+  local toquote='[=\(\)\|~^?*[\]#<>]'
+  [[ $tmp = (yes|true|on) ]] && tmp=4
+  [[ -n $prefix ]] &&
+    _comp_colors+=( "=(#i)${prefix[1,-2]//?/(}${prefix[1,-2]//(#m)?/${MATCH/$~toquote/\\$MATCH}|)}${prefix[-1]//(#m)$~toquote/\\$MATCH}(#b)(?|)*==$tmp" )
 fi
 
 [[ "$_comp_force_list" = always ||

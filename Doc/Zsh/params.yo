@@ -21,14 +21,20 @@ indent(var(name)tt(=)var(value))
 
 If the integer attribute, tt(-i), is set for var(name), the var(value)
 is subject to arithmetic evaluation.  Furthermore, by replacing `tt(=)'
-with `tt(+=)', a parameter can be added or appended to.  See
+with `tt(+=)', a parameter can be added or appended to.
+
+In scalar assignment, var(value) is expanded as a single string, in
+which the elements of arrays are joined together; filename expansion is
+not performed unless the option tt(GLOB_ASSIGN) is set.  See
 noderef(Array Parameters) for additional forms of assignment.
 
 To refer to the value of a parameter, write `tt($)var(name)' or
 `tt(${)var(name)tt(})'.  See
 ifzman(em(Parameter Expansion) in zmanref(zshexpn))\
 ifnzman(noderef(Parameter Expansion))
-for complete details.
+for complete details.  This section also explains the effect
+of the difference between scalar and array assignment on parameter
+expansion.
 
 In the parameter lists that follow, the mark `<S>' indicates that the
 parameter is special.
@@ -541,9 +547,11 @@ The exit status returned by the last command.
 )
 vindex(0)
 item(tt(0) <S>)(
-The name used to invoke the current shell.  If the tt(FUNCTION_ARGZERO) option
-is set, this is set temporarily within a shell function to the name of the
-function, and within a sourced script to the name of the script.
+The name used to invoke the current shell, or as set by the tt(-c) command
+line option upon invocation.  If the tt(FUNCTION_ARGZERO) option is set,
+tt($0) is set upon entry to a shell function to the name of the function,
+and upon entry to a sourced script to the name of the script, and reset to
+its previous value when the function or script returns.
 )
 vindex(status)
 item(tt(status) <S> <Z>)(
@@ -599,9 +607,10 @@ group ID by `tt(LPAR()GID=)var(gid)tt(; command+RPAR())'
 )
 vindex(HISTCMD)
 item(tt(HISTCMD))(
-The current history line number in an interactive shell, in other
-words the line number for the command that caused tt($HISTCMD)
-to be read.
+The current history event number in an interactive shell, in other
+words the event number for the command that caused tt($HISTCMD)
+to be read.  If the current history event modifies the history,
+tt(HISTCMD) changes to the new maximum history event number.
 )
 vindex(HOST)
 item(tt(HOST))(
@@ -620,7 +629,9 @@ item(tt(LOGNAME))(
 If the corresponding variable is not set in the environment of the
 shell, it is initialized to the login name corresponding to the
 current login session. This parameter is exported by default but
-this can be disabled using the tt(typeset) builtin.
+this can be disabled using the tt(typeset) builtin.  The value
+is set to the string returned by the manref(getlogin)(3) system call
+if that is available.
 )
 vindex(MACHTYPE)
 item(tt(MACHTYPE))(
@@ -913,6 +924,14 @@ as spelling corrections.  The pattern does not apply to the correction
 of file names, as applied by the tt(CORRECT_ALL) option (so with the
 example just given files beginning with `tt(_)' in the current
 directory would still be completed).
+)
+vindex(CORRECT_IGNORE_FILE)
+item(tt(CORRECT_IGNORE_FILE))(
+If set, is treated as a pattern during spelling correction of file names.
+Any file name that matches the pattern is never offered as a correction.
+For example, if the value is `tt(.*)' then dot file names will never be
+offered as spelling corrections.  This is useful with the
+tt(CORRECT_ALL) option.
 )
 vindex(DIRSTACKSIZE)
 item(tt(DIRSTACKSIZE))(

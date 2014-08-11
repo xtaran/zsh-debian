@@ -270,6 +270,8 @@ putpromptchar(int doprint, int endchar, unsigned int *txtchangep)
     char *ss, *hostnam;
     int t0, arg, test, sep, j, numjobs;
     struct tm *tm;
+    struct timezone dummy_tz;
+    struct timeval tv;
     time_t timet;
     Nameddir nd;
 
@@ -365,6 +367,8 @@ putpromptchar(int doprint, int endchar, unsigned int *txtchangep)
 		case 'l':
 		    *bv->bp = '\0';
 		    countprompt(bv->bufline, &t0, 0, 0);
+		    if (minus)
+			t0 = zterm_columns - t0;
 		    if (t0 >= arg)
 			test = 1;
 		    break;
@@ -558,6 +562,14 @@ putpromptchar(int doprint, int endchar, unsigned int *txtchangep)
 		break;
 	    case '<':
 	    case '>':
+		/* Test (minus) here so -0 means "at the right margin" */
+		if (minus) {
+		    *bv->bp = '\0';
+		    countprompt(bv->bufline, &t0, 0, 0);
+		    arg = zterm_columns - t0 + arg;
+		    if (arg <= 0)
+			arg = 1;
+		}
 		if (!prompttrunc(arg, *bv->fm, doprint, endchar, txtchangep))
 		    return *bv->fm;
 		break;
@@ -636,8 +648,8 @@ putpromptchar(int doprint, int endchar, unsigned int *txtchangep)
 			tmfmt = "%l:%M%p";
 			break;
 		    }
-		    timet = time(NULL);
-		    tm = localtime(&timet);
+		    gettimeofday(&tv, &dummy_tz);
+		    tm = localtime(&tv.tv_sec);
 		    /*
 		     * Hack because strftime won't say how
 		     * much space it actually needs.  Try to add it
@@ -647,7 +659,7 @@ putpromptchar(int doprint, int endchar, unsigned int *txtchangep)
 		     */
 		    for(j = 0, t0 = strlen(tmfmt)*8; j < 3; j++, t0*=2) {
 			addbufspc(t0);
-			if (ztrftime(bv->bp, t0, tmfmt, tm) >= 0)
+			if (ztrftime(bv->bp, t0, tmfmt, tm, tv.tv_usec) >= 0)
 			    break;
 		    }
 		    /* There is enough room for this because addbufspc(t0)
@@ -1172,7 +1184,7 @@ prompttrunc(int arg, int truncchar, int doprint, int endchar,
 	    addbufspc(1);
 	    *bv->bp++ = '<';
 	}
-	ptr = bv->buf + w;		/* addbv->bufspc() may have realloc()'d bv->buf */
+	ptr = bv->buf + w;	/* addbufspc() may have realloc()'d bv->buf */
 	/*
 	 * Now:
 	 *   bv->buf is the start of the output prompt buffer
@@ -1187,7 +1199,7 @@ prompttrunc(int arg, int truncchar, int doprint, int endchar,
 	bv->trunccount = bv->dontcount;
 	putpromptchar(doprint, endchar, txtchangep);
 	bv->trunccount = 0;
-	ptr = bv->buf + w;		/* putpromptchar() may have realloc()'d */
+	ptr = bv->buf + w;	/* putpromptchar() may have realloc()'d */
 	*bv->bp = '\0';
 	/*
 	 * Now:
@@ -1473,7 +1485,7 @@ prompttrunc(int arg, int truncchar, int doprint, int endchar,
 	/* Now we have to trick it into matching endchar again */
 	bv->fm--;
     } else {
-	if (*bv->fm != ']')
+	if (*bv->fm != endchar)
 	    bv->fm++;
 	while(*bv->fm && *bv->fm != truncchar) {
 	    if (*bv->fm == '\\' && bv->fm[1])

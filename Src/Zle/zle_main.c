@@ -157,10 +157,10 @@ mod_export char *statusline;
 /**/
 int stackhist, stackcs;
 
-/* != 0 if we are making undo records */
+/* position in undo stack from when the current vi change started */
 
 /**/
-int undoing;
+zlong vistartchange;
 
 /* current modifier status */
 
@@ -525,7 +525,8 @@ raw_getbyte(long do_keytmout, char *cptr)
 #endif
 #ifndef HAVE_POLL
 # ifdef HAVE_SELECT
-    fd_set foofd;
+    fd_set foofd, errfd;
+    FD_ZERO(&errfd);
 # endif
 #endif
 
@@ -613,11 +614,14 @@ raw_getbyte(long do_keytmout, char *cptr)
 	    if (!errtry) {
 		for (i = 0; i < nwatch; i++) {
 		    int fd = watch_fds[i].fd;
+		    if (FD_ISSET(fd, &errfd))
+			continue;
 		    FD_SET(fd, &foofd);
 		    if (fd > fdmax)
 			fdmax = fd;
 		}
 	    }
+	    FD_ZERO(&errfd);
 
 	    if (tmout.tp != ZTM_NONE) {
 		expire_tv.tv_sec = tmout.exp100ths / 100;
@@ -732,9 +736,10 @@ raw_getbyte(long do_keytmout, char *cptr)
 		    Watch_fd lwatch_fd = lwatch_fds + i;
 		    if (
 # ifdef HAVE_POLL
-			(fds[i+1].revents & POLLIN)
+			(fds[i+1].revents & (POLLIN|POLLERR|POLLHUP|POLLNVAL))
 # else
-			FD_ISSET(lwatch_fd->fd, &foofd)
+			FD_ISSET(lwatch_fd->fd, &foofd) ||
+			FD_ISSET(lwatch_fd->fd, &errfd)
 # endif
 			) {
 			/* Handle the fd. */
@@ -765,6 +770,9 @@ raw_getbyte(long do_keytmout, char *cptr)
 			    if (fds[i+1].revents & POLLNVAL)
 				zaddlinknode(funcargs, ztrdup("nval"));
 #  endif
+# else
+			    if (FD_ISSET(lwatch_fd->fd, &errfd))
+				zaddlinknode(funcargs, ztrdup("err"));
 # endif
 			    callhookfunc(lwatch_fd->func, funcargs, 0, NULL);
 			    freelinklist(funcargs, freestr);
@@ -786,6 +794,31 @@ raw_getbyte(long do_keytmout, char *cptr)
 		for (i = 0; i < lnwatch; i++)
 		    zsfree(lwatch_fds[i].func);
 		zfree(lwatch_fds, lnwatch*sizeof(struct watch_fd));
+
+# ifdef HAVE_POLL
+		/* Function may have added or removed handlers */
+		nfds = 1 + nwatch;
+		if (nfds > 1) {
+		    fds = zrealloc(fds, sizeof(struct pollfd) * nfds);
+		    for (i = 0; i < nwatch; i++) {
+			/*
+			 * This is imperfect because it assumes fds[] and
+			 * watch_fds[] remain in sync, which may be false
+			 * if handlers are shuffled.  However, it should
+			 * be harmless (e.g., produce one extra pass of
+			 * the loop) in the event they fall out of sync.
+			 */
+			if (fds[i+1].fd == watch_fds[i].fd &&
+			    (fds[i+1].revents & (POLLERR|POLLHUP|POLLNVAL))) {
+			    fds[i+1].events = 0;	/* Don't poll this */
+			} else {
+			    fds[i+1].fd = watch_fds[i].fd;
+			    fds[i+1].events = POLLIN;
+			}
+			fds[i+1].revents = 0;
+		    }
+		}
+# endif
 	    }
 	}
 # ifdef HAVE_POLL
@@ -1080,8 +1113,7 @@ zlecore(void)
 	    if (invicmdmode() && zlecs > findbol() &&
 		(zlecs == zlell || zleline[zlecs] == ZWC('\n')))
 		DECCS();
-	    if (undoing)
-		handleundo();
+	    handleundo();
 	} else {
 	    errflag = 1;
 	    break;
@@ -1190,7 +1222,7 @@ zleread(char **lp, char **rp, int flags, int context, char *init, char *finish)
     zlereadflags = flags;
     zlecontext = context;
     histline = curhist;
-    undoing = 1;
+    vistartchange = -1;
     zleline = (ZLE_STRING_T)zalloc(((linesz = 256) + 2) * ZLE_CHAR_SIZE);
     *zleline = ZWC('\0');
     virangeflag = lastcmd = done = zlecs = zlell = mark = 0;
@@ -1198,14 +1230,7 @@ zleread(char **lp, char **rp, int flags, int context, char *init, char *finish)
     viinsbegin = 0;
     statusline = NULL;
     selectkeymap("main", 1);
-    /*
-     * If main is linked to the viins keymap, we need to register
-     * explicitly that we're now in vi insert mode as there's
-     * no user operation to indicate this.
-     */
-    if (openkeymap("main") == openkeymap("viins"))
-	viinsert(NULL);
-    selectlocalmap(NULL);
+    initundo();
     fixsuffix();
     if ((s = getlinknode(bufstack))) {
 	setline(s, ZSL_TOEND);
@@ -1222,7 +1247,14 @@ zleread(char **lp, char **rp, int flags, int context, char *init, char *finish)
 	    stackhist = -1;
 	}
     }
-    initundo();
+    /*
+     * If main is linked to the viins keymap, we need to register
+     * explicitly that we're now in vi insert mode as there's
+     * no user operation to indicate this.
+     */
+    if (openkeymap("main") == openkeymap("viins"))
+	viinsert_init();
+    selectlocalmap(NULL);
     if (isset(PROMPTCR))
 	putc('\r', shout);
     if (tmout)

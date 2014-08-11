@@ -710,6 +710,27 @@ zle_restore_positions(void)
 }
 
 /*
+ * Discard positions previously saved, the line has been updated.
+ */
+
+/**/
+mod_export void
+zle_free_positions(void)
+{
+    struct zle_position *oldpos = zle_positions;
+    struct zle_region *oldrhp;
+
+    zle_positions = oldpos->next;
+    oldrhp = oldpos->regions;
+    while (oldrhp) {
+	struct zle_region *nextrhp = oldrhp->next;
+	zfree(oldrhp, sizeof(*oldrhp));
+	oldrhp = nextrhp;
+    }
+    zfree(oldpos, sizeof(*oldpos));
+}
+
+/*
  * Basic utility functions for adding to line or removing from line.
  * At this level the counts supplied are raw character counts, so
  * the calling code must be aware of combining characters where
@@ -1354,7 +1375,10 @@ handlesuffix(UNUSED(char **args))
 
 /* head of the undo list, and the current position */
 
-static struct change *changes, *curchange;
+/**/
+struct change *curchange;
+
+static struct change *changes;
 
 /* list of pending changes, not yet in the undo system */
 
@@ -1627,6 +1651,32 @@ viundochange(char **args)
 	return 0;
     } else
 	return undo(args);
+}
+
+/**/
+int
+splitundo(char **args)
+{
+    if (vistartchange >= 0) {
+	mergeundo();
+	vistartchange = (curchange && curchange->prev) ?
+	    curchange->prev->changeno : 0;
+    }
+    handleundo();
+    return 0;
+}
+
+/**/
+void
+mergeundo(void)
+{
+    struct change *current;
+    for (current = curchange->prev;
+	    current && current->prev && current->changeno > vistartchange+1;
+	    current = current->prev) {
+	current->flags |= CH_PREV;
+	current->prev->flags |= CH_NEXT;
+    }
 }
 
 /*

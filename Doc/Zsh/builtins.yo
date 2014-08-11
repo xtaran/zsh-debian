@@ -3,8 +3,6 @@ chapter(Shell Builtin Commands)
 ifzman(\
 sect(Shell Builtin Commands)
 )\
-cindex(builtin commands)
-cindex(commands, builtin)
 def(prefix)(1)(\
 item(tt(ARG1) var(simple command))(
 See noderef(Precommand Modifiers).
@@ -29,6 +27,8 @@ ifnzman(noderef(Zle Builtins)).
 )\
 )\
 
+cindex(builtin commands)
+cindex(commands, builtin)
 Some shell builtin commands take options as described in individual
 entries; these are often referred to in the list below as `tt(flags)' to
 avoid confusion with shell options, which may also have an effect on the
@@ -653,7 +653,7 @@ cindex(history, editing)
 cindex(editing history)
 xitem(tt(fc) [ tt(-e) var(ename) ] [ tt(-m) var(match) ] [ var(old)tt(=)var(new) ... ] [ var(first) [ var(last) ] ])
 xitem(tt(fc) tt(-l) [ tt(-nrdfEiD) ] [ tt(-t) var(timefmt) ] [ tt(-m) var(match) ])
-xitem(      [ var(old)tt(=)var(new) ... ] [ var(first) [ var(last) ] ])
+xitem(tt(      )[ var(old)tt(=)var(new) ... ] [ var(first) [ var(last) ] ])
 xitem(tt(fc) tt(-p) [ tt(-a) ] [ var(filename) [ var(histsize) [ var(savehistsize) ] ] ])
 xitem(tt(fc) tt(-P))
 item(tt(fc) tt(-ARWI) [ var(filename) ])(
@@ -683,6 +683,9 @@ If var(first) is not specified, it will be set to -1 (the most recent
 event), or to -16 if the tt(-l) flag is given.
 If var(last) is not specified, it will be set to var(first),
 or to -1 if the tt(-l) flag is given.
+However, if the current event has added entries to the history with
+`tt(print -s)' or `tt(fc -R)', then the default var(last) for tt(-l)
+includes all new history entries since the current event began.
 
 The flag tt(-r) reverses the order of the commands and the
 flag tt(-n) suppresses command numbers when listing.
@@ -1285,8 +1288,7 @@ continuation and backslashes in the line don't quote the following
 character and are not removed.
 )
 item(tt(-s))(
-Don't echo back characters if reading from the terminal.  Currently does
-not work with the tt(-q) option.
+Don't echo back characters if reading from the terminal.
 )
 item(tt(-q))(
 Read only one character from the terminal and set var(name) to
@@ -1500,12 +1502,15 @@ POSIX standard, but tt(setopt) is not.
 )
 findex(shift)
 cindex(parameters, positional)
-item(tt(shift) [ var(n) ] [ var(name) ... ])(
+item(tt(shift) [ tt(-p) ] [ var(n) ] [ var(name) ... ])(
 The positional parameters tt(${)var(n)PLUS()1tt(}) ... are renamed
 to tt($1) ..., where var(n) is an arithmetic expression that
 defaults to 1.
 If any var(name)s are given then the arrays with these names are
 shifted instead of the positional parameters.
+
+If the option tt(-p) is given arguments are instead removed (popped)
+from the end rather than the start of the array.
 )
 findex(source)
 item(tt(source) var(file) [ var(arg) ... ])(
@@ -1934,6 +1939,9 @@ sitem(tt(-m))(Kilobytes on the size of physical memory.)
 sitem(tt(-n))(open file descriptors.)
 sitem(tt(-p))(The number of pseudo-terminals.)
 sitem(tt(-q))(Bytes in POSIX message queues.)
+sitem(tt(-r))(Maximum real time priority.  On some systems where this
+is not available, such as NetBSD, this has the same effect as tt(-T)
+for compatibility with tt(sh).)
 sitem(tt(-s))(Kilobytes on the size of the stack.)
 sitem(tt(-T))(The number of simultaneous threads available to the user.)
 sitem(tt(-t))(CPU seconds to be used.)

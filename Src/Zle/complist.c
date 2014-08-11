@@ -383,12 +383,25 @@ getcoldef(char *s)
     } else if (*s == '=') {
 	char *p = ++s, *t, *cols[MAX_POS];
 	int ncols = 0;
+	int nesting = 0;
 	Patprog prog;
 
 	/* This is for a pattern. */
 
-	while (*s && *s != '=')
-	    s++;
+	while (*s && (nesting || *s != '=')) {
+	    switch (*s++) {
+		case '\\':
+		    if (*s)
+			s++;
+		    break;
+		case '(':
+		    nesting++;
+		    break;
+		case ')':
+		    nesting--;
+		    break;
+	    }
+	}
 	if (!*s)
 	    return s;
 	*s++ = '\0';
@@ -2500,7 +2513,7 @@ domenuselect(Hookdef dummy, Chdata dat)
 		mlbeg--;
 	    }
 	}
-	if ((space = zterm_lines - pl - mhasstat))
+	if ((space = zterm_lines - pl - mhasstat) > 0)
 	    while (mline >= mlbeg + space)
 		if ((mlbeg += step) + space > mlines)
 		    mlbeg = mlines - space;

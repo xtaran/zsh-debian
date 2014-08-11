@@ -369,7 +369,7 @@ signal_suspend(UNUSED(int sig), int wait_cmd)
 #ifdef POSIX_SIGNALS
 # ifdef BROKEN_POSIX_SIGSUSPEND
     sigprocmask(SIG_SETMASK, &set, &oset);
-    pause();
+    ret = pause();
     sigprocmask(SIG_SETMASK, &oset, NULL);
 # else /* not BROKEN_POSIX_SIGSUSPEND */
     ret = sigsuspend(&set);
@@ -1155,6 +1155,7 @@ dotrapargs(int sig, int *sigtr, void *sigfn)
     char *name, num[4];
     int obreaks = breaks;
     int oretflag = retflag;
+    int olastval = lastval;
     int isfunc;
     int traperr, new_trap_state, new_trap_return;
 
@@ -1261,6 +1262,13 @@ dotrapargs(int sig, int *sigtr, void *sigfn)
     } else {
 	if (traperr && !EMULATION(EMULATE_SH))
 	    lastval = 1;
+	else {
+	    /*
+	     * With no explicit forced return, we keep the
+	     * lastval from before the trap ran.
+	     */
+	    lastval = olastval;
+	}
 	if (try_tryflag)
 	    errflag = traperr;
 	breaks += obreaks;

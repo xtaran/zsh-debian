@@ -1,7 +1,7 @@
 texinode(Expansion)(Parameters)(Prompt Expansion)(Top)
 chapter(Expansion)
-cindex(expansion)
 ifnztexi(sect(Description))
+cindex(expansion)
 The following types of expansions are performed in the indicated order in
 five steps:
 
@@ -635,6 +635,30 @@ item(tt(${)var(name)tt(:*)var(arrayname)tt(}))(
 Similar to the preceding subsitution, but in the opposite sense,
 so that entries present in both the original substitution and as
 elements of var(arrayname) are retained and others removed.
+)
+xitem(tt(${)var(name)tt(:^)var(arrayname)tt(}))
+item(tt(${)var(name)tt(:^^)var(arrayname)tt(}))(
+Zips two arrays, such that the output array is twice as long as the
+shortest (longest for `tt(:^^)') of tt(name) and tt(arrayname), with
+the elements alternatingly being picked from them. For `tt(:^)', if one
+of the input arrays is longer, the output will stop when the end of the
+shorter array is reached.  Thus,
+
+example(a=(1 2 3 4); b=(a b); print ${a:^b})
+
+will output `tt(1 a 2 b)'.  For `tt(:^^)', then the input is repeated
+until all of the longer array has been used up and the above will output
+`tt(1 a 2 b 3 a 4 b)'.
+
+Either or both inputs may be a scalar, they will be treated as an array
+of length 1 with the scalar as the only element. If either array is empty,
+the other array is output with no extra elements inserted.
+
+Currently the following code will output `tt(a b)' and `tt(1)' as two separate
+elements, which can be unexpected. The second print provides a workaround which
+should continue to work if this is changed.
+
+example(a=(a b); b=(1 2); print -l "${a:^b}"; print -l "${${a:^b}}")
 )
 xitem(tt(${)var(name)tt(:)var(offset)tt(}))
 item(tt(${)var(name)tt(:)var(offset)tt(:)var(length)tt(}))(
@@ -1407,16 +1431,21 @@ item(tt(19.) em(Ordering))(
 If the result is still an array and one of the `tt((o))' or `tt((O))' flags
 was present, the array is reordered.
 )
-item(tt(20.) em(Re-evaluation))(
+item(tt(20.) tt(RC_EXPAND_PARAM))(
+At this point the decision is made whether any resulting array elements
+are to be combined element by element with surrounding text, as given
+by either the tt(RC_EXPAND_PARAM) option or the `tt(^)' flag.
+)
+item(tt(21.) em(Re-evaluation))(
 Any `tt((e))' flag is applied to the value, forcing it to be re-examined
 for new parameter substitutions, but also for command and arithmetic
 substitutions.
 )
-item(tt(21.) em(Padding))(
+item(tt(22.) em(Padding))(
 Any padding of the value by the `tt(LPAR()l.)var(fill)tt(.RPAR())' or
 `tt(LPAR()r.)var(fill)tt(.RPAR())' flags is applied.
 )
-item(tt(22.) em(Semantic joining))(
+item(tt(23.) em(Semantic joining))(
 In contexts where expansion semantics requires a single word to
 result, all words are rejoined with the first character of tt(IFS)
 between.  So in `tt(${LPAR()P)tt(RPAR()${LPAR()f)tt(RPAR()lines}})'
@@ -1425,7 +1454,7 @@ joined again before the tt(P) flag can be applied.
 
 If a single word is not required, this rule is skipped.
 )
-item(tt(23.) em(Empty argument removal))(
+item(tt(24.) em(Empty argument removal))(
 If the substitution does not appear in double quotes, any resulting
 zero-length argument, whether from a scalar or an element of an array,
 is elided from the list of arguments inserted into the command line.
@@ -1538,6 +1567,16 @@ that the step var(n3) doesn't evenly divide the range.  Zero padding can be
 specified in any of the three numbers, specifying it in the third can be useful
 to pad for example `tt({-99..100..01})' which is not possible to specify by putting a
 0 on either of the first two numbers (i.e. pad to two characters).
+
+An expression of the form `tt({)var(c1)tt(..)var(c2)tt(})', where
+var(c1) and var(c2) are single characters (which may be multibyte
+characters), is expanded to every character in the range from var(c1) to
+var(c2) in whatever character sequence is used internally.  For
+characters with code points below 128 this is US ASCII (this is the only
+case most users will need).  If any intervening character is not
+printable, appropriate quotation is used to render it printable.
+If the character sequence is reversed, the output is in reverse
+order, e.g. `tt({d..a})' is substituted as `tt(d c b a)'.
 
 If a brace expression matches none of the above forms, it is left
 unchanged, unless the option tt(BRACE_CCL) (an abbreviation for `brace
@@ -1962,7 +2001,7 @@ except that recursive directory searching is not supported.)
 )
 item(tt(PLUS()LPAR())...tt(RPAR()))(
 Match at least one occurrence.  (Like `tt(LPAR())...tt(RPAR()##)',
-except that recursive directory searching is not supported..)
+except that recursive directory searching is not supported.)
 )
 item(tt(?LPAR())...tt(RPAR()))(
 Match zero or one occurrence.  (Like `tt(LPAR()|)...tt(RPAR())'.)
@@ -2295,7 +2334,13 @@ contained within it are balanced; appearance of `tt(|)', `tt(LPAR())' or
 recognised in this form even if a bare glob qualifier exists at the end of
 the pattern, for example `tt(*(#q*)(.))' will recognise executable regular
 files if both options are set; however, mixed syntax should probably be
-avoided for the sake of clarity.
+avoided for the sake of clarity.  Note that within conditions using the
+`tt([[)' form the presence of a parenthesised expression
+tt(LPAR()#q...+RPAR()) at the end of a string indicates that globbing
+should be performed; the expression may include glob qualifiers, but
+it is also valid if it is simply tt(LPAR()#q+RPAR()).  This does
+not apply to the right hand side of pattern match operators as the
+syntax already has special significance.
 
 A qualifier may be any one of the following:
 
@@ -2511,10 +2556,12 @@ item(tt(L)[tt(PLUS())|tt(-)]var(n))(
 files less than var(n) bytes (tt(-)), more than var(n) bytes (tt(PLUS())), or
 exactly var(n) bytes in length.
 
-If this flag is directly followed by a `tt(k)' (`tt(K)'), `tt(m)'
-(`tt(M)'), or `tt(p)' (`tt(P)') (e.g. `tt(Lk-50)') the check is performed
-with kilobytes, megabytes, or blocks (of 512 bytes) instead.  In this
-case a file is regarded as "exactly" the size if the file size rounded up
+If this flag is directly followed by a em(size specifier) `tt(k)' (`tt(K)'),
+`tt(m)' (`tt(M)'), or `tt(p)' (`tt(P)') (e.g. `tt(Lk-50)') the check is
+performed with kilobytes, megabytes, or blocks (of 512 bytes) instead.
+(On some systems additional specifiers are available for gigabytes,
+`tt(g)' or `tt(G)', and terabytes, `tt(t)' or `tt(T)'.) If a size specifier
+is used a file is regarded as "exactly" the size if the file size rounded up
 to the next unit is equal to the test size.  Hence `tt(*LPAR()Lm1+RPAR())'
 matches files from 1 byte up to 1 Megabyte inclusive.  Note also that
 the set of files "less than" the test size only includes files that would
@@ -2548,9 +2595,16 @@ item(tt(n))(
 sets the tt(NUMERIC_GLOB_SORT) option for the current pattern
 pindex(NUMERIC_GLOB_SORT, setting in pattern)
 )
+item(tt(Y)var(n))(
+enables short-circuit mode: the pattern will expand to at most var(n)
+filenames.  If more than var(n) matches exist, only the first var(n)
+matches in directory traversal order will be considered.
+
+Implies tt(oN) when no tt(o)var(c) qualifier is used.
+)
 item(tt(o)var(c))(
 specifies how the names of the files should be sorted. If var(c) is
-tt(n) they are sorted by name (the default); if it is tt(L) they
+tt(n) they are sorted by name; if it is tt(L) they
 are sorted depending on the size (length) of the files; if tt(l)
 they are sorted by the number of links; if tt(a), tt(m), or tt(c)
 they are sorted by the time of the last access, modification, or
@@ -2564,6 +2618,9 @@ youngest file. Also note that the modifiers tt(^) and tt(-) are used,
 so `tt(*(^-oL))' gives a list of all files sorted by file size in descending
 order, following any symbolic links.  Unless tt(oN) is used, multiple order
 specifiers may occur to resolve ties.
+
+The default sorting is tt(n) (by name) unless the tt(Y) glob qualifier is used,
+in which case it is tt(N) (unsorted).
 
 tt(oe) and tt(o+) are special cases; they are each followed by shell code,
 delimited as for the tt(e) glob qualifier and the tt(+) glob qualifier

@@ -69,7 +69,7 @@ def(chapter)(1)(CMT())
 COMMENT(--- the "" works around a yodl bug in versions before 2 ---)
 def(sect)(1)(\
   IFDEF(INCWSLEVEL)(\
-  NOTRANS(.SH )"UPPERCASE(ARG1)(0)"+NL()\
+  NOTRANS(.SH )"UPPERCASE(NOTRANS(ARG1))(0)"+NL()\
   )(\
   NOTRANS(.SH )UPPERCASE(ARG1)(0)""+NL()\
   )\
@@ -110,7 +110,7 @@ def(startitem)(0)(\
 def(enditem)(0)(\
   ENDITEM()\
   STDPAR()\
-  +redef(ENDITEM)(0)(NOTRANS(.RE)STDPAR())\
+  +redef(ENDITEM)(0)(NOTRANS(.RE)STDPAR()redef(ENDITEM)(0)(CMT()))\
 )
 def(item)(2)(\
   NOTRANS(.TP)+NL()\
@@ -121,7 +121,7 @@ def(item)(2)(\
   +redef(PARAGRAPH)(0)(\
     NL()NOTRANS(.RS)+NL()NOTRANS(.PP)+NL()\
     STDPAR()\
-    +redef(ENDITEM)(0)(NOTRANS(.RE)STDPAR())\
+    +redef(ENDITEM)(0)(NOTRANS(.RE)STDPAR()redef(ENDITEM)(0)(CMT()))\
   )\
   ARG2\
   +ENDITEM()\

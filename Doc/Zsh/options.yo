@@ -971,6 +971,23 @@ The file will still be periodically re-written to trim it when the
 number of lines grows 20% beyond the value specified by
 tt($SAVEHIST) (see also the HIST_SAVE_BY_COPY option).
 )
+pindex(INC_APPEND_HISTORY_TIME)
+pindex(NO_INC_APPEND_HISTORY_TIME)
+pindex(INCAPPENDHISTORYTIME)
+pindex(NOINCAPPENDHISTORYTIME)
+cindex(history, incremental appending to a file with time)
+item(tt(INC_APPEND_HISTORY_TIME))(
+This option is a variant of tt(INC_APPEND_HISTORY) in which, where
+possible, the history entry is written out to the file after the
+command is finished, so that the time taken by the command is recorded
+correctly in the history file in tt(EXTENDED_HISTORY) format.  This
+means that the history entry will not be available immediately from
+other instances of the shell that are using the same history file.
+
+This option is only useful if tt(INC_APPEND_HISTORY) and
+tt(SHARE_HISTORY) are turned off.  The three options should be
+considered mutually exclusive.
+)
 pindex(SHARE_HISTORY)
 pindex(NO_SHARE_HISTORY)
 pindex(SHAREHISTORY)
@@ -981,10 +998,10 @@ item(tt(SHARE_HISTORY) <K>)(
 
 This option both imports new commands from the history file, and also
 causes your typed commands to be appended to the history file (the
-latter is like specifying tt(INC_APPEND_HISTORY)).
-The history lines are also output with timestamps ala
-tt(EXTENDED_HISTORY) (which makes it easier to find the spot where
-we left off reading the file after it gets re-written).
+latter is like specifying tt(INC_APPEND_HISTORY), which should be turned
+off if this option is in effect).  The history lines are also output
+with timestamps ala tt(EXTENDED_HISTORY) (which makes it easier to find
+the spot where we left off reading the file after it gets re-written).
 
 By default, history movement commands visit the imported lines as
 well as the local lines, but you can toggle this on and off with the
@@ -994,8 +1011,9 @@ some include them.
 
 If you find that you want more control over when commands
 get imported, you may wish to turn tt(SHARE_HISTORY) off,
-tt(INC_APPEND_HISTORY) on, and then manually import
-commands whenever you need them using `tt(fc -RI)'.
+tt(INC_APPEND_HISTORY) or tt(INC_APPEND_HISTORY_TIME) (see above) on,
+and then manually import commands whenever you need them using `tt(fc
+-RI)'.
 )
 enditem()
 
@@ -1098,6 +1116,9 @@ pindex(CORRECTALL)
 pindex(NOCORRECTALL)
 item(tt(CORRECT_ALL) (tt(-O)))(
 Try to correct the spelling of all arguments in a line.
+
+The shell variable tt(CORRECT_IGNORE_FILE) may be set to a pattern to
+match file names that will never be offered as corrections.
 )
 pindex(DVORAK)
 pindex(NO_DVORAK)
@@ -1174,7 +1195,7 @@ pindex(NOHASHEXECUTABLESONLY)
 cindex(hashing, of executables)
 cindex(executables, hashing)
 item(tt(HASH_EXECUTABLES_ONLY))(
-When hashing commands because of tt(HASH_COMMANDS), check that the
+When hashing commands because of tt(HASH_CMDS), check that the
 file to be hashed is actually an executable.  This option
 is unset by default as if the path contains a large number of commands,
 or consists of many remote files, the additional tests can take
@@ -1202,7 +1223,7 @@ Thus if `tt(/usr/local/bin)' is in the user's path, and he or she types
 (assuming it exists).
 Commands explicitly beginning with `tt(/)', `tt(./)' or `tt(../)'
 are not subject to the path search.
-This also applies to the `tt(.)' builtin.
+This also applies to the `tt(.)' and tt(source) builtins.
 
 Note that subdirectories of the current directory are always searched for
 executables specified in this form.  This takes place before any search
@@ -1605,7 +1626,25 @@ pindex(NOFUNCTIONARGZERO)
 cindex($0, setting)
 item(tt(FUNCTION_ARGZERO) <C> <Z>)(
 When executing a shell function or sourcing a script, set tt($0)
-temporarily to the name of the function/script.
+temporarily to the name of the function/script.  Note that toggling
+tt(FUNCTION_ARGZERO) from on to off (or off to on) does not change the
+current value of tt($0).  Only the state upon entry to the function or
+script has an effect.  Compare tt(POSIX_ARGZERO).
+)
+pindex(LOCAL_LOOPS)
+pindex(NO_LOCAL_LOOPS)
+pindex(LOCALLOOPS)
+pindex(NOLOCALLOOPS)
+cindex(break, inside function)
+cindex(continue, inside function)
+cindex(function, scope of break and continue)
+item(tt(LOCAL_LOOPS))(
+When this option is not set, the effect of tt(break) and tt(continue)
+commands may propagate outside function scope, affecting loops in
+calling functions.  When the option is set in a calling function, a
+tt(break) or a tt(continue) that is not caught within a called function
+(regardless of the setting of the option within that function)
+produces a warning and the effect is cancelled.
 )
 pindex(LOCAL_OPTIONS)
 pindex(NO_LOCAL_OPTIONS)
@@ -1615,10 +1654,10 @@ item(tt(LOCAL_OPTIONS) <K>)(
 If this option is set at the point of return from a shell function,
 most options (including this one) which were in force upon entry to
 the function are restored; options that are not restored are
-tt(PRIVILEGED) and tt(RESTRICTED).  Otherwise, only this option and the
-tt(XTRACE) and tt(PRINT_EXIT_VALUE) options are restored.  Hence
-if this is explicitly unset by a shell function the other options in
-force at the point of return will remain so.
+tt(PRIVILEGED) and tt(RESTRICTED).  Otherwise, only this option,
+and the tt(LOCAL_LOOPS), tt(XTRACE) and tt(PRINT_EXIT_VALUE) options are
+restored.  Hence if this is explicitly unset by a shell function the
+other options in force at the point of return will remain so.
 A shell function can also guarantee itself a known shell configuration
 with a formulation like `tt(emulate -L zsh)'; the tt(-L) activates
 tt(LOCAL_OPTIONS).
@@ -1942,6 +1981,26 @@ as one unit, so aliases defined within the argument are not available even
 in later lines.  If in doubt, avoid use of aliases in non-interactive
 code.
 )
+pindex(POSIX_ARGZERO)
+pindex(NO_POSIX_ARGZERO)
+pindex(POSIXARGZERO)
+pindex(NOPOSIXARGZERO)
+cindex($0, using)
+item(tt(POSIX_ARGZERO))(
+This option may be used to temporarily disable tt(FUNCTION_ARGZERO) and
+thereby restore the value of tt($0) to the name used to invoke the shell
+(or as set by the tt(-c) command line option).  For compatibility with
+previous versions of the shell, emulations use tt(NO_FUNCTION_ARGZERO)
+instead of tt(POSIX_ARGZERO), which may result in unexpected scoping of
+tt($0) if the emulation mode is changed inside a function or script.
+To avoid this, explicitly enable tt(POSIX_ARGZERO) in the tt(emulate)
+command:
+
+example(emulate sh -o POSIX_ARGZERO)
+
+Note that tt(NO_POSIX_ARGZERO) has no effect unless tt(FUNCTION_ARGZERO)
+was already enabled upon entry to the function or script.
+)
 pindex(POSIX_BUILTINS)
 pindex(NO_POSIX_BUILTINS)
 pindex(POSIXBUILTINS)
@@ -2037,7 +2096,10 @@ When the is option is set, the usual zsh behaviour of executing
 traps for tt(EXIT) on exit from shell functions is suppressed.
 In that case, manipulating tt(EXIT) traps always alters the global
 trap for exiting the shell; the tt(LOCAL_TRAPS) option is
-ignored for the tt(EXIT) trap.
+ignored for the tt(EXIT) trap.  Furthermore, a tt(return) statement
+executed in a trap with no argument passes back from the function the
+value from the surrounding context, not from code executed within the
+trap.
 )
 pindex(SH_FILE_EXPANSION)
 pindex(NO_SH_FILE_EXPANSION)

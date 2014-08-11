@@ -67,6 +67,7 @@ char **path,		/* $path        */
 /**/
 mod_export
 char *argzero,		/* $0           */
+     *posixzero,	/* $0           */
      *home,		/* $HOME        */
      *nullcmd,		/* $NULLCMD     */
      *oldpwd,		/* $OLDPWD      */
@@ -194,6 +195,8 @@ static const struct gsu_integer euid_gsu =
 static const struct gsu_integer ttyidle_gsu =
 { ttyidlegetfn, nullintsetfn, stdunsetfn };
 
+static const struct gsu_scalar argzero_gsu =
+{ argzerogetfn, nullstrsetfn, nullunsetfn };
 static const struct gsu_scalar username_gsu =
 { usernamegetfn, usernamesetfn, stdunsetfn };
 static const struct gsu_scalar dash_gsu =
@@ -263,7 +266,7 @@ static initparam special_params[] ={
 #define NULL_GSU BR((GsuScalar)(void *)NULL)
 #define IPDEF1(A,B,C) {{NULL,A,PM_INTEGER|PM_SPECIAL|C},BR(NULL),GSU(B),10,0,NULL,NULL,NULL,0}
 IPDEF1("#", pound_gsu, PM_READONLY),
-IPDEF1("ERRNO", errno_gsu, 0),
+IPDEF1("ERRNO", errno_gsu, PM_UNSET),
 IPDEF1("GID", gid_gsu, PM_DONTIMPORT | PM_RESTRICTED),
 IPDEF1("EGID", egid_gsu, PM_DONTIMPORT | PM_RESTRICTED),
 IPDEF1("HISTSIZE", histsize_gsu, PM_RESTRICTED),
@@ -279,12 +282,13 @@ IPDEF2("USERNAME", username_gsu, PM_DONTIMPORT|PM_RESTRICTED),
 IPDEF2("-", dash_gsu, PM_READONLY),
 IPDEF2("histchars", histchars_gsu, PM_DONTIMPORT),
 IPDEF2("HOME", home_gsu, PM_UNSET),
-IPDEF2("TERM", term_gsu, 0),
+IPDEF2("TERM", term_gsu, PM_UNSET),
 IPDEF2("TERMINFO", terminfo_gsu, PM_UNSET),
 IPDEF2("WORDCHARS", wordchars_gsu, 0),
 IPDEF2("IFS", ifs_gsu, PM_DONTIMPORT),
-IPDEF2("_", underscore_gsu, PM_READONLY),
+IPDEF2("_", underscore_gsu, PM_DONTIMPORT),
 IPDEF2("KEYBOARD_HACK", keyboard_hack_gsu, PM_DONTIMPORT),
+IPDEF2("0", argzero_gsu, 0),
 
 #ifdef USE_LOCALE
 # define LCIPDEF(name) IPDEF2(name, lc_blah_gsu, PM_UNSET)
@@ -326,20 +330,20 @@ IPDEF5("SHLVL", &shlvl, varinteger_gsu),
 IPDEF5("TRY_BLOCK_ERROR", &try_errflag, varinteger_gsu),
 
 #define IPDEF7(A,B) {{NULL,A,PM_SCALAR|PM_SPECIAL},BR((void *)B),GSU(varscalar_gsu),0,0,NULL,NULL,NULL,0}
+#define IPDEF7U(A,B) {{NULL,A,PM_SCALAR|PM_SPECIAL|PM_UNSET},BR((void *)B),GSU(varscalar_gsu),0,0,NULL,NULL,NULL,0}
 IPDEF7("OPTARG", &zoptarg),
 IPDEF7("NULLCMD", &nullcmd),
-IPDEF7("POSTEDIT", &postedit),
+IPDEF7U("POSTEDIT", &postedit),
 IPDEF7("READNULLCMD", &readnullcmd),
 IPDEF7("PS1", &prompt),
-IPDEF7("RPS1", &rprompt),
-IPDEF7("RPROMPT", &rprompt),
+IPDEF7U("RPS1", &rprompt),
+IPDEF7U("RPROMPT", &rprompt),
 IPDEF7("PS2", &prompt2),
-IPDEF7("RPS2", &rprompt2),
-IPDEF7("RPROMPT2", &rprompt2),
+IPDEF7U("RPS2", &rprompt2),
+IPDEF7U("RPROMPT2", &rprompt2),
 IPDEF7("PS3", &prompt3),
 IPDEF7("PS4", &prompt4),
 IPDEF7("SPROMPT", &sprompt),
-IPDEF7("0", &argzero),
 
 #define IPDEF8(A,B,C,D) {{NULL,A,D|PM_SCALAR|PM_SPECIAL},BR((void *)B),GSU(colonarr_gsu),0,0,NULL,C,NULL,0}
 IPDEF8("CDPATH", &cdpath, "cdpath", 0),
@@ -2416,9 +2420,10 @@ setnumvalue(Value v, mnumber val)
 	if ((val.type & MN_INTEGER) || outputradix) {
 	    if (!(val.type & MN_INTEGER))
 		val.u.l = (zlong) val.u.d;
-	    convbase(p = buf, val.u.l, outputradix);
+	    p = convbase_underscore(buf, val.u.l, outputradix,
+				    outputunderscore);
 	} else
-	    p = convfloat(val.u.d, 0, 0, NULL);
+	    p = convfloat_underscore(val.u.d, outputunderscore);
 	setstrvalue(v, ztrdup(p));
 	break;
     case PM_INTEGER:
@@ -3979,6 +3984,17 @@ lcsetfn(Param pm, char *x)
 }
 #endif /* USE_LOCALE */
 
+/* Function to get value for special parameter `0' */
+
+/**/
+static char *
+argzerogetfn(UNUSED(Param pm))
+{
+    if (isset(POSIXARGZERO))
+	return posixzero;
+    return argzero;
+}
+
 /* Function to get value for special parameter `HISTSIZE' */
 
 /**/
@@ -4245,7 +4261,7 @@ static char **
 pipestatgetfn(UNUSED(Param pm))
 {
     char **x = (char **) zhalloc((numpipestats + 1) * sizeof(char *));
-    char buf[20], **p;
+    char buf[DIGBUFSIZE], **p;
     int *q, i;
 
     for (p = x, q = pipestats, i = numpipestats; i--; p++, q++) {
@@ -4555,9 +4571,14 @@ delenv(Param pm)
      */
 }
 
+/*
+ * Guts of convbase: this version can return the number of digits
+ * sans any base discriminator.
+ */
+
 /**/
-mod_export void
-convbase(char *s, zlong v, int base)
+void
+convbase_ptr(char *s, zlong v, int base, int *ndigits)
 {
     int digs = 0;
     zulong x;
@@ -4583,6 +4604,8 @@ convbase(char *s, zlong v, int base)
 	x /= base;
     if (!digs)
 	digs = 1;
+    if (ndigits)
+	*ndigits = digs;
     s[digs--] = '\0';
     x = v;
     while (digs >= 0) {
@@ -4591,6 +4614,64 @@ convbase(char *s, zlong v, int base)
 	s[digs--] = (dig < 10) ? '0' + dig : dig - 10 + 'A';
 	x /= base;
     }
+}
+
+/*
+ * Basic conversion of integer to a string given a base.
+ * If 0 base is 10.
+ * If negative no base discriminator is output.
+ */
+
+/**/
+mod_export void
+convbase(char *s, zlong v, int base)
+{
+    convbase_ptr(s, v, base, NULL);
+}
+
+/*
+ * Add underscores to converted integer for readability with given spacing.
+ * s is as for convbase: at least BDIGBUFSIZE.
+ * If underscores were added, returned value with underscores comes from
+ * heap, else the returned value is s.
+ */
+
+/**/
+char *
+convbase_underscore(char *s, zlong v, int base, int underscore)
+{
+    char *retptr, *sptr, *dptr;
+    int ndigits, nunderscore, mod, len;
+
+    convbase_ptr(s, v, base, &ndigits);
+
+    if (underscore <= 0)
+	return s;
+
+    nunderscore = (ndigits - 1) / underscore;
+    if (!nunderscore)
+	return s;
+    len = strlen(s);
+    retptr = zhalloc(len + nunderscore + 1);
+    mod = 0;
+    memcpy(retptr, s, len - ndigits);
+    sptr = s + len;
+    dptr = retptr + len + nunderscore;
+    /* copy the null */
+    *dptr-- = *sptr--;
+    for (;;) {
+	*dptr = *sptr;
+	if (!--ndigits)
+	    break;
+	dptr--;
+	sptr--;
+	if (++mod == underscore) {
+	    mod = 0;
+	    *dptr-- = '_';
+	}
+    }
+
+    return retptr;
 }
 
 /*
@@ -4657,6 +4738,83 @@ convfloat(double dval, int digits, int flags, FILE *fout)
     if (prev_locale) setlocale(LC_NUMERIC, prev_locale);
 #endif
     return ret;
+}
+
+/*
+ * convert float to string with basic options but inserting underscores
+ * for readability.
+ */
+
+/**/
+char *convfloat_underscore(double dval, int underscore)
+{
+    int ndigits_int = 0, ndigits_frac = 0, nunderscore, len;
+    char *s, *retptr, *sptr, *dptr;
+
+    s = convfloat(dval, 0, 0, NULL);
+    if (underscore <= 0)
+	return s;
+
+    /*
+     * Count the number of digits before and after the decimal point, if any.
+     */
+    sptr = s;
+    if (*sptr == '-')
+	sptr++;
+    while (idigit(*sptr)) {
+	ndigits_int++;
+	sptr++;
+    }
+    if (*sptr == '.') {
+	sptr++;
+	while (idigit(*sptr)) {
+	    ndigits_frac++;
+	    sptr++;
+	}
+    }
+
+    /*
+     * Work out how many underscores to insert --- remember we
+     * put them in integer and fractional parts separately.
+     */
+    nunderscore = (ndigits_int-1) / underscore + (ndigits_frac-1) / underscore;
+    if (!nunderscore)
+	return s;
+    len = strlen(s);
+    dptr = retptr = zhalloc(len + nunderscore + 1);
+
+    /*
+     * Insert underscores in integer part.
+     * Grouping starts from the point in both directions.
+     */
+    sptr = s;
+    if (*sptr == '-')
+	*dptr++ = *sptr++;
+    while (ndigits_int) {
+	*dptr++ = *sptr++;
+	if (--ndigits_int && !(ndigits_int % underscore))
+	    *dptr++ = '_';
+    }
+    if (ndigits_frac) {
+	/*
+	 * Insert underscores in the fractional part.
+	 */
+	int mod = 0;
+	/* decimal point, we already checked */
+	*dptr++ = *sptr++;
+	while (ndigits_frac) {
+	    *dptr++ = *sptr++;
+	    mod++;
+	    if (--ndigits_frac && mod == underscore) {
+		*dptr++ = '_';
+		mod = 0;
+	    }
+	}
+    }
+    /* Copy exponent and anything else up to null */
+    while ((*dptr++ = *sptr++))
+	;
+    return retptr;
 }
 
 /* Start a parameter scope */

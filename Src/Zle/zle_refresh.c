@@ -444,6 +444,7 @@ void
 set_region_highlight(UNUSED(Param pm), char **aval)
 {
     int len;
+    char **av = aval;
     struct region_highlight *rhp;
 
     len = aval ? arrlen(aval) : 0;
@@ -490,6 +491,8 @@ set_region_highlight(UNUSED(Param pm), char **aval)
 
 	match_highlight(strp, &rhp->atr);
     }
+
+    freearray(av);
 }
 
 
@@ -977,7 +980,7 @@ zrefresh(void)
     int tmpalloced;		/* flag to free tmpline when finished	     */
     int remetafy;		/* flag that zle line is metafied	     */
     int txtchange;		/* attributes set after prompts              */
-    int rprompt_off;		/* Offset of rprompt from right of screen    */
+    int rprompt_off = 1;	/* Offset of rprompt from right of screen    */
     struct rparams rpms;
 #ifdef MULTIBYTE_SUPPORT
     int width;			/* width of wide character		     */
@@ -1046,8 +1049,8 @@ zrefresh(void)
 	region_highlights[1].start = region_highlights[1].end = -1;
     }
     /* check for an active completion suffix */
-    if (suffixnoinslen) {
-	region_highlights[2].start = zlecs - suffixnoinslen;
+    if (suffixlen) {
+	region_highlights[2].start = zlecs - suffixlen;
 	region_highlights[2].end = zlecs;
     } else {
 	region_highlights[2].start = region_highlights[2].end = -1;

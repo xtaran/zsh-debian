@@ -77,7 +77,7 @@ mod_export int tclen[TC_COUNT];
 /**/
 int tclines, tccolumns;
 /**/
-mod_export int hasam, hasxn, hasye;
+mod_export int hasam, hasbw, hasxn, hasye;
 
 /* Value of the Co (max_colors) entry: may not be set */
 
@@ -226,7 +226,7 @@ parseargs(char **argv, char **runscript)
     char **x;
     LinkList paramlist;
 
-    argzero = *argv++;
+    argzero = posixzero = *argv++;
     SHIN = 0;
 
     /* There's a bit of trickery with opts[INTERACTIVE] here.  It starts *
@@ -253,7 +253,7 @@ parseargs(char **argv, char **runscript)
     if (*argv) {
 	if (unset(SHINSTDIN)) {
 	    if (cmd)
-		argzero = *argv;
+		argzero = posixzero = *argv;
 	    else
 		*runscript = *argv;
 	    opts[INTERACTIVE] &= 1;
@@ -275,6 +275,7 @@ parseargs(char **argv, char **runscript)
     while ((*x++ = (char *)getlinknode(paramlist)));
     free(paramlist);
     argzero = ztrdup(argzero);
+    posixzero = ztrdup(posixzero);
 }
 
 /* Insert into list in order of pointer value */
@@ -698,6 +699,7 @@ init_term(void)
 
 	/* check whether terminal has automargin (wraparound) capability */
 	hasam = tgetflag("am");
+	hasbw = tgetflag("bw");
 	hasxn = tgetflag("xn"); /* also check for newline wraparound glitch */
 	hasye = tgetflag("YE"); /* print in last column does carriage return */
 
@@ -749,9 +751,8 @@ init_term(void)
 	    tcstr[TCCLEARSCREEN] = ztrdup("\14");
 	    tclen[TCCLEARSCREEN] = 1;
 	}
-#if 0	/* This might work, but there may be more to it */
-	rprompt_indent = (hasye || !tccan(TCLEFT)) ? 1 : 0;
-#endif
+	/* This might work, but there may be more to it */
+	rprompt_indent = ((hasam && !hasbw) || hasye || !tccan(TCLEFT));
     }
     return 1;
 }
@@ -1003,15 +1004,6 @@ setupvals(void)
     setiparam("COLUMNS", zterm_columns);
     setiparam("LINES", zterm_lines);
 #endif
-    {
-	/* Import from environment, overrides init_term() */
-	struct value vbuf;
-	char *name = "ZLE_RPROMPT_INDENT";
-	if (getvalue(&vbuf, &name, 1) && !(vbuf.flags & PM_UNSET))
-	    rprompt_indent = getintvalue(&vbuf);
-	else
-	    rprompt_indent = 1;
-    }
 
 #ifdef HAVE_GETRLIMIT
     for (i = 0; i != RLIM_NLIMITS; i++) {
@@ -1535,7 +1527,7 @@ mod_export CompctlReadFn compctlreadptr = fallback_compctlread;
 mod_export int
 fallback_compctlread(char *name, UNUSED(char **args), UNUSED(Options ops), UNUSED(char *reply))
 {
-    zwarnnam(name, "option valid only in functions called from completion");
+    zwarnnam(name, "no loaded module provides read for completion context");
     return 1;
 }
 

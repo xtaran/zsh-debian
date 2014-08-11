@@ -1995,11 +1995,11 @@ only be performed with the `tt(*)' inserted.
 kindex(matcher, completion style)
 item(tt(matcher))(
 This style is tested separately for each tag valid in the current
-context.  Its value is added to any match specifications given by the 
+context.  Its value is tried before any match specifications given by the 
 tt(matcher-list) style.  It should be in the form described in
 ifzman(the section `Completion Matching Control' in zmanref(zshcompwid))\
 ifnzman(noderef(Completion Matching Control))\
-.
+.  For examples of this, see the description of the tt(tag-order) style.
 )
 kindex(matcher-list, completion style)
 item(tt(matcher-list))(
@@ -2019,12 +2019,14 @@ specification is prefixed with tt(+), it is added to the existing list.
 Hence it is possible to create increasingly general specifications
 without repetition:
 
-example(zstyle ':completion:*' matcher-list '' '+m{a-z}={A-Z}' '+m{A-Z}={a-z}')
+example(zstyle ':completion:*' matcher-list '' '+m:{a-z}={A-Z}' '+m:{A-Z}={a-z}')
 
 It is possible to create match specifications valid for particular
-completers by using the third field of the context.  For example, to
-use the completers tt(_complete) and tt(_prefix) but only allow
-case-insensitive completion with tt(_complete):
+completers by using the third field of the context.  This applies only
+to completers that override the global matcher-list, which as of this
+writing includes only tt(_prefix) and tt(_ignored).  For example, to
+use the completers tt(_complete) and tt(_prefix) but allow
+case-insensitive completion only with tt(_complete):
 
 example(zstyle ':completion:*' completer _complete _prefix
 zstyle ':completion:*:complete:*' matcher-list \ 
@@ -2344,7 +2346,7 @@ This is used by the tt(_history) completer and the
 tt(_history_complete_word) bindable command to decide which words
 should be completed.  
 
-If it is a singe number, only the last var(N) words from the history
+If it is a single number, only the last var(N) words from the history
 will be completed.
 
 If it is a range of the form `var(max)tt(:)var(slice)',
@@ -2439,6 +2441,15 @@ This style is also used similarly with the tt(words) style when
 completing words for the dict command. It allows words from different
 dictionary databases to be added separately.
 The default for this style is `false'.
+)
+kindex(show-ambiguity, completion style)
+item(tt(show-ambiguity))(
+If the tt(zsh/complist) module is loaded, this style can be used to
+highlight the first ambiguous character in completion lists. The
+value is either a color indication such as those supported by the
+tt(list-colors) style or, with a value of tt(true), a default of
+underlining is selected. The highlighting is only applied if the
+completion display strings correspond to the actual matches.
 )
 kindex(show-completer, completion style)
 item(tt(show-completer))(
@@ -3037,6 +3048,15 @@ be controlled with the styles tt(regular), tt(global) and tt(disabled).
 This function is also a bindable command, see
 ifzman(the section `Bindable Commands' below)\
 ifnzman(noderef(Bindable Commands)).
+)
+findex(_extensions)
+item(tt(_extensions))(
+If the cursor follows the string `tt(*.)', filename extensions are
+completed. The extensions are taken from files in current directory or a
+directory specified at the beginning of the current word. For exact matches,
+completion continues to allow other completers such as tt(_expand) to
+expand the pattern. The standard tt(add-space) and tt(prefix-hidden)
+styles are observed.
 )
 findex(_history)
 item(tt(_history))(

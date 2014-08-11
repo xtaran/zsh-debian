@@ -611,8 +611,6 @@ docomplete(int lst)
     active = 1;
     comprecursive = 0;
     makecommaspecial(0);
-    if (undoing)
-	setlastline();
 
     /* From the C-code's point of view, we can only use compctl as a default
      * type of completion. Load it if it hasn't been loaded already and
@@ -1164,7 +1162,7 @@ get_comp_string(void)
      * being separated by tokens | & &! |& || &&).  The loop stops when *
      * the end of the command containing the cursor is reached.  What   *
      * makes this messy is checking for things like redirections, loops *
-    * and whatnot. */
+     * and whatnot. */
 
     do {
         qsub = noword = 0;
@@ -2797,6 +2795,7 @@ doexpandhist(void)
     if (!err) {
 	zlemetacs = excs;
 	if (strcmp(zlemetaline, ol)) {
+	    zle_free_positions();
 	    unmetafy_line();
 	    /* For vi mode -- reset the beginning-of-insertion pointer   *
 	     * to the beginning of the line.  This seems a little silly, *

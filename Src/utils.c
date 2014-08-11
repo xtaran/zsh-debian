@@ -725,32 +725,36 @@ xsymlinks(char *s)
     char **pp, **opp;
     char xbuf2[PATH_MAX*2], xbuf3[PATH_MAX*2];
     int t0, ret = 0;
+    zulong xbuflen = strlen(xbuf);
 
     opp = pp = slashsplit(s);
-    for (; *pp; pp++) {
-	if (!strcmp(*pp, ".")) {
-	    zsfree(*pp);
+    for (; xbuflen < sizeof(xbuf) && *pp; pp++) {
+	if (!strcmp(*pp, "."))
 	    continue;
-	}
 	if (!strcmp(*pp, "..")) {
 	    char *p;
 
-	    zsfree(*pp);
 	    if (!strcmp(xbuf, "/"))
 		continue;
 	    if (!*xbuf)
 		continue;
-	    p = xbuf + strlen(xbuf);
-	    while (*--p != '/');
+	    p = xbuf + xbuflen;
+	    while (*--p != '/')
+		xbuflen--;
 	    *p = '\0';
 	    continue;
 	}
 	sprintf(xbuf2, "%s/%s", xbuf, *pp);
 	t0 = readlink(unmeta(xbuf2), xbuf3, PATH_MAX);
 	if (t0 == -1) {
-	    strcat(xbuf, "/");
-	    strcat(xbuf, *pp);
-	    zsfree(*pp);
+	    zulong pplen = strlen(*pp) + 1;
+	    if ((xbuflen += pplen) < sizeof(xbuf)) {
+		strcat(xbuf, "/");
+		strcat(xbuf, *pp);
+	    } else {
+		*xbuf = 0;
+		break;
+	    }
 	} else {
 	    ret = 1;
 	    metafy(xbuf3, t0, META_NOALLOC);
@@ -759,10 +763,9 @@ xsymlinks(char *s)
 		xsymlinks(xbuf3 + 1);
 	    } else
 		xsymlinks(xbuf3);
-	    zsfree(*pp);
 	}
     }
-    free(opp);
+    freearray(opp);
     return ret;
 }
 
@@ -779,8 +782,10 @@ xsymlink(char *s)
 	return NULL;
     *xbuf = '\0';
     xsymlinks(s + 1);
-    if (!*xbuf)
+    if (!*xbuf) {
+	zwarn("path expansion failed, using root directory");
 	return ztrdup("/");
+    }
     return ztrdup(xbuf);
 }
 
@@ -2486,7 +2491,7 @@ getquery(char *valid_chars, int purge)
 
 static int d;
 static char *guess, *best;
-static Patprog spckpat;
+static Patprog spckpat, spnamepat;
 
 /**/
 static void
@@ -2556,6 +2561,13 @@ spckword(char **s, int hist, int cmd, int ask)
 	spckpat = patcompile(correct_ignore, 0, NULL);
     } else
 	spckpat = NULL;
+
+    if ((correct_ignore = getsparam("CORRECT_IGNORE_FILE")) != NULL) {
+	tokenize(correct_ignore = dupstring(correct_ignore));
+	remnulargs(correct_ignore);
+	spnamepat = patcompile(correct_ignore, 0, NULL);
+    } else
+	spnamepat = NULL;
 
     if (**s == String && !*t) {
 	guess = *s + 1;
@@ -2698,10 +2710,13 @@ ztrftimebuf(int *bufsizeptr, int decr)
 
 /**/
 mod_export int
-ztrftime(char *buf, int bufsize, char *fmt, struct tm *tm)
+ztrftime(char *buf, int bufsize, char *fmt, struct tm *tm, long usec)
 {
-    int hr12, decr;
-#ifndef HAVE_STRFTIME
+    int hr12;
+#ifdef HAVE_STRFTIME
+    int decr;
+    char tmp[4];
+#else
     static char *astr[] =
     {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     static char *estr[] =
@@ -2709,12 +2724,12 @@ ztrftime(char *buf, int bufsize, char *fmt, struct tm *tm)
      "Aug", "Sep", "Oct", "Nov", "Dec"};
 #endif
     char *origbuf = buf;
-    char tmp[4];
 
 
     while (*fmt)
 	if (*fmt == '%') {
 	    int strip;
+	    int digs = 3;
 
 	    fmt++;
 	    if (*fmt == '-') {
@@ -2722,6 +2737,17 @@ ztrftime(char *buf, int bufsize, char *fmt, struct tm *tm)
 		fmt++;
 	    } else
 		strip = 0;
+	    if (idigit(*fmt)) {
+		/* Digit --- only useful with . */
+		char *dstart = fmt;
+		char *dend = fmt+1;
+		while (idigit(*dend))
+		    dend++;
+		if (*dend == '.') {
+		    fmt = dend;
+		    digs = atoi(dstart);
+		}
+	    }
 	    /*
 	     * Assume this format will take up at least two
 	     * characters.  Not always true, but if that matters
@@ -2731,6 +2757,20 @@ ztrftime(char *buf, int bufsize, char *fmt, struct tm *tm)
 	    if (ztrftimebuf(&bufsize, 2))
 		return -1;
 	    switch (*fmt++) {
+	    case '.':
+		if (ztrftimebuf(&bufsize, digs))
+		    return -1;
+		if (digs > 6)
+		    digs = 6;
+		if (digs < 6) {
+		    int trunc;
+		    for (trunc = 5 - digs; trunc; trunc--)
+			usec /= 10;
+		    usec  = (usec + 5) / 10;
+		}
+		sprintf(buf, "%0*ld", digs, usec);
+		buf += digs;
+		break;
 	    case 'd':
 		if (tm->tm_mday > 9 || !strip)
 		    *buf++ = '0' + tm->tm_mday / 10;
@@ -3332,6 +3372,17 @@ mkarray(char *s)
 }
 
 /**/
+mod_export char **
+hmkarray(char *s)
+{
+    char **t = (char **) zhalloc((s) ? (2 * sizeof s) : (sizeof s));
+
+    if ((*t = s))
+	t[1] = NULL;
+    return t;
+}
+
+/**/
 mod_export void
 zbeep(void)
 {
@@ -3778,6 +3829,8 @@ mindist(char *dir, char *mindistguess, char *mindistbest)
     if (!(dd = opendir(unmeta(dir))))
 	return mindistd;
     while ((fn = zreaddir(dd, 0))) {
+	if (spnamepat && pattry(spnamepat, fn))
+	    continue;
 	nd = spdist(fn, mindistguess,
 		    (int)strlen(mindistguess) / 4 + 1);
 	if (nd <= mindistd) {
@@ -4256,6 +4309,12 @@ mod_export char *
 zreaddir(DIR *dir, int ignoredots)
 {
     struct dirent *de;
+#if defined(HAVE_ICONV) && defined(__APPLE__)
+    static iconv_t conv_ds = (iconv_t)0;
+    static char *conv_name = 0;
+    char *conv_name_ptr, *orig_name_ptr;
+    size_t conv_name_len, orig_name_len;
+#endif
 
     do {
 	de = readdir(dir);
@@ -4263,6 +4322,30 @@ zreaddir(DIR *dir, int ignoredots)
 	    return NULL;
     } while(ignoredots && de->d_name[0] == '.' &&
 	(!de->d_name[1] || (de->d_name[1] == '.' && !de->d_name[2])));
+
+#if defined(HAVE_ICONV) && defined(__APPLE__)
+    if (!conv_ds)
+	conv_ds = iconv_open("UTF-8", "UTF-8-MAC");
+    if (conv_ds != (iconv_t)(-1)) {
+	/* Force initial state in case re-using conv_ds */
+	(void) iconv(conv_ds, 0, &orig_name_len, 0, &conv_name_len);
+
+	orig_name_ptr = de->d_name;
+	orig_name_len = strlen(de->d_name);
+	conv_name = zrealloc(conv_name, orig_name_len+1);
+	conv_name_ptr = conv_name;
+	conv_name_len = orig_name_len;
+	if (iconv(conv_ds,
+		  &orig_name_ptr, &orig_name_len,
+		  &conv_name_ptr, &conv_name_len) != (size_t)(-1) &&
+	    orig_name_len == 0) {
+	    /* Completely converted, metafy and return */
+	    *conv_name_ptr = '\0';
+	    return metafy(conv_name, -1, META_STATIC);
+	}
+	/* Error, or conversion incomplete, keep the original name */
+    }
+#endif
 
     return metafy(de->d_name, -1, META_STATIC);
 }

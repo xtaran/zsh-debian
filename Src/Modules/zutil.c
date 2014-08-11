@@ -30,6 +30,55 @@
 #include "zutil.mdh"
 #include "zutil.pro"
 
+typedef struct {
+    char **match;
+    char **mbegin;
+    char **mend;
+} MatchData;
+
+static void
+savematch(MatchData *m)
+{
+    char **a;
+
+    queue_signals();
+    a = getaparam("match");
+    m->match = a ? zarrdup(a) : NULL;
+    a = getaparam("mbegin");
+    m->mbegin = a ? zarrdup(a) : NULL;
+    a = getaparam("mend");
+    m->mend = a ? zarrdup(a) : NULL;
+    unqueue_signals();
+}
+
+static void
+restorematch(MatchData *m)
+{
+    if (m->match)
+	setaparam("match", m->match);
+    else
+	unsetparam("match");
+    if (m->mbegin)
+	setaparam("mbegin", m->mbegin);
+    else
+	unsetparam("mbegin");
+    if (m->mend)
+	setaparam("mend", m->mend);
+    else
+	unsetparam("mend");
+}
+
+static void
+freematch(MatchData *m)
+{
+    if (m->match)
+	freearray(m->match);
+    if (m->mbegin)
+	freearray(m->mbegin);
+    if (m->mend)
+	freearray(m->mend);
+}
+
 /* Style stuff. */
 
 typedef struct stypat *Stypat;
@@ -370,15 +419,21 @@ lookupstyle(char *ctxt, char *style)
 {
     Style s;
     Stypat p;
+    char **found = NULL;
 
     s = (Style)zstyletab->getnode2(zstyletab, style);
-    if (!s)
-	return NULL;
-    for (p = s->pats; p; p = p->next)
-	if (pattry(p->prog, ctxt))
-	    return (p->eval ? evalstyle(p) : p->vals);
+    if (s) {
+	MatchData match;
+	savematch(&match);
+	for (p = s->pats; p; p = p->next)
+	    if (pattry(p->prog, ctxt)) {
+		found = (p->eval ? evalstyle(p) : p->vals);
+		break;
+	    }
+	restorematch(&match);
+    }
 
-    return NULL;
+    return found;
 }
 
 static int
@@ -913,55 +968,6 @@ bin_zformat(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 }
 
 /* Zregexparse stuff. */
-
-typedef struct {
-    char **match;
-    char **mbegin;
-    char **mend;
-} MatchData;
-
-static void
-savematch(MatchData *m)
-{
-    char **a;
-
-    queue_signals();
-    a = getaparam("match");
-    m->match = a ? zarrdup(a) : NULL;
-    a = getaparam("mbegin");
-    m->mbegin = a ? zarrdup(a) : NULL;
-    a = getaparam("mend");
-    m->mend = a ? zarrdup(a) : NULL;
-    unqueue_signals();
-}
-
-static void
-restorematch(MatchData *m)
-{
-    if (m->match)
-	setaparam("match", m->match);
-    else
-	unsetparam("match");
-    if (m->mbegin)
-	setaparam("mbegin", m->mbegin);
-    else
-	unsetparam("mbegin");
-    if (m->mend)
-	setaparam("mend", m->mend);
-    else
-	unsetparam("mend");
-}
-
-static void
-freematch(MatchData *m)
-{
-    if (m->match)
-	freearray(m->match);
-    if (m->mbegin)
-	freearray(m->mbegin);
-    if (m->mend)
-	freearray(m->mend);
-}
 
 typedef struct {
     int cutoff;
@@ -1543,6 +1549,45 @@ add_opt_val(Zoptdesc d, char *arg)
     }
 }
 
+/*
+ * For "zparseopts -K -A assoc ..." this function copies the keys and
+ * values from the default and allocates the extra space for any parsed
+ * values having the same keys.  If there are no new values, creates an
+ * empty array.  Returns a pointer to the NULL element marking the end.
+ *
+ *  aval = pointer to the newly allocated array
+ *  assoc = name of the default hash param to copy
+ *  keep = whether we need to make the copy at all
+ *  num = count of new values to add space for
+ */
+static char **
+zalloc_default_array(char ***aval, char *assoc, int keep, int num)
+{
+    char **ap = 0;
+
+    *aval = 0;
+    if (keep && num) {
+	struct value vbuf;
+	Value v = fetchvalue(&vbuf, &assoc, 0,
+			     SCANPM_WANTKEYS|SCANPM_WANTVALS|SCANPM_MATCHMANY);
+	if (v && v->isarr) {
+	    char **dp, **dval = getarrvalue(v);
+	    int dnum = (dval ? arrlen(dval) : 0) + 1;
+	    *aval = (char **) zalloc(((num * 2) + dnum) * sizeof(char *));
+	    for (ap = *aval, dp = dval; dp && *dp; dp++) {
+		*ap = (char *) zalloc(strlen(*dp) + 1);
+		strcpy(*ap++, *dp);
+	    }
+	    *ap = NULL;
+	}
+    }
+    if (!ap) {
+	ap = *aval = (char **) zalloc(((num * 2) + 1) * sizeof(char *));
+	*ap = NULL;
+    }
+    return ap;
+}
+
 static int
 bin_zparseopts(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 {
@@ -1825,8 +1870,8 @@ bin_zparseopts(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 		num++;
 
 	if (!keep || num) {
-	    aval = (char **) zalloc(((num * 2) + 1) * sizeof(char *));
-	    for (ap = aval, d = opt_descs; d; d = d->next) {
+	    ap = zalloc_default_array(&aval, assoc, keep, num);
+	    for (d = opt_descs; d; d = d->next) {
 		if (d->vals) {
 		    *ap++ = n = (char *) zalloc(strlen(d->name) + 2);
 		    *n = '-';

@@ -1,7 +1,22 @@
 zsh (5.0.5-dev-2-1) UNRELEASED; urgency=medium
 
-  * New upstream pre-release
-    + TODO: Go through all fixed-upstream tagged bugs.
+  * New upstream release candidate
+    + [1584318b] fix crash in menu selection when number of terminal lines
+      is small (Closes: #527110)
+    + [2abc8530] Add some more recent dpkg options (Closes: #681518;
+      Thanks Sebastian Ramacher for the patch!)
+    + [d6c759fc] Expand aptitude completion by two boolean options
+      (Closes: #702760; Thanks Daniel Bolton for report and patch!)
+    + [35176b43] Match more shared library names (Closes: #755789; Thanks
+      Ansgar Burchardt for report and patch!)
+    + [d5886eb3] add --rsyncable to gzip completion (Closes: #702000;
+      Thanks Vincent Lefevre fort report and patch!)
+    + [0b62bde0] Update for axi-cache completion (Closes: #729921; Thanks
+      Felipe Sateler for report and patch!)
+    + [33351b14] Add completion for moosic (Closes: #630410; Thanks Omari
+      Norman for report and patch!)
+    + [a7d7c77b] Add completion for bpython and variants (Closes: #691714;
+      Thanks Sebastian Ramacher for report and patch!)
 
   [ Axel Beckert ]
   * [73508e34,baa705db] Remove all patches which were cherry-picked from

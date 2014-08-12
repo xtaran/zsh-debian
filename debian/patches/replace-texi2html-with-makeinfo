@@ -12,6 +12,6 @@ Index: zsh/Doc/Makefile.in
  DVIPS = dvips
 -TEXI2HTML = @TEXI2HTML@ --output . --ifinfo --split=chapter --node-files \
 +TEXI2HTML = makeinfo --html --output . --ifinfo --split=chapter --node-files \
-             --init-file $(sdir)/texi2html.conf
+             --init-file texi2html.conf
  
  .SUFFIXES: .yo .1

@@ -4,9 +4,9 @@ zsh (5.0.5-dev-2-1) UNRELEASED; urgency=medium
     + TODO: Go through all fixed-upstream tagged bugs.
 
   [ Axel Beckert ]
-  * [73508e34] Remove all patches which were cherry-picked from upstream
-  * [51b9ee37] Refresh patch replace-texi2html-with-makeinfo
-  * [e47c9866] Add patch to fix source vs build directory mixup
+  * [73508e34,baa705db] Remove all patches which were cherry-picked from
+    or applied upstream
+  * [51b9ee37,baa705db] Refresh patch replace-texi2html-with-makeinfo
 
  -- Axel Beckert <abe@debian.org>  Mon, 11 Aug 2014 20:22:29 +0200
 

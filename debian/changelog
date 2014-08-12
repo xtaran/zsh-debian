@@ -1,4 +1,4 @@
-zsh (5.0.5-dev-2-1) UNRELEASED; urgency=medium
+zsh (5.0.5-dev-2-1) experimental; urgency=medium
 
   * New upstream release candidate
     + [1584318b] fix crash in menu selection when number of terminal lines
@@ -23,7 +23,7 @@ zsh (5.0.5-dev-2-1) UNRELEASED; urgency=medium
     or applied upstream
   * [51b9ee37,baa705db] Refresh patch replace-texi2html-with-makeinfo
 
- -- Axel Beckert <abe@debian.org>  Mon, 11 Aug 2014 20:22:29 +0200
+ -- Axel Beckert <abe@debian.org>  Wed, 13 Aug 2014 01:46:31 +0200
 
 zsh (5.0.5-4) unstable; urgency=medium
 

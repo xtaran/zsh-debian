@@ -26,7 +26,7 @@ else
     TEXT="Packages which provide code meant to be sourced in .zshrc"
     # Hardcoded list of (future) packages containing code meant to be
     # sourced in .zshrc
-    PKGS=$(dpkg-query -W -f '${Package}\n' fizsh oh-my-zsh zsh-antigen autojump zec 'grml-*' 2>/dev/null)
+    PKGS=$(dpkg-query -W -f '${Package}\n' fizsh oh-my-zsh zsh-antigen autojump zec python-powerline 'grml-*' 2>/dev/null)
 fi
 
 list_packages "$TEXT" $PKGS

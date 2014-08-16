@@ -36,4 +36,3 @@ $(dpkg-query -S /usr/share/zsh/vendor-completions/ | awk -F: '{print $1}' | sed 
 
 list_packages "Packages which provide vendor functions" \
 $(dpkg-query -S /usr/share/zsh/vendor-functions/ | awk -F: '{print $1}' | sed -e 's/,//g')
-

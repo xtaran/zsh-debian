@@ -17,6 +17,9 @@ zsh (5.0.5-dev-2-1) experimental; urgency=medium
       Norman for report and patch!)
     + [a7d7c77b] Add completion for bpython and variants (Closes: #691714;
       Thanks Sebastian Ramacher for report and patch!)
+    + [b63ff19d] Correct reload of backslash-continuation lines from
+      history, fix bad history write of events ending with backslashes
+      (LP: #1342724)
 
   [ Axel Beckert ]
   * [73508e34,baa705db] Remove all patches which were cherry-picked from

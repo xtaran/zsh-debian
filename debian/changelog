@@ -1,3 +1,14 @@
+zsh (5.0.5-dev-3-1) UNRELEASED; urgency=medium
+
+  * New upstream release candidate
+  * [7e2e5db0] Add python-powerline to bug-script list of packages
+    containing code meant to be sourced in .zshrc
+  * [52079263] Add command-not-found + environment-modules to bug-script
+    list of packages containing code meant to be sourced in .zshrc
+  * [c9d0ce06] Add fixed Ubuntu bug report to previous changelog entry
+
+ -- Axel Beckert <abe@debian.org>  Tue, 26 Aug 2014 00:46:11 +0200
+
 zsh (5.0.5-dev-2-1) experimental; urgency=medium
 
   * New upstream release candidate

@@ -1,3 +1,119 @@
+2014-08-24  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: Config/version.mk: 5.0.5-dev-3.
+
+2014-08-24  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* unposted (see 33050): Completion/Unix/Command/_git: un-transpose
+	help text for git merge -{-no,}-verify
+
+2014-08-23  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* 33047: .distfiles, Completion/.distfiles,
+	Completion/AIX/.distfiles, Completion/AIX/Command/.distfiles,
+	Completion/AIX/Type/.distfiles, Completion/BSD/.distfiles,
+	Completion/BSD/Command/.distfiles, Completion/Base/.distfiles,
+	Completion/Base/Completer/.distfiles,
+	Completion/Base/Core/.distfiles,
+	Completion/Base/Utility/.distfiles,
+	Completion/Base/Widget/.distfiles,
+	Completion/Cygwin/Command/.distfiles,
+	Completion/Darwin/Command/.distfiles,
+	Completion/Darwin/Type/.distfiles, Completion/Debian/.distfiles,
+	Completion/Debian/Command/.distfiles,
+	Completion/Debian/Type/.distfiles,
+	Completion/Linux/Command/.distfiles,
+	Completion/Linux/Type/.distfiles,
+	Completion/Mandriva/.distfiles,
+	Completion/Mandriva/Command/.distfiles,
+	Completion/Redhat/.distfiles,
+	Completion/Redhat/Command/.distfiles,
+	Completion/Solaris/Command/.distfiles,
+	Completion/Solaris/Type/.distfiles, Completion/Unix/.distfiles,
+	Completion/Unix/Command/.distfiles,
+	Completion/Unix/Type/.distfiles, Completion/X/.distfiles,
+	Completion/X/Command/.distfiles, Completion/X/Type/.distfiles,
+	Completion/X/Utility/.distfiles, Completion/Zsh/.distfiles,
+	Completion/Zsh/Command/.distfiles,
+	Completion/Zsh/Context/.distfiles,
+	Completion/Zsh/Function/.distfiles,
+	Completion/Zsh/Type/.distfiles,
+	Completion/openSUSE/Command/.distfiles, Config/.distfiles,
+	Doc/.distfiles,Doc/Zsh/.distfiles, Doc/help/.distfiles,
+	Etc/.distfiles, Functions/.distfiles,
+	Functions/Calendar/.distfiles, Functions/Chpwd/.distfiles,
+	Functions/Compctl/.distfiles, Functions/Example/.distfiles,
+	Functions/Exceptions/.distfiles, Functions/MIME/.distfiles,
+	Functions/Misc/.distfiles, Functions/Newuser/.distfiles,
+	Functions/Prompts/.distfiles, Functions/TCP/.distfiles,
+	Functions/VCS_Info/.distfiles,
+	Functions/VCS_Info/Backends/.distfiles,
+	Functions/Zftp/.distfiles, Functions/Zle/.distfiles,
+	Misc/.distfiles, Scripts/.distfiles, Src/.distfiles,
+	Src/Builtins/.distfiles, Src/Modules/.distfiles,
+	Src/Zle/.distfiles, StartupFiles/.distfiles, Test/.distfiles,
+	Util/.distfiles, Util/mkdisttree.sh: Files controlled by git
+	are part of the source distribution unless explicitly included
+	in DISTFILES_NOT.  The .distfiles file is still needed for
+	the directory to be processed.
+
+	* unposted: Etc/.gitignore: ignore generated FAQ*.html files.
+
+2014-08-23  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 33046: Completion/Unix/Command/.distfiles,
+	Completion/Unix/Command/_chsh, Completion/Unix/Type/_users: new
+	completion for "chsh"
+
+2014-08-22  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 33042: NEWS, Src/jobs.c: $? and $pipestatus report 128+signal
+	number for stopped jobs as well as terminated jobs
+
+2014-08-21  Mikael Magnusson  <mikachu@gmail.com>
+
+	* 33038: Src/glob.c: Fix {a..b} expansion hanging when either
+	endpoint is a literal NUL character
+
+2014-08-20  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Lokesh Mandvekar: 33032: Completion/Linux/Command/_docker,
+	Completion/Linux/Command/.distfiles: new completion for docker
+
+2014-08-15  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* unposted (see 33006): Test/A05execution.ztst: timeout the final
+	"read" in hung shell regression
+
+	* 33012: Src/utils.c: add an error return value (-1) to xsymlinks()
+	to differentiate when xbuf is set to the empty string; silences
+	bogus warning about failed expansion
+
+2014-08-14  Oliver Kiddle  <opk@zsh.org>
+
+	* 32998: Completion/Unix/Command/_dsh, Completion/Unix/Command/_nm,
+	Completion/Unix/Command/_mosh, Completion/Unix/Command/_rsync,
+	Completion/Unix/Command/_wget: completion function updates
+
+	* 32997: Completion/Base/Utility/_sequence, Doc/Zsh/compsys.yo,
+	Completion/Unix/Command/_mount, Completion/Unix/Command/_nmap,
+	Completion/Unix/Command/_pgrep, Completion/Unix/Command/_zip:
+	add completion utility function for lists
+
+2014-08-14  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* 33002: Doc/Zsh/tcpsys.yo, Functions/TCP/tcp_expect: add option
+	-P to tcp_expect for tagging matches with a string rather than
+	a parameter index.
+
+2014-08-13  Oliver Kiddle  <opk@zsh.org>
+
+	* 32925: Completion/Zsh/Command/_kill: complete process groups,
+	partly as a way to suppress insertion of ambiguous PID prefix
+
+	* 32893: Completion/Unix/Type/_pids: move use of _call_program
+	inside the _tags loop to allow processes to be separated
+
 2014-08-12  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* Config/version.mk: update to 5.0.5-dev-2.

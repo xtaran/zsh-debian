@@ -40,6 +40,12 @@ CONFIGFLAGS += --enable-zsh-secure-free
 CONFIGFLAGS += --enable-zsh-hash-debug
 endif
 
+# Disable -fstack-protector-strong on s390x as it causes endless loops
+# in gcc-4.9. See https://bugs.debian.org/759870 for details
+ifeq (s390x,$(shell dpkg-architecture -qDEB_BUILD_ARCH))
+export DEB_BUILD_MAINT_OPTIONS=hardening=-stackprotectorstrong
+endif
+
 BUILT_USING=$(shell dpkg-query -f '$${source:Package} (= $${source:Version}), ' -W libcap-dev libncursesw5-dev libpcre3-dev libc-dev-bin)
 
 build: build-arch build-indep

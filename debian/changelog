@@ -1,8 +1,11 @@
-zsh (5.0.6-1~exp0) UNRELEASED; urgency=medium
+zsh (5.0.6-1) unstable; urgency=medium
 
   * New upstream release
+  * [f3708a11] Disable -fstack-protector-strong on s390x. It causes
+    endless loops in gcc-4.9. See #759870 for details.
+  * Upload to unstable again.
 
- -- Axel Beckert <abe@debian.org>  Sat, 30 Aug 2014 12:46:24 +0200
+ -- Axel Beckert <abe@debian.org>  Sun, 31 Aug 2014 01:13:28 +0200
 
 zsh (5.0.5-dev-3-1) experimental; urgency=medium
 

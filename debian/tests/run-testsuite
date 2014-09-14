@@ -55,4 +55,4 @@ else
 fi
 sleep 1
 rm -rf Modules .zcompdump
-exit $$stat
+exit $stat

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+# Very simple test to run adequate on all zsh packages. To be used with
+# Debian's autopkgtest package. Author: Axel Beckert <abe@debian.org>
+
+adequate `awk '$1 == "Package:" {print $2}' < debian/control` >&2

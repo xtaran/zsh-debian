@@ -1,0 +1,58 @@
+#!/bin/sh
+
+set -e
+
+# Run zsh's test suite on installed zsh
+#
+# Code based upon check/test target in Test/Makefile.in
+
+#if test -n "$(DLLD)"; then
+#    cd $(dir_top) && DESTDIR= $(MAKE) MODDIR=`pwd`/$(subdir)/Modules install.modules
+#fi
+
+if [ -z "$ADTTMP" -o ! -d "$ADTTMP" ]; then
+    echo '$ADTTMP ("'"$ADTTMP"'") is not set or not a directory' 1>&2
+    exit 2
+fi
+
+ZTST_testdir="$ADTTMP/Test"
+export ZTST_testdir
+
+cp -pvr Test "$ZTST_testdir"
+cp -pvr Misc "$ADTTMP/Misc"
+cd "$ADTTMP"
+
+ln -vfs /usr/lib/*/zsh/*.*.* "$ZTST_testdir/Modules"
+ln -vfs /usr/share/zsh/functions Functions
+ln -vfs /usr/share/zsh/functions/Completion .
+mkdir -pv Src
+for f in /bin/zsh*; do
+    ln -vfs "$f" Src/
+done
+
+cd "$ZTST_testdir"
+
+# For now skip a bunch of tests which require artefacts from the build
+# config.modules maybe mocked by creating it from the installed modules.
+rm -v V01zmodload.ztst
+
+# Drop explicit fpath setting from some files
+for f in ztst.zsh comptest; do
+    perl -E 'local $/; my $code = <>; $code =~ s{\n *fpath=\(.*?\n\n}{\n\n}s; print $code' -i $f
+done
+
+ZTST_testlist="`for f in $ZTST_testdir/$TESTNUM*.ztst; do echo $f; done`" \
+ZTST_srcdir="$ZTST_testdir"
+ZTST_exe=/bin/zsh
+export ZTST_testlist
+export ZTST_srcdir
+export ZTST_exe
+
+if "$ZTST_exe" +Z -f "$ZTST_testdir/runtests.zsh"; then
+    stat=0
+else
+    stat=1
+fi
+sleep 1
+rm -rf Modules .zcompdump
+exit $$stat

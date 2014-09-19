@@ -1,7 +1,8 @@
 Source: zsh
 Section: shells
 Priority: optional
-Build-Depends: bsdmainutils,
+Build-Depends: autotools-dev,
+               bsdmainutils,
                cm-super-minimal,
                debhelper (>= 9~),
                dh-autoreconf,

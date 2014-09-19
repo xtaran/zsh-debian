@@ -15,8 +15,8 @@ Build-Depends: autotools-dev,
                libpcre3-dev,
                texinfo (>= 5~),
                texlive-fonts-recommended,
-               texlive-latex-recommended,
                texlive-latex-base,
+               texlive-latex-recommended,
                yodl
 Maintainer: Debian Zsh Maintainers <pkg-zsh-devel@lists.alioth.debian.org>
 Uploaders: Michael Prokop <mika@debian.org>,
@@ -31,7 +31,9 @@ Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/zsh.git
 
 Package: zsh
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, zsh-common (= ${source:Version})
+Depends: zsh-common (= ${source:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
 Recommends: ${shlibs:Recommends}
 Suggests: zsh-doc
 Description: shell with lots of features
@@ -64,7 +66,8 @@ Description: architecture independent files for Zsh
 Package: zsh-doc
 Architecture: all
 Section: doc
-Depends: ${misc:Depends}, zsh-common (= ${source:Version})
+Depends: zsh-common (= ${source:Version}),
+         ${misc:Depends}
 Description: zsh documentation - info/HTML format
  Zsh is a UNIX command interpreter (shell) usable as an
  interactive login shell and as a shell script command
@@ -78,7 +81,8 @@ Description: zsh documentation - info/HTML format
 
 Package: zsh-static
 Architecture: any
-Depends: zsh, ${misc:Depends}
+Depends: zsh,
+         ${misc:Depends}
 Suggests: zsh-doc
 Built-Using: ${Built-Using}
 Description: shell with lots of features (static link)
@@ -94,7 +98,8 @@ Description: shell with lots of features (static link)
 
 Package: zsh-dev
 Architecture: any
-Depends: ${misc:Depends}, zsh-common (= ${source:Version})
+Depends: zsh-common (= ${source:Version}),
+         ${misc:Depends}
 Section: libdevel
 Description: shell with lots of features (development files)
  Zsh is a UNIX command interpreter (shell) usable as an
@@ -112,7 +117,9 @@ Package: zsh-dbg
 Architecture: any
 Section: debug
 Priority: extra
-Depends: zsh (= ${binary:Version}), ${misc:Depends}, zsh-common (= ${source:Version})
+Depends: zsh (= ${binary:Version}),
+         zsh-common (= ${source:Version}),
+         ${misc:Depends}
 Description: shell with lots of features (debugging symbols)
  Zsh is a UNIX command interpreter (shell) usable as an
  interactive login shell and as a shell script command
@@ -129,7 +136,9 @@ Package: zsh-beta
 Architecture: all
 Section: oldlibs
 Priority: extra
-Depends: ${misc:Depends}, zsh (>= 5), zsh-common (= ${source:Version})
+Depends: zsh (>= 5),
+         zsh-common (= ${source:Version}),
+         ${misc:Depends}
 Suggests: zsh-beta-doc
 Description: transitional package to zsh
  The purpose of this package is solely the transition from the zsh-beta
@@ -140,7 +149,9 @@ Package: zsh-beta-doc
 Architecture: all
 Section: oldlibs
 Priority: extra
-Depends: ${misc:Depends}, zsh-doc, zsh-common (= ${source:Version})
+Depends: zsh-common (= ${source:Version}),
+         zsh-doc,
+         ${misc:Depends}
 Description: transitional package to zsh-doc
  The purpose of this package is solely the transition from the
  zsh-beta-doc package to the zsh-doc package. It can be safely

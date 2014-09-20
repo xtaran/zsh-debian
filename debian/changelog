@@ -1,3 +1,22 @@
+zsh (5.0.6-2) unstable; urgency=medium
+
+  [ Axel Beckert ]
+  * [be93912f] Cherry-pick 4414e54e from upstream: Fixes regression with
+    shared or incremental history when trying to read .zsh_history with
+    hist_fcntl_lock (Closes: #761597)
+  * [0ef12ed3] Add test-suite wrapper and adequate test for DEP8
+    as-installed testing
+  * [a6b77953] Declare packaging branch in Vcs-Git header
+  * [9a864f1e] Change Vcs-Browser to new cgit based repository viewer
+  * [a3cbb95b] Bump Standards-Version to 3.9.6 (no changes needed)
+  * [21e82382] Apply wrap-and-sort -a
+
+  [ Wookey ]
+  * [2bbd5ddc] Use autotools-dev as well as autoreconf to ensure
+    configurey updates (Closes: #734765)
+
+ -- Axel Beckert <abe@debian.org>  Sat, 20 Sep 2014 23:27:41 +0200
+
 zsh (5.0.6-1) unstable; urgency=medium
 
   * New upstream release

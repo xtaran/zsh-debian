@@ -1,1 +1,2 @@
 replace-texi2html-with-makeinfo
+cherry-pick-4414e54e-prevent-double-locking-with-shared-or-incremental-history

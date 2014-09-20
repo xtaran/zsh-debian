@@ -72,8 +72,8 @@ build-debug: build
 
 configure:
 	touch stamp-h.in
-	dh_autotools-dev_updateconfig
-	dh_autoreconf
+	dh_autotools-dev_updateconfig -v
+	dh_autoreconf -v
 
 configure-stamp: configure
 	dh_testdir

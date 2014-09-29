@@ -64,7 +64,7 @@ build-indep: configure-stamp
 build-static: configure-static-stamp
 	dh_testdir
 	dh_auto_build -B obj-static --parallel
-	HOME="$(CURDIR)/obj-static/testhome" ZTST_verbose=1 dh_auto_test -B obj-static --parallel || true
+	#HOME="$(CURDIR)/obj-static/testhome" ZTST_verbose=1 dh_auto_test -B obj-static --parallel || true
 	touch $@
 
 build-debug: DEB_BUILD_OPTIONS+=debug

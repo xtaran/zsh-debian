@@ -53,7 +53,7 @@ build: build-arch build-indep
 build-arch: configure-stamp
 	dh_auto_build -B obj --parallel
 	if dpkg-architecture -qDEB_BUILD_ARCH_OS | grep -qv hurd; then \
-		HOME="$(CURDIR)/obj/testhome" dh_auto_test -B obj --parallel; \
+		HOME="$(CURDIR)/obj/testhome" ZTST_verbose=1 dh_auto_test -B obj --parallel; \
 	fi
 	touch $@
 
@@ -64,7 +64,7 @@ build-indep: configure-stamp
 build-static: configure-static-stamp
 	dh_testdir
 	dh_auto_build -B obj-static --parallel
-	HOME="$(CURDIR)/obj-static/testhome" dh_auto_test -B obj-static --parallel || true
+	HOME="$(CURDIR)/obj-static/testhome" ZTST_verbose=1 dh_auto_test -B obj-static --parallel || true
 	touch $@
 
 build-debug: DEB_BUILD_OPTIONS+=debug

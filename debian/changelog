@@ -1,3 +1,18 @@
+zsh (5.0.6-3) unstable; urgency=medium
+
+  * [f5dacf9f] Do not run (already ignored) test suite on static build to
+    mitigate #760061.
+  * [79035529] Set ZTST_verbose=1 to get more details about where exactly
+    the test suite hangs. Seems also to reduce the likeliness for hangs
+    and hence further mitigates #760061.
+  * [16aa8c84] Cherry-pick git commit 87270496 from upstream: Fixes
+    hanging in freejob from TRAPCHLD. May mitigate or even fix #760061.
+  * [c3dea2bb] Convert debian/copyright into machine-readable DEP5 format.
+  * [abc8d1f6] Complete debian/copyright with individual copyrights and
+    licenses (Closes: #763191)
+
+ -- Axel Beckert <abe@debian.org>  Thu, 02 Oct 2014 01:37:34 +0200
+
 zsh (5.0.6-2) unstable; urgency=medium
 
   [ Axel Beckert ]

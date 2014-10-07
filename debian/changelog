@@ -1,3 +1,14 @@
+zsh (5.0.7-1) UNRELEASED; urgency=low
+
+  * [208bdede] New upstream release
+    + [1c3f90e3] The used upstream tar ball is actually build from commit
+      9982ab6f which is exactly one commit after the zsh-5.0.7 and adds
+      one missing (and not unimportant) changelog entry for the 5.0.7
+      release.
+  + [2d470422] Drop all cherry-picked patches
+
+ -- Axel Beckert <abe@debian.org>  Wed, 08 Oct 2014 01:32:00 +0200
+
 zsh (5.0.6-3) unstable; urgency=medium
 
   * [f5dacf9f] Do not run (already ignored) test suite on static build to

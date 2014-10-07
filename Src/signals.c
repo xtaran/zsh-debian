@@ -594,6 +594,17 @@ zhandler(int sig)
 	wait_for_processes();
         break;
  
+    case SIGPIPE:
+	if (!handletrap(SIGPIPE)) {
+	    if (!interact)
+		_exit(SIGPIPE);
+	    else if (!isatty(SHTTY)) {
+		stopmsg = 1;
+		zexit(SIGPIPE, 1);
+	    }
+	}
+	break;
+
     case SIGHUP:
         if (!handletrap(SIGHUP)) {
             stopmsg = 1;
@@ -752,7 +763,7 @@ dosavetrap(int sig, int level)
 	Shfunc shf, newshf = NULL;
 	if ((shf = (Shfunc)gettrapnode(sig, 1))) {
 	    /* Copy the node for saving */
-	    newshf = (Shfunc) zalloc(sizeof(*newshf));
+	    newshf = (Shfunc) zshcalloc(sizeof(*newshf));
 	    newshf->node.nam = ztrdup(shf->node.nam);
 	    newshf->node.flags = shf->node.flags;
 	    newshf->funcdef = dupeprog(shf->funcdef, 0);
@@ -896,6 +907,8 @@ removetrap(int sig)
         intr();
 	noholdintr();
     } else if (sig == SIGHUP)
+        install_handler(sig);
+    else if (sig == SIGPIPE && interact && !forklevel)
         install_handler(sig);
     else if (sig && sig <= SIGCOUNT &&
 #ifdef SIGWINCH

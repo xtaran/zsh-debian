@@ -372,6 +372,17 @@ putpromptchar(int doprint, int endchar, unsigned int *txtchangep)
 		    if (t0 >= arg)
 			test = 1;
 		    break;
+		case 'e':
+		    {
+			Funcstack fsptr = funcstack;
+			test = arg;
+			while (fsptr && test > 0) {
+			    test--;
+			    fsptr = fsptr->prev;
+			}
+			test = !test;
+		    }
+		    break;
 		case 'L':
 		    if (shlvl >= arg)
 			test = 1;
@@ -786,6 +797,19 @@ putpromptchar(int doprint, int endchar, unsigned int *txtchangep)
 		if(bv->Rstring)
 		    stradd(bv->Rstring);
 		break;
+	    case 'e':
+	    {
+		int depth = 0;
+		Funcstack fsptr = funcstack;
+		while (fsptr) {
+		    depth++;
+		    fsptr = fsptr->prev;
+		}
+		addbufspc(DIGBUFSIZE);
+		sprintf(bv->bp, "%d", depth);
+		bv->bp += strlen(bv->bp);
+		break;
+	    }
 	    case 'I':
 		if (funcstack && funcstack->tp != FS_SOURCE &&
 		    !IN_EVAL_TRAP()) {
@@ -1292,12 +1316,11 @@ prompttrunc(int arg, int truncchar, int doprint, int endchar,
 			     */
 			    for (;;) {
 				*ptr++ = *fulltextptr;
-				if (*fulltextptr == Outpar ||
-				    *fulltextptr == '\0')
+				if (*fulltextptr == '\0' ||
+				    *fulltextptr++ == Outpar)
 				    break;
-				if (*fulltextptr == Nularg)
+				if (fulltextptr[-1] == Nularg)
 				    remw--;
-				fulltextptr++;
 			    }
 			} else {
 #ifdef MULTIBYTE_SUPPORT
@@ -1373,12 +1396,11 @@ prompttrunc(int arg, int truncchar, int doprint, int endchar,
 			if (*skiptext == Inpar) {
 			    /* see comment on left truncation above */
 			    for (;;) {
-				if (*skiptext == Outpar ||
-				    *skiptext == '\0')
+				if (*skiptext == '\0' ||
+				    *skiptext++ == Outpar)
 				    break;
-				if (*skiptext == Nularg)
+				if (skiptext[-1] == Nularg)
 				    maxwidth--;
-				skiptext++;
 			    }
 			} else {
 #ifdef MULTIBYTE_SUPPORT

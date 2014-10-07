@@ -316,7 +316,7 @@ the rightmost `tt(?)' in a context scan can similarly be omitted.  Note
 the same record of the last var(l) and var(r) is maintained across all
 forms of expansion.
 
-Note that if a `tt(&)' is used within glob qualifers an extra backslash
+Note that if a `tt(&)' is used within glob qualifiers an extra backslash
 is needed as a tt(&) is a special character in this case.
 
 If the option tt(HIST_SUBST_PATTERN) is set, var(l) is treated as
@@ -475,7 +475,7 @@ spawned from the parent shell which will wait for their completion.
 Another problem arises any time a job with a substitution that requires
 a temporary file is disowned by the shell, including the case where
 `tt(&!)' or `tt(&|)' appears at the end of a command containing a
-subsitution.  In that case the temporary file will not be cleaned up as
+substitution.  In that case the temporary file will not be cleaned up as
 the shell no longer has any memory of the job.  A workaround is to use
 a subshell, for example,
 
@@ -632,7 +632,7 @@ quoted, the elements of var(arrayname) are instead tested against the
 entire expression.
 )
 item(tt(${)var(name)tt(:*)var(arrayname)tt(}))(
-Similar to the preceding subsitution, but in the opposite sense,
+Similar to the preceding substitution, but in the opposite sense,
 so that entries present in both the original substitution and as
 elements of var(arrayname) are retained and others removed.
 )
@@ -701,7 +701,7 @@ print ${foo:$(( 1 + 2))}
 print ${foo:$(echo 1 + 2)})
 
 all have the same effect, extracting the string starting at the fourth
-character of tt($foo) if the substution would otherwise return a scalar,
+character of tt($foo) if the substitution would otherwise return a scalar,
 or the array starting at the fourth element if tt($foo) would return an
 array.  Note that with the option tt(KSH_ARRAYS) tt($foo) always returns
 a scalar (regardless of the use of the offset syntax) and a form
@@ -924,7 +924,7 @@ that result from field splitting.
 item(tt(D))(
 Assume the string or array elements contain directories and attempt
 to substitute the leading part of these by names.  The remainder of
-the path (the whole of it if the leading part was not subsituted)
+the path (the whole of it if the leading part was not substituted)
 is then quoted so that the whole string can be used as a shell
 argument.  This is the reverse of `tt(~)' substitution:  see
 ifnzman(noderef(Filename Expansion))\
@@ -1126,13 +1126,14 @@ in string arguments to any of the flags described below that
 follow this argument.
 )
 item(tt(~))(
-Force string arguments to any of the flags below that follow within
-the parentheses to be treated as patterns.  Compare with a tt(~)
+Strings inserted into the expansion by any of the flags below are to
+be treated as patterns.  This applies to the string arguments of flags
+that follow tt(~) within the same set of parentheses.  Compare with tt(~)
 outside parentheses, which forces the entire substituted string to
 be treated as a pattern.  Hence, for example,
 example([[ "?" = ${(~j.|.)array} ]])
-with the tt(EXTENDED_GLOB) option set succeeds if and only if tt($array)
-contains the string `tt(?)' as an element.  The argument may be
+treats `tt(|)' as a pattern and succeeds if and only if tt($array)
+contains the string `tt(?)' as an element.  The tt(~) may be
 repeated to toggle the behaviour; its effect only lasts to the
 end of the parenthesised group.
 )
@@ -1154,6 +1155,10 @@ often as needed) or spaces if var(string1) is not given.  If both
 var(string1) and var(string2) are given, tt(string2) is inserted once
 directly to the left of each word, truncated if necessary, before
 var(string1) is used to produce any remaining padding.
+
+If either of var(string1) or tt(string2) is present but empty,
+i.e. there are two delimiters together at that point, the first
+character of tt($IFS) is used instead.
 
 If the tt(MULTIBYTE) option is in effect, the flag tt(m) may also
 be given, in which case widths will be used for the calculation of
@@ -2658,6 +2663,12 @@ list of glob qualifiers.
 A typical use for this is to prepend an option before all occurrences
 of a file name; for example, the pattern `tt(*(P:-f:))' produces the
 command line arguments `tt(-f) var(file1) tt(-f) var(file2) ...'
+
+If the modifier tt(^) is active, then var(string) will be appended
+instead of prepended.  Prepending and appending is done independently
+so both can be used on the same glob expression; for example by writing
+`tt(*(P:foo:^P:bar:^P:baz:))' which produces the command line arguments
+`tt(foo) tt(baz) var(file1) tt(bar) ...'
 )
 enditem()
 

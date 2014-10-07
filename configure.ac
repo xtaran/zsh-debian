@@ -315,6 +315,24 @@ else
   sitefndir="$enableval"
 fi], [sitefndir=${datadir}/${tzsh_name}/site-functions])
 
+dnl Add /usr/local/share/zsh/site-functions if not yet present
+dnl owing to $sitefndir, whether or not explicitly given.
+dnl If not explicitly given, it hasn't been expanded yet.
+if test X$sitefndir = X/usr/local/share/zsh/site-functions
+then fixed_sitefndir=''
+elif test X$prefix != X/usr/local; then
+  if test X$prefix = XNONE && test X$ac_default_prefix = X/usr/local; then
+    if test X$tzsh_name != Xzsh
+    then fixed_sitefndir=/usr/local/share/zsh/site-functions
+    else fixed_sitefndir=''
+    fi
+  else fixed_sitefndir=/usr/local/share/zsh/site-functions
+  fi
+elif test X$tzsh_name != Xzsh
+then fixed_sitefndir=/usr/local/share/zsh/site-functions
+else fixed_sitefndir=''
+fi
+
 ifdef([function_subdirs],[undefine([function_subdirs])])
 AC_ARG_ENABLE(function-subdirs,
 AC_HELP_STRING([--enable-function-subdirs], [install functions in subdirectories]))
@@ -340,6 +358,7 @@ AC_SUBST(runhelp)dnl
 AC_SUBST(additionalfpath)dnl
 AC_SUBST(fndir)dnl
 AC_SUBST(sitefndir)dnl
+AC_SUBST(fixed_sitefndir)dnl
 AC_SUBST(FUNCTIONS_SUBDIRS)dnl
 
 dnl Directories for scripts such as newuser.
@@ -3181,9 +3200,12 @@ AC_OUTPUT
 
 eval "zshbin1=${bindir}"
 eval "zshbin2=${zshbin1}"
-eval "zshman=${mandir}"
-eval "zshinfo=${infodir}"
-eval "zshfndir=${fndir}"
+eval "zshman1=${mandir}"
+eval "zshman2=${zshman1}"
+eval "zshinfo1=${infodir}"
+eval "zshinfo2=${zshinfo1}"
+eval "zshfndir1=${fndir}"
+eval "zshfndir2=${zshfndir1}"
 
 echo "
 zsh configuration
@@ -3208,10 +3230,10 @@ echo "\
 library flags             : ${LIBS}
 installation basename     : ${tzsh_name}
 binary install path       : ${zshbin2}
-man page install path     : ${zshman}
-info install path         : ${zshinfo}"
-if test "$zshfndir" != no; then
-  echo "functions install path    : ${zshfndir}"
+man page install path     : ${zshman2}
+info install path         : ${zshinfo2}"
+if test "$zshfndir2" != no; then
+  echo "functions install path    : ${zshfndir2}"
 fi
 if test "x$additionalfpath" != x; then
   echo "additional fpath entries  : ${additionalfpath}"

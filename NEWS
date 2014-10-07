@@ -10,7 +10,11 @@ Changes since 5.0.0
 - Numeric constants encountered in mathematical expressions (but not other
   contexts) can contain underscores as separators that will be ignored on
   evaluation, as allowed in other scripting languages.  For example,
-  0xFFFF_FFFF, or 3.141_592_654.
+  0xFFFF_FFFF, or 3.141_592_654.  From 5.0.6 this is also available
+  in output, e.g.
+    setopt cbases
+    zmodload zsh/mathfunc
+    print $(( [#16_4] 2**32 - 1 )) $(( [#_3] 4 * atan(1.0) )) 
  
 - "functions -T" turns on tracing for the specified function(s) only,
   similar to "functions -t" except that tracing is turned off for any
@@ -21,6 +25,14 @@ Changes since 5.0.0
   to be treated as floating point.  This is most useful locally within
   functions or scripts performing floating point calculations.
  
+- The default $fpath/$FPATH is now designed always to include
+  /usr/local/share/zsh/site-functions.  This directory does not need to
+  exist.  Sites that set an explicit site directory can put that in
+  /etc/zshenv as before.  The intention of the new path element is to
+  increase the likelihood that locally added functions can be found with
+  the shell running "out of the box", no matter how the shell was
+  configured.
+
 - Individual pattern characters can be disabled.  For example, to allow '^'
   to be an ordinary character even if the option EXTENDED_GLOB is set, use
   "disable -p '^'".
@@ -39,7 +51,7 @@ Changes since 5.0.0
  
 - In file completion, the recursive-files style can be set to an array of
   patterns to match against "$PWD/".  In any matched location, it is
-  possibly to complete files in arbitrarily deep subdirectories without
+  possible to complete files in arbitrarily deep subdirectories without
   needing to type the directory prefix.  See example in the zshcompsys
   manual.
  
@@ -71,13 +83,17 @@ Changes since 5.0.0
   values of N still count the space used since the start of the prompt).
   In PS1 and PROMPT, this counts to the right margin, whereas in RPS1 and
   RPROMPT, it counts to the left margin (not to the opposite prompt).
- 
+
+- Also in prompt strings, %e or the equivalent test %(e..) are used to
+  output or test the execution / evaluation depth of a shell
+  construct within functions etc.  This is useful in $PS4.
+
 - Another new prompt feature is the %. escape within time strings, for
-  example %D{%H:%M:%S.%.}.  It provides zero-padded decimal fractions of
+  example %D{%H:%M:%S.%.}.  It provides zero-padded decimal fractions of a
   second; by default milliseconds are shown, but the number of digits may
   be indicated from 1 to 6, e.g. "%6.".  (Note this is part of the
   extensions to strftime() formats rather than basic prompt escapes.)
- 
+
 - The operators :^ and :^^ in parameter substitution allow for array
   zipping in the form ${name:^array}. With the :^ operator, all entries
   in $name and $array will be output in alternating order. With :^ the
@@ -90,6 +106,13 @@ Changes since 5.0.0
   portable scripts to detect stopped jobs by comparing to a fixed number.
   Also, the value of $pipestatus is now updated when a job stops, not just
   when it exits.
+
+- Redirections applied to function definitions take effect when the
+  function is executed, not when it is defined.  Other shells already
+  work this way.  For example,
+    fn() { echo hello } >~/logfile
+  Running fn writes "hello" to logfile.  In older versions of the shell
+  it would create an empty file at the point of definition.
 
 Changes between 4.2 and 5.0.0
 -----------------------------

@@ -302,7 +302,7 @@ There are many ways to do this. Important is:
   or `pbuilder` and friends) to make a comprehensive test or for
   uploading.
 
-  Axel prefers: `pdebuild -j6`
+  Axel prefers: `pdebuild --debbuildopts -j6`
 
 * For a quick sanity check, a simple `dpkg-buildpackage -B` (just
   builds the architecture-dependent binary packages or a `debuild -uc

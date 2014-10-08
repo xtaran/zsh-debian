@@ -1,0 +1,71 @@
+The Debian Zsh Package
+======================
+
+Debian's zsh package is team-maintained. This document describes some
+of the resources the team uses.
+
+Versioning Control System
+-------------------------
+
+The Debian Zsh Team uses a collab-maint Git repository on Alioth for
+collaboratively maintaining the packaging code. The packaging lives in
+the branch `debian`.
+
+* Web-based repository viewer: https://anonscm.debian.org/cgit/collab-maint/zsh.git
+* Anonymous clone: `git clone -b debian git://anonscm.debian.org/collab-maint/zsh.git`
+* Cloning via SSH: `git clone -b debian git.debian.org:/git/collab-maint/zsh.git`
+
+The `master` branch in this Git repository is ancient and just exists
+for historical reasons.
+
+Continuous Integration
+----------------------
+
+After every push, zsh packages are built by the Jenkins instance at
+http://jenkins.grml.org/view/Debian/.
+
+### Jenkins-built zsh via APT
+
+You can install the Jenkins-built zsh packages by adding the following
+lines to your `sources.list`:
+
+  deb     http://jenkins.grml.org/debian zsh main
+  deb-src http://jenkins.grml.org/debian zsh main
+
+You will need to import the GPG key of Grml's Jenkins instance into
+APT. See http://jenkins.grml.org/view/Debian/job/zsh-binaries/ for
+instructions and the current key id.
+
+Communication
+-------------
+
+### IRC
+
+Usually all active team members are gathered in #pkg-zsh on Freenode
+(irc.freenode.net).
+
+Feel free to join, but be patient when waiting for answers. May take a
+couple of hours until someone answers -- depending on your timezone
+and the current weekday.
+
+The channel is bi-lingual English and German as (by coincidence) all
+active team members have German as mother tongue. So feel free to ask
+questions in German. We though usually switch to English if someone
+joins the channel who doesn't speak German (well).
+
+### Mailing Lists
+
+The priamry mailing list is pkg-zsh-devel@lists.alioth.debian.org.
+
+* Subscribe/unsubscribe at
+  https://lists.alioth.debian.org/cgi-bin/mailman/listinfo/pkg-zsh-devel
+* Archive at https://lists.alioth.debian.org/pipermail/pkg-zsh-devel/
+
+There's a secondary mailing list to which all git commits are sent to:
+pkg-zsh-commits@lists.alioth.debian.org.
+
+* Subscribe/unsubscribe at
+  https://lists.alioth.debian.org/cgi-bin/mailman/listinfo/pkg-zsh-commits
+* Archive at https://lists.alioth.debian.org/pipermail/pkg-zsh-devel/
+
+ -- Axel Beckert <abe@debian.org>, Wed,  8 Oct 2014 19:30:35 +0200

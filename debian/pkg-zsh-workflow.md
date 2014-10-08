@@ -108,7 +108,7 @@ Import the fix either manually using your favourite editor…
 
 … or by patching:
 
-    % patch -p<n> < ../patch_from_somewhere_else.diff
+    % patch -p$n < ../patch_from_somewhere_else.diff
 
 ##### Cherry-picking patches from upstream
 
@@ -201,7 +201,7 @@ sure that no parts of a quilt patch-queue are still applied.
 
 When a change justifies the release of a new package version, the
 debian/changelog file should be updated and the resulting commit
-should be tagged debian/<zsh-version>-n+1.
+should be tagged `debian/$zsh_version-$n+1`.
 
 
 ### Updating debian/changelog
@@ -356,12 +356,12 @@ You'll be dropped into an editor again to double check the generated
 changelog.
 
 
-### Tag debian/<new-zsh-version>-1
+### Tag debian/$new_zsh_version-1
 
 After fixes for all serious and trivially fixable issues have been
 added and it has been verified that the package builds and 'do-dch'
 has updated `debian/changelog` and the resulting commit should be
-tagged as `debian/<new-zsh-version>-1`.
+tagged as `debian/$new_zsh_version-1`.
 
 
 Generating packages
@@ -400,11 +400,10 @@ get a thusly cloned repository, first get an alioth login and upload
 an ssh-public key. As soon as the key made it to all involved
 machines, use this:
 
-    % git clone -b debian ssh://<user>@git.debian.org/git/collab-maint/zsh.git pkg-zsh
+    % git clone -b debian ssh://$user@git.debian.org/git/collab-maint/zsh.git pkg-zsh
 
-Where '<user>' is your alioth login. (Note, that this may be
-something with a '-guest' suffix, in case you're not a debian
-developer.)
+Where `$user` is your alioth login. (Note, that this may be something
+with a `-guest` suffix, in case you're not a debian developer.)
 
 ### Branches
 

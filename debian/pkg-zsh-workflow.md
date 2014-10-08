@@ -82,52 +82,86 @@ into the 'debian' branch.
 
 Let's say, there is an issue '#12345' which can be fixed by patching
 'Functions/Misc/colors'. Here is how you could add that patch
-(assuming clean git working directory and the topmost patch is
-0002-foo.diff):
+(assuming clean git working directory):
 
-    ## First, add all existing non-debian patches, so the new one is
-    ## added on top.
+First, push all existing patches, so the new one is added on top.
 
     % quilt push -a
 
-    ## Add the new patch (say, the topmost patch is 0002-foo.diff).
-    % quilt new 0003-fix-colors.diff
+Alternatively push the patches one by one (by calling `quilt push`
+multiple times) until you are at the patch queue position where you
+want to insert the patch.
 
-    ## Tell quilt which files are going to be changed.
+##### Adding a patch from a file or by editing
+
+Add the new patch (say, the topmost patch is 0002-foo.diff).
+
+    % quilt new fix-colors.diff
+
+Tell quilt which files are going to be changed.
+
     % quilt add Functions/Misc/colors
 
-    ## Import the fix (manually by editor or by patching).
-    % vi Functions/Misc/colors
+Import the fix either manually using your favourite editor…
 
-    ## Refresh the patch
+    % $EDITOR Functions/Misc/colors
+
+… or by patching:
+
+    % patch -p<n> < ../patch_from_somewhere_else.diff
+
+##### Cherry-picking patches from upstream
+
+When there is an existing patch (e.g. from upstream's git repository),
+the above can be largely automated if the patch applies to the current
+state of the debian branch.
+
+    % git show $commitid > debian/patches/$patchname
+    % echo $patchname >> debian/patches/series
+
+Patches from upstream will likely include changes to the ChangeLog
+file. Those changes will probably not apply cleanly, so just open the
+created patch file and delete all hunks that do changes in ChangeLog.
+
+    % $EDITOR debian/patches/$patchname
+
+Check if the patch applies
+
+    % quilt push
+
+##### Finish import of the patch
+
+Refresh the patch to get rid of any fuzz or offset:
+
     % quilt refresh
 
-    ## Pop all patches again to clean up the upstream source.
+Pop all patches again to clean up the upstream source.
+
     % quilt pop -a
 
-    ## Commit the new patch and the changes 'series' file to git.
-    % git add debian/patches/0003-fix-colors.diff
+Edit the patch headers according to
+[DEP3](http://dep.debian.net/deps/dep3/).
+
+    % $EDITOR debian/patches/$patchname
+
+Commit the new patch and the changed 'series' file to git.
+
+    % git add debian/patches/fix-colors.diff
     % git add debian/patches/series
-    % git commit -a -m'Fixing foo in colors function (Closes: #12345)'
+    % git commit -m 'Fixing foo in colors function (Closes: #12345)'
 
 That's all.
 
+##### Using the patch2quilt script
 
-#### Cherry-picking patches from upstream into quilt
+The `debian/patch2quilt` helper script can automate these tasks, but
+needs to be run from a _clean_ working tree. It's called like this:
 
-When there is an existing patch (e.g. from upstream's git repository),
-the above can be largely automated if the patch applies cleanly to the
-current state of the debian branch.
+    % debian/patch2quilt ../existing.diff new-quilt.diff
 
-The './debian/patch2quilt' helper script takes care of that task. It's
-called like this:
-
-    % ./debian/patch2quilt ../existing.diff 0023-new-quilt.diff
-
-Here "../existing.diff" is the file containing the existing patch and
-"0023-new-quilt.diff" is the name of the to-be-added quilt series
-patch (make sure its nameing is in line with the established
-conventions).
+Here `../existing.diff` is the file containing the existing patch and
+`new-quilt.diff` is the name of the to-be-added quilt series patch
+(make sure its nameing is in line with the established conventions).
 
 The exact operation of the script is described at the top of the
 script file. There are a few things to keep in mind:
@@ -144,11 +178,6 @@ script file. There are a few things to keep in mind:
 * As an extension of the previous point, don't put the existing
   patch you're planing to import into the git working tree. It
   would be wiped away, too.
-
-* Patches from upstream will likely include changes to the ChangeLog
-  file. Those changes will probably not apply cleanly, which will
-  break the scripts execution. Just open the existing patch and delete
-  all hunks that do changes in ChangeLog.
 
 * When the script finishes (after you exit your editor), it will
   suggest how to commit the newly intoduced patch. Season to taste.

@@ -183,20 +183,6 @@ script file. There are a few things to keep in mind:
   suggest how to commit the newly intoduced patch. Season to taste.
 
 
-#### Keeping the local repository clean
-
-Before making changes of any kind, it should be made sure that the
-local repository you are working on is in a clean state. To clean up
-the local repository do this:
-
-     % git clean -xdf
-     % git reset --hard
-
-That will make sure that any non-tracked files are removed and that
-any changes in tracked files are reverted. The latter will also make
-sure that no parts of a quilt patch-queue are still applied.
-
-
 ### Releases
 
 When a change justifies the release of a new package version, the
@@ -470,3 +456,20 @@ Now git will ignore quilt's directory for this repository.
 Unfortunately, this has to be done for each checkout. Luckily, this
 only has an impact for people who want to work on 'pkg-zsh'. Everyone
 else can savely ignore the directory.
+
+
+General Git Hints
+-----------------
+
+### Keeping the local repository clean
+
+Before making changes of any kind, it should be made sure that the
+local repository you are working on is in a clean state. To clean up
+the local repository do this:
+
+     % git clean -xdf
+     % git reset --hard
+
+That will make sure that any non-tracked files are removed and that
+any changes in tracked files are reverted. The latter will also make
+sure that no parts of a quilt patch-queue are still applied.

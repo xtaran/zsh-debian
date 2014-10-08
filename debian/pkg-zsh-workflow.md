@@ -400,14 +400,14 @@ Git repository setup
 Getting the basic pkg-zsh git repository is quite easy. If you want
 a read only clone, use this:
 
-    % git clone git://git.debian.org/collab-maint/zsh.git pkg-zsh
+    % git clone -b debian git://anonscm.debian.org/collab-maint/zsh.git pkg-zsh
 
 If you are reading this, though, you probably want write access. To
 get a thusly cloned repository, first get an alioth login and upload
 an ssh-public key. As soon as the key made it to all involved
 machines, use this:
 
-    % git clone ssh://<user>@git.debian.org/git/collab-maint/zsh.git pkg-zsh
+    % git clone -b debian ssh://<user>@git.debian.org/git/collab-maint/zsh.git pkg-zsh
 
 Where '<user>' is your alioth login. (Note, that this may be
 something with a '-guest' suffix, in case you're not a debian

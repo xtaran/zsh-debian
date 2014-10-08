@@ -1,22 +1,23 @@
 Branches
 ========
 
-* **upstream**: The upstream sources from git://zsh.git.sf.net/gitroot/zsh/zsh.
-* **debian**: The debian changes for the debian 'zsh' package. Only
+* **upstream**: The upstream sources from `git://zsh.git.sf.net/gitroot/zsh/zsh`.
+* **debian**: The debian changes for the debian `zsh` package. Only
   difference to the upstream branch is the `debian` directory.
-* master: This is the old repository's main branch. Only kept for
-  historical reasons.
+* master: This is the _old_ repository's main branch. Only kept for
+  _historical_ reasons.
 * Other branches: These branches are rather optional and not required
-  for basic maintenance for of the 'zsh' package. Most likely feature branches.
+  for basic maintenance for of the `zsh` package. Most likely feature
+  branches.
 
 
 Workflow
 ========
 
 This is a diagram, that outlines the proposed workflow. Basically, the
-'debian' branch walks alongside the 'upstream' branch and upstream
-changes get merged into 'debian' at defined points (for the non-beta
-zsh package, that should be upstream commit tags).
+`debian` branch walks alongside the `upstream` branch and upstream
+changes get merged into `debian` at defined points (for the zsh
+package, that should be upstream commit tags).
 
             * debian/4.3.11-4
             |
@@ -444,15 +445,24 @@ your pkg-zsh repository, do this:
 
 To get updates back into origin/upstream, do this:
 
-    ## Get the latest updates.
+Get the latest updates.
+
     % git fetch zsh.git
-    ## Switch to the local 'upstream' branch for integration.
+
+Switch to the local 'upstream' branch for integration.
+
     % git checkout upstream
-    ## Merge upstream's changes (*).
+
+Merge upstream's changes (*).
+
     % git merge zsh.git/master
-    ## Push the code into pkg-zsh's central repository.
+
+Push the code into pkg-zsh's central repository.
+
     % git push origin
-    ## Make sure the central repository also has all tags.
+
+Make sure the central repository also has all tags.
+
     % git push --tags origin
 
 (*) This step should *always* result in a fast-forward merge. If it

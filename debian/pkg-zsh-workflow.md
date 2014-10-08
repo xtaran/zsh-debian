@@ -363,7 +363,7 @@ available already.
 'git-buildpackage' allows building the package from within the
 package repository:
 
-    % git-buildpackage --debian-branch=debian
+    % git-buildpackage
 
 Make sure that the local repository is cleaned up after doing this
 before working on the package again, to avoid accidentially committing

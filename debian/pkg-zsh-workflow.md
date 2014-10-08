@@ -377,8 +377,8 @@ Generating packages
 
 Alternatively, `git-buildpackage` (short `gbp`) also provides ways of
 building packages from our packaging codebase. And since we are using
-the `gbp dch` command (formerly `git-dhtool (also available asc`) from this utility
-suite anyway, the tool should be available already.
+the `gbp dch` command (formerly `git-dch` tool from this utility suite
+anyway, the tool should be available already.
 
 `git-buildpackage` allows building the package from within the
 package repository and is currently avial

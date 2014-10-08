@@ -14,10 +14,12 @@ Branches
 Workflow
 ========
 
-This is a diagram, that outlines the proposed workflow. Basically, the
-`debian` branch walks alongside the `upstream` branch and upstream
-changes get merged into `debian` at defined points (for the zsh
-package, that should be upstream commit tags).
+This diagram outlines the workflow with git branches and
+tags. Basically, the `debian` branch walks alongside the `upstream`
+branch and upstream changes get merged into `debian` at defined points.
+For the zsh package, this _must_ be upstream commit tags -- otherwise
+Jenkins
+[fails to build the source package](http://jenkins.grml.org/view/Debian/job/zsh-source/219/console).
 
             * debian/4.3.11-4
             |

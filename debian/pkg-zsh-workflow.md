@@ -238,8 +238,8 @@ enforced as follows:
 
 ### Create the fake orig tar ball (until we can work with upstream's tarball)
 
-    % git archive --format=tar --output=../zsh_$version.orig.tar \
-          --prefix=zsh-$version/ zsh-$version
+    % version=5.0.7
+    % git archive --format=tar --output=../zsh_$version.orig.tar --prefix=zsh-$version/ zsh-$version
     % xz -7vf ../zsh_$version.orig.tar
 
 ### Remove all quilt patches which are applied upstream

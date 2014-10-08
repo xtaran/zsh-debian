@@ -48,28 +48,34 @@ Working on the package
 
 ### Changes
 
-Every change to the source (non-debian-dir) should be done by adding
-quilt patches. Permanent patches (patches that would be kept
-in 4.3.12-1) should be named specially (`deb_*` comes to mind).
+Every change to the source (outside the `debian` directory) must be
+done by adding quilt patches.
 
-To keep order for cases in which a vast number of patches are
-required, any quilt patch needs to be numbered according to the order
-in which "quilt series" would list them. The format looks like this:
+#### Patch naming conventions
 
-* NNNN_<name>.diff
-* deb_NNNN_<name>.diff
+* File names of patches which are not meant for upstream should be
+  prefixed with `debian-`.
+* File names of patches which are cherry-picked from upstream should be prefixed
+  with `cherry-pick-$shortcommitid` where `$shortcommitid` are the
+  first 8 characters of the upstream git commit id.
 
-Where 'N' is a digit from 0 to 9. Counting starts at '0000'.
+In case a vast number of patches are required, quilt patches should be
+prefixed by ascending numbers according to the order in which "quilt
+series" would list them.
 
-Debian-specific (i.e. deb_NNNN_<name>.diff) patches should be applied
-after patches targeted towards upstream since the patches targeted for
-upstream should not be against debian-specific code.
+#### Patch format
 
-Every patch should have a short annotation above the actual unified
-diff content, outlining the status of the patch. It is especially
-important to know whether a change is already applied upstream because
-if so, the patch in question must be dropped before merging a new
-upstream release into the 'debian' branch.
+Every patch should have
+[DEP3 conforming patch headers](http://dep.debian.net/deps/dep3/)
+above the actual unified diff content, outlining the status of the
+patch.
+
+Except for the obvious case of a cherry-picked patch from upstream
+(which should contain an `Origin: commit $commitid` header), it is
+important that the fields `Forwarded` and `Applied-Upstream` are kept
+uptodate to know whether a change is already applied upstream.  This
+helps to drop the right patches before merging a new upstream release
+into the 'debian' branch.
 
 
 #### Example of adding a fix via a quilt patch

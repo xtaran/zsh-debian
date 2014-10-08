@@ -242,7 +242,7 @@ linear history again.
 Basically, you after merging the upstream release tag into the debian
 branch, you'll be left with an history that looks something like this:
 
-    *    at2quilt: Updating autotools patches
+    *    Updating autotools patches
     M    Merge commit 'zsh-4.3.13' into debian
     |'*  unposted: released 4.3.13
     | *  …
@@ -257,10 +257,10 @@ branch, you'll be left with an history that looks something like this:
     |'*  unposted: released 4.3.12
     …    older history
 
-And what you really want added to debian/changelog is the "atquilt:
-Updating autotools patches" and the "Removing upstream patches due to
-new release" commits. You need to figure out the sha1 sums of the
-commits and then call this:
+And what you really want added to debian/changelog is the "Updating
+autotools patches" and the "Removing upstream patches due to new
+release" commits. You need to figure out the sha1 sums of the commits
+and then call this:
 
     % debian/bin/urcl -p=zsh -v=4.3.13-1 b495ba1e f575f568
 

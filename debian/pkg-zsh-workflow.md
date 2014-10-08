@@ -88,7 +88,7 @@ Let's say, there is an issue '#12345' which can be fixed by patching
     ## First, add all existing non-debian patches, so the new one is
     ## added on top.
 
-    % quilt push 0002-foo.diff
+    % quilt push -a
 
     ## Add the new patch (say, the topmost patch is 0002-foo.diff).
     % quilt new 0003-fix-colors.diff

@@ -245,17 +245,17 @@ branch, you'll be left with an history that looks something like this:
     *    at2quilt: Updating autotools patches
     M    Merge commit 'zsh-4.3.13' into debian
     |'*  unposted: released 4.3.13
-    | *  ...
-    | *  ... lots of other upstream commits ...
-    | *  ...
+    | *  …
+    | *  … lots of other upstream commits …
+    | *  …
     * |  Removing upstream patches due to new release
     * |  Last debian/4.3.12-* commit
-    * |  ...
-    * |  ... lot's of other debian/4.3.12-* commits
-    * |  ...
+    * |  …
+    * |  … lot's of other debian/4.3.12-* commits
+    * |  …
     M´   Merge commit 'zsh-4.3.12' into debian
     |'*  unposted: released 4.3.12
-    ...  older history
+    …    older history
 
 And what you really want added to debian/changelog is the "atquilt:
 Updating autotools patches" and the "Removing upstream patches due to
@@ -264,8 +264,8 @@ commits and then call this:
 
     % debian/bin/urcl -p=zsh -v=4.3.13-1 b495ba1e f575f568
 
-…where "4.3.13-1" is the version of the upcoming debian package and
-"b495ba1e" and "f575f568" are the sha1 sums of the wanted commits.
+… where `4.3.13-1` is the version of the upcoming debian package and
+`b495ba1e` and `f575f568` are the SHA1 hashsums of the wanted commits.
 
 At the end the script will drop you into an editor pointed at the
 changelog file so you can sanity-check the generated output.
@@ -295,7 +295,7 @@ Ignore"` to the commit command so it doesn't come up in later git-dch
 runs.
 
 
-### Fix outstanding bug
+### Fix outstanding bugs
 
 If *any* outstanding bugs are known, they should be fixed before
 releasing a new package. Obviously, if any of the known bugs are very

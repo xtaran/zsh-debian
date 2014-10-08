@@ -46,7 +46,7 @@ zsh package, that should be upstream commit tags).
 Working on the package
 ----------------------
 
-### Changes
+### Patching upstream code
 
 Every change to the source (outside the `debian` directory) must be
 done by adding quilt patches.

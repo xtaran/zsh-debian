@@ -1,0 +1,30 @@
+Origin: commit 9982ab6fb5266298c056326ed265fc8560202603
+Author: Mikael Magnusson <mikachu@gmail.com>
+Reviewd-by: Axel Beckert <abe@debian.org>
+Description: unposted: ChangeLog entry for 33365
+ This patch is cherry-picked because it actually should belong to
+ 5.0.7 as it adds one missing (and not unimportant) changelog entry
+ for the 5.0.7 release.
+ .
+ This was initially part of the 5.0.7 merge from upstream into debian,
+ but Jenkins insisted on building against the zsh-5.0.7 tag.
+ .
+ We may need to cherry-pick 9982ab6f in the debian branch before
+ merging the zsh-5.0.8 tag.
+
+diff --git a/ChangeLog b/ChangeLog
+index 2d25d1d..969273b 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -2,6 +2,11 @@
+ 
+ 	* unposted: Config/version.mk: 5.0.7
+ 
++2014-10-06  Mikael Magnusson  <mikachu@gmail.com>
++
++	* 33365: Src/exec.c: avoid buffer overflow for very long fds in >&
++	fd syntax.
++
+ 2014-10-06  Peter Stephenson  <p.stephenson@samsung.com>
+ 
+ 	* unposted (discussed offline): README: update description of

@@ -1,34 +1,13 @@
 Branches
 ========
 
-This is a quick overview of the branches that are being used for
-debian's zsh package maintenance. This part does not go into much
-detail on how the workflow works. For details about that, see the
-'Workflow' part below.
-
-upstream
---------
-
-The upstream sources from git://zsh.git.sf.net/gitroot/zsh/zsh.
-
-
-debian
-------
-
-The debian changes for the debian 'zsh' package.
-
-
-others
-------
-
-These branches are rather optional and not required for basic
-maintenance for of the 'zsh' package.
-
-
-master
-------
-
-This is the old repository's main branch. Kept for historical reasons.
+* **upstream**: The upstream sources from git://zsh.git.sf.net/gitroot/zsh/zsh.
+* **debian**: The debian changes for the debian 'zsh' package. Only
+  difference to the upstream branch is the `debian` directory.
+* master: This is the old repository's main branch. Only kept for
+  historical reasons.
+* Other branches: These branches are rather optional and not required
+  for basic maintenance for of the 'zsh' package. Most likely feature branches.
 
 
 Workflow

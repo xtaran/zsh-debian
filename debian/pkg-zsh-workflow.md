@@ -362,23 +362,23 @@ tagged as `debian/$new_zsh_version-1`.
 Generating packages
 -------------------
 
-### git-buildpackage
+### git-buildpackage aka gbp
 
-Alternatively, 'git-buildpackage' also provides ways of building
-packages from our packaging codebase. And since we are using the
-'git-dch' tool from this utility suite anyway, the tool should be
-available already.
+Alternatively, `git-buildpackage` (short `gbp`) also provides ways of
+building packages from our packaging codebase. And since we are using
+the `gbp dch` command (formerly `git-dhtool (also available asc`) from this utility
+suite anyway, the tool should be available already.
 
-'git-buildpackage' allows building the package from within the
-package repository:
+`git-buildpackage` allows building the package from within the
+package repository and is currently avial
 
-    % git-buildpackage
+    % gbp buildpackage
 
 Make sure that the local repository is cleaned up after doing this
 before working on the package again, to avoid accidentially committing
-anything. See "Cleaning up the local repository" above for details.
+anything. See 'Cleaning up the local repository' above for details.
 
-'git-buildpackage' is available as Debian package or from
+`git-buildpackage` is available as Debian package or from
 https://honk.sigxcpu.org/piki/projects/git-buildpackage/
 
 
@@ -388,24 +388,29 @@ Git repository setup
 Getting the basic pkg-zsh git repository is quite easy. If you want
 a read only clone, use this:
 
-    % git clone -b debian git://anonscm.debian.org/collab-maint/zsh.git pkg-zsh
+    % gbp clone git://anonscm.debian.org/collab-maint/zsh.git pkg-zsh
 
 If you are reading this, though, you probably want write access. To
 get a thusly cloned repository, first get an alioth login and upload
 an ssh-public key. As soon as the key made it to all involved
 machines, use this:
 
-    % git clone -b debian ssh://$user@git.debian.org/git/collab-maint/zsh.git pkg-zsh
+    % gbp clone $user@git.debian.org:/git/collab-maint/zsh.git pkg-zsh
 
-Where `$user` is your alioth login. (Note, that this may be something
-with a `-guest` suffix, in case you're not a debian developer.)
+Where `$user` is your Alioth login. (Note, that this may be something
+with a `-guest` suffix, in case you're not a Debian Developer.)
 
 ### Branches
 
 Like described earlier, pkg-zsh development involves two branches;
 'debian' and 'upstream'. The former is checked out by default for
-freshly cloned repositories. To get a local version of the
-'upstream' branch, use:
+freshly cloned repositories.
+
+If you cloned the repository with `gbp clone` as shown above, gbp
+already took care of also creating a local `upstream` branch.
+
+If you didn't, you can get a local version of the `upstream` branch by
+calling
 
     % git checkout -b upstream origin/upstream
 

@@ -93,27 +93,6 @@ if so, the patch in question must be dropped before merging a new
 upstream release into the 'debian' branch.
 
 
-#### Dealing with quilt's .pc directory
-
-When quilt works, it keeps track of what it does in a directory by the
-name `.pc`. This directory will show up in the output of `git status`
-etc. It should *never* *ever* by committed to the git repository at
-any point.
-
-We cannot add the directory to `.gitignore` because we would change
-the zsh source directly instead of via `debian/patches`.
-
-To deal with the directory, there is another git-facility, that we can
-use for fun and profit.
-
-    % echo .pc/ >> .git/info/exclude
-
-Now git will ignore quilt's directory for this repository.
-Unfortunately, this has to be done for each checkout. Luckily, this
-only has an impact for people who want to work on 'pkg-zsh'. Everyone
-else can savely ignore the directory.
-
-
 #### Example of adding a fix via a quilt patch
 
 Let's say, there is an issue '#12345' which can be fixed by patching
@@ -458,3 +437,23 @@ To get updates back into origin/upstream, do this:
 (*) This step should *always* result in a fast-forward merge. If it
 does not, something went terribly wrong. Investigate and fix the
 situation *before* pushing to origin.
+
+### Dealing with quilt's .pc directory
+
+When quilt works, it keeps track of what it does in a directory by the
+name `.pc`. This directory will show up in the output of `git status`
+etc. It should *never* *ever* by committed to the git repository at
+any point.
+
+We cannot add the directory to `.gitignore` because we would change
+the zsh source directly instead of via `debian/patches`.
+
+To deal with the directory, there is another git-facility, that we can
+use for fun and profit.
+
+    % echo .pc/ >> .git/info/exclude
+
+Now git will ignore quilt's directory for this repository.
+Unfortunately, this has to be done for each checkout. Luckily, this
+only has an impact for people who want to work on 'pkg-zsh'. Everyone
+else can savely ignore the directory.

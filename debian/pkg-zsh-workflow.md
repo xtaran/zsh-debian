@@ -154,10 +154,11 @@ That's all.
 
 ##### Using the patch2quilt script
 
-The `debian/patch2quilt` helper script can automate these tasks, but
-needs to be run from a _clean_ working tree. It's called like this:
+The `debian/bin/patch2quilt` helper script can automate these tasks,
+but needs to be run from a _clean_ working tree. It's called like
+this:
 
-    % debian/patch2quilt ../existing.diff new-quilt.diff
+    % debian/bin/patch2quilt ../existing.diff new-quilt.diff
 
 Here `../existing.diff` is the file containing the existing patch and
 `new-quilt.diff` is the name of the to-be-added quilt series patch
@@ -213,7 +214,7 @@ If you absolutely *must* make changelog entries by other means, you
 should make sure that you prefix any resulting commits with
 "[dch-ignore] ", so those commits can be weeded out easily.
 
-There is a helper script "debian/do-dch" which takes care of all
+There is a helper script `debian/bin/do-dch` which takes care of all
 formatting options as well as the "[dch-ignore] " weeding. The
 script should be used unless there is a good reason not to.
 
@@ -290,7 +291,7 @@ Updating autotools patches" and the "Removing upstream patches due to
 new release" commits. You need to figure out the sha1 sums of the
 commits and then call this:
 
-    % ./debian/urcl -p=zsh -v=4.3.13-1 b495ba1e f575f568
+    % debian/bin/urcl -p=zsh -v=4.3.13-1 b495ba1e f575f568
 
 …where "4.3.13-1" is the version of the upcoming debian package and
 "b495ba1e" and "f575f568" are the sha1 sums of the wanted commits.
@@ -342,7 +343,7 @@ patches.
 
 ### Update changelog again for the release
 
-The 'do-dch' helper script should be used to do this. It wraps git-dch
+The `do-dch` helper script should be used to do this. It wraps git-dch
 with appropriate options and weeds out any commits that are prefixed
 with "[dch-ignore] ". All options to the script are turned over to
 git-dch and at least `--since=…` should be used.
@@ -351,7 +352,7 @@ At this particular point the sha1 of the previous initial changelog
 update commit would be a good idea. Also "-R" to tell git-dch to
 prepare the changelog for an actual commit. So:
 
-    % ./debian/do-dch --since=1234deadbeef -R
+    % debian/bin/do-dch --since=1234deadbeef -R
 
 You'll be dropped into an editor again to double check the generated
 changelog.

@@ -18,7 +18,10 @@ the branch `debian`.
 The `master` branch in this Git repository is ancient and just exists
 for historical reasons.
 
-The usual workflow for working on the package is documented in
+Workflow
+--------
+
+The workflow for working on the package is documented in
 `debian/pkg-zsh-workflow.md`.
 
 Continuous Integration
@@ -71,4 +74,4 @@ pkg-zsh-commits@lists.alioth.debian.org.
   https://lists.alioth.debian.org/cgi-bin/mailman/listinfo/pkg-zsh-commits
 * Archive at https://lists.alioth.debian.org/pipermail/pkg-zsh-devel/
 
- -- Axel Beckert <abe@debian.org>, Wed,  8 Oct 2014 20:53:37 +0200
+ -- Axel Beckert <abe@debian.org>, Wed,  8 Oct 2014 23:33:12 +0200

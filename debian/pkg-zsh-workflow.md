@@ -312,13 +312,6 @@ prefix the commit message with "[dch-ignore] " so it doesn't come up
 in later git-dch runs.
 
 
-### Update debian/gbp.conf
-
-The debian/gbp.conf file contains a reference pointing to the upstream
-branch. Therefore the upstream-branch configuration inside
-debian/gbp.conf needs to be adjusted for new upstream releases.
-
-
 ### Fix outstanding bug
 
 If *any* outstanding bugs are known, they should be fixed before

@@ -31,14 +31,6 @@ master
 This is the old repository's main branch. Kept for historical reasons.
 
 
-debian-beta
------------
-
-This could basically do *exactly* the same thing as 'debian' does, but
-just merge more often. Such a branch *could* then be used to keep the
-packaging information for 'zsh-beta'.
-
-
 Workflow
 ========
 
@@ -381,38 +373,6 @@ tagged as `debian/<new-zsh-version>-1`.
 
 Generating packages
 -------------------
-
-### gitpkg
-
-'gitpkg' is a simple tool to help generating packages from debian
-packages which are maintained in the git version control system. It
-works quite well in this workflow. In fact, it works out of the box:
-
-    % gitpkg debian/4.3.12-5 zsh-4.3.12
-
-The first parameter (debian/4.3.12-5) is the debian tag which points
-at the debian package version you want to build. The second parameter
-is the tag of the upstream version of the corresponding upstream
-release (zsh-4.3.12).
-
-Per default, 'gitpkg' generates it's output in '../deb-packages'. This
-location is configurable.
-
-Below directories for individual packages are created and in those,
-data for individual package versions are created. For the above
-example, this would look like this:
-
-    ../deb-packages/zsh/
-    ../deb-packages/zsh/zsh-4.3.12/
-    ../deb-packages/zsh/zsh_4.3.12.orig.tar.gz
-    ../deb-packages/zsh/zsh_4.3.12-5.debian.tar.gz
-    ../deb-packages/zsh/zsh_4.3.12-5.dsc
-
-You may now change to `../deb-packages/zsh/zsh-4.3.12/` and build
-binary package using 'dpkg-buildpackage', 'debuild' or the like.
-
-'gitpkg' is available as Debian package or from
-http://git.debian.org/?p=users/ron/gitpkg.git
 
 ### git-buildpackage
 

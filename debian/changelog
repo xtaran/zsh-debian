@@ -1,13 +1,17 @@
-zsh (5.0.7-1) UNRELEASED; urgency=low
+zsh (5.0.7-1) experimental; urgency=low
 
   * [208bdede] New upstream release
-    + [1c3f90e3] The used upstream tar ball is actually build from commit
-      9982ab6f which is exactly one commit after the zsh-5.0.7 and adds
-      one missing (and not unimportant) changelog entry for the 5.0.7
-      release.
-  + [2d470422] Drop all cherry-picked patches
+    + [2d470422] Drop all cherry-picked patches
+    + Cherry-pick 9982ab6f ("unposted: ChangeLog entry for 33365") as
+      patch as it adds one missing (and not unimportant) changelog entry
+      for the 5.0.7 release.
+  * [a563abd0] Add an initial README.source file
+  * [6696aa79, ff.] Revamp and update packaging workflow documentation and
+    convert it to Markdown.
+  * [97cc54f6] Drop patch2quilt helper script (unused)
+  * [b605fa17] Move all other helper scripts from debian/ to debian/bin/.
 
- -- Axel Beckert <abe@debian.org>  Wed, 08 Oct 2014 01:32:00 +0200
+ -- Axel Beckert <abe@debian.org>  Wed, 08 Oct 2014 23:33:33 +0200
 
 zsh (5.0.6-3) unstable; urgency=medium
 

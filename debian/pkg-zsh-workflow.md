@@ -155,38 +155,6 @@ Commit the new patch and the changed `series` file to git.
 
 That's all.
 
-##### Using the patch2quilt script
-
-The `debian/bin/patch2quilt` helper script can automate these tasks,
-but needs to be run from a _clean_ working tree. It's called like
-this:
-
-    % debian/bin/patch2quilt ../existing.diff new-quilt.diff
-
-Here `../existing.diff` is the file containing the existing patch and
-`new-quilt.diff` is the name of the to-be-added quilt series patch
-(make sure its nameing is in line with the established conventions).
-
-The exact operation of the script is described at the top of the
-script file. There are a few things to keep in mind:
-
-* At the end of successful operation you are dropped into an editor
-  which gives you the opportunity to add annotations at the top of the
-  patch file (like if the patch in question is included upstream
-  already).
-
-* Never *ever* run the script when you got uncommitted changes in the
-  worktree, which you don't plan on losing. The worktree will be
-  cleaned and reset first thing in the script.
-
-* As an extension of the previous point, don't put the existing
-  patch you're planing to import into the git working tree. It
-  would be wiped away, too.
-
-* When the script finishes (after you exit your editor), it will
-  suggest how to commit the newly intoduced patch. Season to taste.
-
-
 ### Releases
 
 When a change justifies the release of a new package version, the

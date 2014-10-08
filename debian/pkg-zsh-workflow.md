@@ -36,9 +36,9 @@ Jenkins
             |   |       |   |           | |   * debian/4.3.13-3
             |   |       |   |           | |   |
             |   |       |   |           | |   |
-          a-b-c-d---e-f-g-h-i-------j-k-l-m-n-o-p   'debian'
+          a-b-c-d---e-f-g-h-i-------j-k-l-m-n-o-p   debian
          /         /               /
-      A-B-C-D-E-F-G-H-I-J-K-L-M-N-O-P-Q             'upstream'
+      A-B-C-D-E-F-G-H-I-J-K-L-M-N-O-P-Q             upstream
         |         |               |
         |         |               |
         |         |               * zsh-4.3.13
@@ -78,13 +78,13 @@ Except for the obvious case of a cherry-picked patch from upstream
 important that the fields `Forwarded` and `Applied-Upstream` are kept
 uptodate to know whether a change is already applied upstream.  This
 helps to drop the right patches before merging a new upstream release
-into the 'debian' branch.
+into the `debian` branch.
 
 
 #### Example of adding a fix via a quilt patch
 
-Let's say, there is an issue '#12345' which can be fixed by patching
-'Functions/Misc/colors'. Here is how you could add that patch
+Let's say, there is an issue _#12345_ which can be fixed by patching
+`Functions/Misc/colors`. Here is how you could add that patch
 (assuming clean git working directory):
 
 First, push all existing patches, so the new one is added on top.
@@ -147,7 +147,7 @@ Edit the patch headers according to
 
     % $EDITOR debian/patches/$patchname
 
-Commit the new patch and the changed 'series' file to git.
+Commit the new patch and the changed `series` file to git.
 
     % git add debian/patches/fix-colors.diff
     % git add debian/patches/series
@@ -191,17 +191,17 @@ script file. There are a few things to keep in mind:
 
 When a change justifies the release of a new package version, the
 debian/changelog file should be updated and the resulting commit
-should be tagged `debian/$zsh_version-$n+1`.
+should be tagged `debian/${zsh_version}-${n+1}`.
 
 
 ### Updating debian/changelog
 
 This file should *not* be updated manually. The changes should be
-inserted by running the 'git-dch' tool from the package
+inserted by running the `git-dch` tool from the package
 `git-buildpackage` before a new release is about to be made.
 
-Changelog entries should be prefixed by a "[hashsum] " string, where
-'hashsum' is a string that represents the first eight characters of
+Changelog entries should be prefixed by a `[$hashsum] ` string, where
+`$hashsum` is a string that represents the first eight characters of
 commit the changelog entry was generated from.
 
 Also, if multiple authors are involved in a changelog entry-set, each
@@ -243,8 +243,8 @@ enforced as follows:
 ### Create the fake orig tar ball (until we can work with upstream's tarball)
 
     % version=5.0.7
-    % git archive --format=tar --output=../zsh_$version.orig.tar --prefix=zsh-$version/ zsh-$version
-    % xz -7vf ../zsh_$version.orig.tar
+    % git archive --format=tar --output=../zsh_${version}.orig.tar --prefix=zsh-${version}/ zsh-$version
+    % xz -7vf ../zsh_${version}.orig.tar
 
 ### Remove all quilt patches which are applied upstream
 
@@ -262,7 +262,7 @@ If old patches were still around, that could lead to conflicts
 when those would be applied during the build process.
 
 The message for the merge commit should be set to "New upstream
-release" to allow `git-dch' to pick it up correctly later. **TODO**:
+release" to allow `git-dch` to pick it up correctly later. **TODO**:
 Doesn't really work.
 
 ### Insert initial changelog for the new upstream release
@@ -322,7 +322,7 @@ releasing a new package. Obviously, if any of the known bugs are very
 hard to fix and the issue is not serious in nature, releasing the
 package with the issue may be more important.
 
-Again, all changes to non 'debian/*' files should be done via quilt
+Again, all changes to non `debian/*` files should be done via quilt
 patches.
 
 
@@ -362,12 +362,12 @@ You'll be dropped into an editor again to double check the generated
 changelog.
 
 
-### Tag debian/$new_zsh_version-1
+### Tag debian/${new_zsh_version}-1
 
 After fixes for all serious and trivially fixable issues have been
-added and it has been verified that the package builds and 'do-dch'
+added and it has been verified that the package builds and `do-dch`
 has updated `debian/changelog` and the resulting commit should be
-tagged as `debian/$new_zsh_version-1`.
+tagged as `debian/${new_zsh_version}-1`.
 
 
 Generating packages
@@ -387,7 +387,7 @@ package repository and is currently avial
 
 Make sure that the local repository is cleaned up after doing this
 before working on the package again, to avoid accidentially committing
-anything. See 'Cleaning up the local repository' above for details.
+anything. See *Cleaning up the local repository* below for details.
 
 `git-buildpackage` is available as Debian package or from
 https://honk.sigxcpu.org/piki/projects/git-buildpackage/
@@ -414,7 +414,7 @@ with a `-guest` suffix, in case you're not a Debian Developer.)
 ### Branches
 
 Like described earlier, pkg-zsh development involves two branches;
-'debian' and 'upstream'. The former is checked out by default for
+`debian` and `upstream`. The former is checked out by default for
 freshly cloned repositories.
 
 If you cloned the repository with `gbp clone` as shown above, gbp
@@ -445,13 +445,13 @@ your pkg-zsh repository, do this:
 
 ### Merging and pushing upstream changes
 
-To get updates back into origin/upstream, do this:
+To get updates back into `origin/upstream`, do this:
 
 Get the latest updates.
 
     % git fetch zsh.git
 
-Switch to the local 'upstream' branch for integration.
+Switch to the local `upstream` branch for integration.
 
     % git checkout upstream
 
@@ -488,7 +488,7 @@ use for fun and profit.
 
 Now git will ignore quilt's directory for this repository.
 Unfortunately, this has to be done for each checkout. Luckily, this
-only has an impact for people who want to work on 'pkg-zsh'. Everyone
+only has an impact for people who want to work on *pkg-zsh*. Everyone
 else can savely ignore the directory.
 
 
@@ -519,4 +519,4 @@ TODO
   handy.
 * `git commit -m 'Something unimportant' -m 'Git-Dch: Ignore'`
 * `export QUILT_PATCHES=debian/patches` should be mentioned under
-  'Repository setup', not under 'Verify that the package builds'
+  *Repository setup*, not under *Verify that the package builds*.

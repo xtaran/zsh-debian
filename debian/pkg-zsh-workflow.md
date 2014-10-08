@@ -495,3 +495,16 @@ the local repository do this:
 That will make sure that any non-tracked files are removed and that
 any changes in tracked files are reverted. The latter will also make
 sure that no parts of a quilt patch-queue are still applied.
+
+
+TODO
+====
+
+* How and when to tag releases → `gbp buildpackage --git-tag` or even
+  `gbp buildpackage --git-tag-only` only after the upload has been
+  uploaded/accepted.
+* How and when to push tags. Debian Perl Group's `dpt push` comes in
+  handy.
+* `git commit -m 'Something unimportant' -m 'Git-Dch: Ignore'`
+* `export QUILT_PATCHES=debian/patches` should be mentioned under
+  'Repository setup', not under 'Verify that the package builds'

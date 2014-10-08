@@ -274,13 +274,25 @@ At this point it would also make sense to add a line like this:
 
     * New upstream release
 
-or something like this if the release fixes outstanding bugs:
+or, if someone explicitly requested a package of this upstream
+release, with mentioning of the according bug report number:
 
-    * New upstream release (Closes: #1234567890)
+    * New upstream release (Closes: #1234567)
 
-When creating a commit with these changelog changes, make sure you
-prefix the commit message with "[dch-ignore] " so it doesn't come up
-in later git-dch runs.
+If the upstream release fixes additional bugs reported in Debian or
+security relevant bugs, the corresponding upstream commits should be
+listed indented by two spaces, together with a short description and
+the according bug report and/or CVE numbers, e.g. like this:
+
+    * New upstream release
+      + [abcdefgh] Fixes foo (Closes: #1234567)
+      + [deadcafe] Adds Completion for bar (Closes: #987654)
+      + [babeabed] Fixes CVE-2014-9876
+
+When creating a commit with these changelog changes, you may want to
+prefix the commit message with `[dch-ignore] ` or add `-m "Git-Dch:
+Ignore"` to the commit command so it doesn't come up in later git-dch
+runs.
 
 
 ### Fix outstanding bug
@@ -488,3 +500,5 @@ TODO
 * `git commit -m 'Something unimportant' -m 'Git-Dch: Ignore'`
 * `export QUILT_PATCHES=debian/patches` should be mentioned under
   *Repository setup*, not under *Verify that the package builds*.
+* `* New upstream release` changelog entries should have the git
+  commit id of the upstream tag.

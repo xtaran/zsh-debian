@@ -228,7 +228,7 @@ When upstream releases a new version, we should follow these steps:
     % git checkout upstream
     % git pull origin
     % git fetch zsh
-    % git merge zsh-$version
+    % git merge --ff-only zsh-$version
 
 If that doesn't do a fast-forward merge, a fast-forward merge can be
 enforced as follows:

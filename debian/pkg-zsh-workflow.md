@@ -223,28 +223,43 @@ Transitioning to a new upstream version
 
 When upstream releases a new version, we should follow these steps:
 
+### Merging new upstream tag (`zsh-$version`) into our upstream branch
 
-### Removing non deb_* quilt patches
+    % git checkout upstream
+    % git pull origin
+    % git fetch zsh
+    % git merge zsh-$version
 
-All non deb_* patches should be removed from 'debian/patches'
-directory, unless they fix an issue that was *not* addressed upstream
-and is therefore missing from upstream's code base.
+If that doesn't do a fast-forward merge, a fast-forward merge can be
+enforced as follows:
 
-If such a change should prove to be required to be kept with the
-package permanently (e.g. because upstream refuses to apply the
-patch), the patch should eventually be renamed to match the `deb_*`
-nameing convention.
+    % git checkout upstream
+    % git reset --hard zsh-$version
 
+### Create the fake orig tar ball (until we can work with upstream's tarball)
 
-### Merging 'upstream' into 'debian'
+    % git archive --format=tar --output=../zsh_$version.orig.tar \
+          --prefix=zsh-$version/ zsh-$version
+    % bzip2 -9v ../zsh_$version.orig.tar
 
-After the 'debian/patches' directory was cleaned up in the
-previous step, merging 'upstream' into 'debian' should generally
-lead to a working package again.
+### Remove all quilt patches which are applied upstream
 
-If old patches were still around, that could lead to conflicts when
-those would be applied during the build process.
+All patches applied should be removed from `debian/patches` directory,
+unless they fix an issue that was *not* addressed upstream and is
+therefore missing from upstream's code base.
 
+### Merging the branch upstream into the branch debian
+
+After the `debian/patches` directory was cleaned up in the previous
+step, merging `upstream` into `debian` should generally lead to a
+working package again.
+
+If old patches were still around, that could lead to conflicts
+when those would be applied during the build process.
+
+The message for the merge commit should be set to "New upstream
+release" to allow `git-dch' to pick it up correctly later. **TODO**:
+Doesn't really work.
 
 ### Insert initial changelog for the new upstream release
 

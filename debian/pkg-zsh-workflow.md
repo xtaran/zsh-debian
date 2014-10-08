@@ -495,8 +495,8 @@ TODO
 * How and when to tag releases → `gbp buildpackage --git-tag` or even
   `gbp buildpackage --git-tag-only` only after the upload has been
   uploaded/accepted.
-* How and when to push tags. Debian Perl Group's `dpt push` comes in
-  handy.
+* How and when to push tags. Debian Perl Group's `dpt push` (from the
+  package `pkg-perl-tools`) comes in handy.
 * `git commit -m 'Something unimportant' -m 'Git-Dch: Ignore'`
 * `export QUILT_PATCHES=debian/patches` should be mentioned under
   *Repository setup*, not under *Verify that the package builds*.

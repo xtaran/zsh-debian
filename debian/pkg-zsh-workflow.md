@@ -240,7 +240,7 @@ enforced as follows:
 
     % git archive --format=tar --output=../zsh_$version.orig.tar \
           --prefix=zsh-$version/ zsh-$version
-    % bzip2 -9v ../zsh_$version.orig.tar
+    % xz -7vf ../zsh_$version.orig.tar
 
 ### Remove all quilt patches which are applied upstream
 

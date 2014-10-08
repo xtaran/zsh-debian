@@ -325,13 +325,21 @@ patches.
 
 ### Verify that the package builds
 
-    % git reset --hard
-    % git clean -xdf
-    % QUILT_PATCHES=debian/patches
-    % export QUILT_PATCHES
-    % quilt push -a
-    % ./configure
-    % make all test
+There are many ways to do this. Important is:
+
+* Use a clean and uptodate Debian Sid chroot (e.g. by using `sbuild`,
+  or `pbuilder` and friends) to make a comprehensive test or for
+  uploading.
+
+  Axel prefers: `pdebuild -j6`
+
+* For a quick sanity check, a simple `dpkg-buildpackage -B` (just
+  builds the architecture-dependent binary packages or a `debuild -uc
+  -us` (builds source and binary packages, runs `lintian` afterwards)
+  may suffice.
+
+* Use `gbp buildpackage` to automatically make sure, you are on the
+  correct branch and that the working directory is clean.
 
 
 ### Update changelog again for the release

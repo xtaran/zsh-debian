@@ -119,7 +119,9 @@ When there is an existing patch (e.g. from upstream's git repository),
 the above can be largely automated if the patch applies to the current
 state of the debian branch.
 
+    % patchname="cherry-pick-$shortcommitid-description-with-dashes"
     % git show $commitid > debian/patches/$patchname
+    % sed -e '1 s/^commit/Origin: commit/' -i debian/patches/$patchname
     % echo $patchname >> debian/patches/series
 
 Patches from upstream will likely include changes to the ChangeLog
